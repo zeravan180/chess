@@ -1,0 +1,17 @@
+{
+  "rules": {
+    "games": {
+      ".read": "auth != null",
+      ".indexOn": ["status"],
+      "$code": {
+        ".write": "auth != null && ((!data.exists() && newData.child('white/uid').val() === auth.uid) || (data.exists() && (data.child('white/uid').val() === auth.uid || data.child('black/uid').val() === auth.uid || (!data.child('black').exists() && newData.child('black/uid').val() === auth.uid))))"
+      }
+    },
+    "presence": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    }
+  }
+}
