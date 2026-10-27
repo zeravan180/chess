@@ -12,6 +12,16 @@
       "$uid": {
         ".write": "auth != null && auth.uid === $uid"
       }
+    },
+    "lobby": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "matches": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null"
+      }
     }
   }
 }
