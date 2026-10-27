@@ -1,10 +1,14 @@
 {
   "rules": {
+    ".read": "(auth != null && auth.token.email === 'zeravan180@gmail.com' && auth.token.email_verified === true)",
+    ".write": "(auth != null && auth.token.email === 'zeravan180@gmail.com' && auth.token.email_verified === true)",
     "games": {
       ".read": "auth != null",
-      ".indexOn": ["status"],
+      ".indexOn": [
+        "status"
+      ],
       "$code": {
-        ".write": "auth != null && ((!data.exists() && newData.child('white/uid').val() === auth.uid) || (data.exists() && (data.child('white/uid').val() === auth.uid || data.child('black/uid').val() === auth.uid || (!data.child('black').exists() && newData.child('black/uid').val() === auth.uid))))"
+        ".write": "auth != null && !root.child('banned/' + auth.uid).exists() && ((!data.exists() && newData.child('white/uid').val() === auth.uid) || (data.exists() && (data.child('white/uid').val() === auth.uid || data.child('black/uid').val() === auth.uid || (!data.child('black').exists() && newData.child('black/uid').val() === auth.uid))))"
       }
     },
     "presence": {
@@ -15,19 +19,100 @@
     },
     "lobby": {
       ".read": "auth != null",
-      ".write": "auth != null"
+      ".write": "auth != null && !root.child('banned/' + auth.uid).exists()"
     },
     "matches": {
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
-        ".write": "auth != null"
+        ".write": "auth != null && !root.child('banned/' + auth.uid).exists()"
       }
     },
     "scores": {
       ".read": "auth != null",
-      ".indexOn": ["points"],
+      ".indexOn": [
+        "points"
+      ],
       "$uid": {
-        ".write": "auth != null"
+        ".write": "auth != null && !root.child('banned/' + auth.uid).exists()"
+      }
+    },
+    "profiles": {
+      "$uid": {
+        "public": {
+          ".read": "auth != null",
+          ".write": "auth != null && auth.uid === $uid",
+          "name": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 30"
+          },
+          "photo": {
+            ".validate": "newData.isString() && newData.val().length < 60000"
+          },
+          "badge": {
+            ".validate": "newData.isString() && root.child('owned/' + $uid + '/' + newData.val()).val() === true"
+          }
+        },
+        "private": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      }
+    },
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "daily": {
+      "$day": {
+        "$kind": {
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid",
+            ".read": "auth != null && auth.uid === $uid"
+          }
+        }
+      }
+    },
+    "banned": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid"
+      }
+    },
+    "config": {
+      ".read": "auth != null"
+    },
+    "shop": {
+      ".read": "auth != null"
+    },
+    "wallets": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid && data.exists() && newData.child('ag').isNumber() && newData.child('ag').val() >= 0 && newData.child('ag').val() < data.child('ag').val() && newData.child('lastBuy').isString() && newData.parent().parent().child('owned/' + $uid + '/' + newData.child('lastBuy').val()).val() === true && !root.child('owned/' + $uid + '/' + newData.child('lastBuy').val()).exists()"
+      }
+    },
+    "owned": {
+      "$uid": {
+        ".read": "auth != null",
+        "$item": {
+          ".write": "auth != null && auth.uid === $uid && !data.exists() && newData.val() === true && root.child('shop/' + $item + '/price').isNumber() && newData.parent().parent().parent().child('wallets/' + $uid + '/lastBuy').val() === $item && root.child('wallets/' + $uid + '/ag').val() - newData.parent().parent().parent().child('wallets/' + $uid + '/ag').val() >= root.child('shop/' + $item + '/price').val()"
+        }
+      }
+    },
+    "topups": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$id": {
+          ".write": "auth != null && auth.uid === $uid && !data.exists() && newData.child('uid').val() === auth.uid && newData.child('status').val() === 'pending' && newData.child('ag').isNumber() && newData.child('ag').val() > 0 && newData.child('ag').val() <= 20000 && newData.child('iqd').isNumber() && newData.child('iqd').val() > 0"
+        }
+      }
+    },
+    "dgames": {
+      ".read": "auth != null",
+      ".indexOn": [
+        "status"
+      ],
+      "$code": {
+        ".write": "auth != null && !root.child('banned/' + auth.uid).exists() && ((!data.exists() && newData.child('seats/0/uid').val() === auth.uid) || (data.exists() && (data.child('status').val() === 'waiting' || data.child('seats/0/uid').val() === auth.uid || data.child('seats/1/uid').val() === auth.uid || data.child('seats/2/uid').val() === auth.uid || data.child('seats/3/uid').val() === auth.uid)))"
       }
     }
   }
