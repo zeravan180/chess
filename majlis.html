@@ -1,0 +1,1315 @@
+<!doctype html>
+<html lang="ku" dir="rtl" translate="no" class="notranslate">
+<head>
+<meta charset="utf-8">
+<meta name="google" content="notranslate">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>مەجلیس · AG Chess and Domino</title>
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#163e36">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;600;800&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: one narrow column: seats, the line of tiles on a felt table, then my hand */
+:root{
+  --bg:#eef1f0; --panel:#ffffff; --fg:#1d2624; --muted:#5f6d6a; --line:#d5dcda;
+  --accent:#c8862a; --accent-fg:#ffffff; --bad:#c94a3c; --good:#2f9e63;
+  --felt:#1f5c4f; --felt2:#174a40; --tile:#fbf8f0; --tile-edge:#cfc6b2; --pip:#1d1a16; --t0:#3b82c4; --t1:#c8862a;
+  --f-ui:"Noto Kufi Arabic","Segoe UI",Tahoma,sans-serif; --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141b1a; --panel:#1d2624; --fg:#e6ecea; --muted:#9aa9a5; --line:#2e3a37;
+  --accent:#e0a04a; --accent-fg:#1a1208; --bad:#e06a5b; --good:#4cc286;
+  --felt:#163f37; --felt2:#0f302a; --tile:#f1ece0; --tile-edge:#bdb39c; --pip:#1d1a16; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141b1a; --panel:#1d2624; --fg:#e6ecea; --muted:#9aa9a5; --line:#2e3a37;
+  --accent:#e0a04a; --accent-fg:#1a1208; --bad:#e06a5b; --good:#4cc286;
+  --felt:#163f37; --felt2:#0f302a; --tile:#f1ece0; --tile-edge:#bdb39c; --pip:#1d1a16; color-scheme:dark}
+[hidden]{display:none!important}
+html,body{min-height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-ui);font-size:15px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 32px}
+.wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+h1{margin:0;font-size:22px;font-weight:800;display:flex;align-items:center;gap:8px}
+h2{margin:0;font-size:15px;font-weight:600;color:var(--muted)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px}
+button,a.btn{font:inherit;border:0;border-radius:8px;padding:10px 16px;cursor:pointer;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button:disabled{opacity:.45;cursor:default}
+.primary{background:var(--accent);color:var(--accent-fg)}
+.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
+.big{font-size:17px;padding:14px 22px;width:100%}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.muted{color:var(--muted);font-size:13px}
+input{font:inherit;font-family:var(--f-mono);letter-spacing:.15em;text-transform:uppercase;padding:9px 12px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);width:9em;direction:ltr;text-align:center}
+.seg{display:grid;gap:6px}
+.seg.c2{grid-template-columns:repeat(2,1fr)} .seg.c3{grid-template-columns:repeat(3,1fr)}
+.seg button{background:var(--bg);color:var(--fg);border:1px solid var(--line);flex-direction:column;gap:0;padding:10px 6px;line-height:1.35}
+.seg button small{font-weight:400;color:var(--muted);font-size:11px}
+.seg button.on{background:var(--accent);color:var(--accent-fg);border-color:transparent}
+.seg button.on small{color:inherit;opacity:.85}
+.me-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.me-chip img{width:24px;height:24px;border-radius:50%;object-fit:cover}
+.ag{font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--accent);color:var(--accent-fg)}
+.code{font-family:var(--f-mono);font-size:28px;letter-spacing:.2em;direction:ltr;color:var(--accent)}
+.seats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.seat{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--panel);min-width:0;position:relative}
+.seat img{width:32px;height:32px;border-radius:50%;object-fit:cover;flex:none;background:var(--line)}
+.seat .nm{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.3}
+.seat .nm b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}
+.seat .nm span{font-size:12px;color:var(--muted)}
+.seat.turn{border:2px solid var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 25%,transparent)}
+.seat.t0{border-inline-start:5px solid var(--t0)} .seat.t1{border-inline-start:5px solid var(--t1)}
+.seat.off{opacity:.55}
+.backs{display:flex;gap:2px;direction:ltr}
+.backs i{width:7px;height:13px;border-radius:2px;background:var(--felt);display:block}
+.status{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;font-size:13px;font-weight:600;border:1px solid var(--line)}
+.pill.turn{background:var(--accent);color:var(--accent-fg);border-color:transparent}
+.pill.bad{background:var(--bad);color:#fff;border-color:transparent}
+.pill.good{background:var(--good);color:#fff;border-color:transparent}
+.table{background:radial-gradient(ellipse at 50% 40%,var(--felt) 0%,var(--felt2) 100%);border-radius:18px;padding:12px;margin-inline:-8px;display:flex;flex-direction:column;gap:8px;box-shadow:inset 0 0 0 3px rgba(0,0,0,.18),0 0 0 5px var(--rim,transparent)}
+#game.wood .table{background:repeating-linear-gradient(8deg,rgba(0,0,0,.08) 0 3px,transparent 3px 14px),radial-gradient(ellipse at 50% 40%,var(--felt) 0%,var(--felt2) 100%)}
+#game.stars .table{background:radial-gradient(1.5px 1.5px at 12% 20%,#fff 50%,transparent 51%),radial-gradient(1.5px 1.5px at 72% 12%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 40% 70%,#fff 50%,transparent 51%),radial-gradient(1.5px 1.5px at 88% 64%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 25% 88%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 60% 40%,#fff 50%,transparent 51%),radial-gradient(ellipse at 50% 40%,var(--felt) 0%,var(--felt2) 100%)}
+.ends{display:flex;justify-content:space-between;align-items:center;color:#e9f2ee;font-size:13px;direction:ltr}
+.ends b{font-family:var(--f-mono);font-size:18px;background:rgba(0,0,0,.25);padding:0 10px;border-radius:6px}
+.chain{direction:ltr;display:flex;flex-direction:column;justify-content:center;align-items:stretch;gap:6px;min-height:min(62vh,420px);padding:10px 4px}
+.crow{display:flex;align-items:center;gap:3px;justify-content:flex-start}
+.crow.rev{flex-direction:row-reverse}
+.chain .empty{color:#cfe2dc;font-size:13px;margin:auto;direction:rtl}
+.tile{display:block;flex:none;filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
+.tile rect.f{fill:var(--tile);stroke:var(--tile-edge);stroke-width:1.5}
+.tile line{stroke:var(--tile-edge);stroke-width:1.6}
+.tile circle{fill:var(--pip)}
+.tile circle.p1{fill:var(--p1,var(--pip))}.tile circle.p2{fill:var(--p2,var(--pip))}.tile circle.p3{fill:var(--p3,var(--pip))}
+.tile circle.p4{fill:var(--p4,var(--pip))}.tile circle.p5{fill:var(--p5,var(--pip))}.tile circle.p6{fill:var(--p6,var(--pip))}
+/* walnut: wooden tiles, inlaid coloured pips, brass bar */
+#game.walnut .tile rect.f{fill:url(#walnutGrad);stroke:#2a170b;stroke-width:2}
+#game.walnut .tile rect.grain{fill:url(#walnutGrain);pointer-events:none}
+#game.walnut .tile line{stroke:#c9a54a;stroke-width:5;stroke-linecap:round}
+#game.walnut .tile circle{stroke:rgba(0,0,0,.55);stroke-width:2.5}
+#game.walnut .tile{filter:drop-shadow(0 3px 3px rgba(0,0,0,.55))}
+/* gold & diamonds: polished gold tiles, sparkling gem pips, glowing table */
+#game.goldlux .tile rect.f{fill:url(#goldGrad);stroke:#7a5418;stroke-width:2.5}
+#game.goldlux .tile rect.shine{fill:url(#goldShine);pointer-events:none}
+#game.goldlux .tile line{stroke:#6e4a12;stroke-width:4;stroke-linecap:round}
+#game.goldlux .tile circle{fill:url(#gemGrad);stroke:#8a6420;stroke-width:2}
+#game.goldlux .tile path.spk{fill:#fffbe8;transform-box:fill-box;transform-origin:center;animation:twinkle 2.4s ease-in-out infinite;pointer-events:none}
+#game.goldlux .tile{filter:drop-shadow(0 0 5px rgba(255,205,110,.55)) drop-shadow(0 3px 3px rgba(0,0,0,.5))}
+#game.goldlux .table{position:relative;box-shadow:inset 0 0 0 3px rgba(0,0,0,.25),0 0 0 4px #ffe6a8,0 0 24px 6px rgba(255,210,130,.75);animation:rimGlow 2.6s ease-in-out infinite}
+#game.goldlux .table::after{content:"";position:absolute;inset:7px;border-radius:13px;border:2px solid rgba(255,238,195,.95);box-shadow:0 0 12px 2px rgba(255,214,140,.85),inset 0 0 12px rgba(255,214,140,.5);pointer-events:none;animation:rimGlow 2.6s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:0;transform:scale(.3) rotate(0)}45%{opacity:1;transform:scale(1) rotate(45deg)}60%{opacity:.9}}
+@keyframes rimGlow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.35)}}
+.tile.new rect.f{fill:#fff3cf}
+.score{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:#e9f2ee}
+.score b{font-family:var(--f-mono)}
+.hand{direction:ltr;display:flex;flex-wrap:wrap;justify-content:center;gap:6px;padding:4px 0}
+.hand button{padding:0;background:none;border-radius:8px;transition:transform .12s}
+.hand button.ok{box-shadow:0 0 0 3px var(--accent);transform:translateY(-4px)}
+.hand button:disabled{opacity:.55}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.actions button{flex:1}
+.side{display:flex;gap:8px}
+.side button{flex:1}
+.over{display:flex;flex-direction:column;gap:8px;align-items:center;text-align:center}
+.over .big-msg{font-size:22px;font-weight:800}
+.reveal{display:flex;flex-direction:column;gap:6px;width:100%}
+.reveal .r{display:flex;align-items:center;gap:8px;flex-wrap:wrap;direction:rtl}
+.reveal .r .hand{justify-content:flex-start;padding:0}
+/* ---- arcade lobby ---- */
+.arcade{margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:18px max(16px,env(safe-area-inset-left,0px)) 22px;border-radius:0 0 22px 22px;
+  background:radial-gradient(ellipse at 50% 0%,#5fd39a 0%,#1f9a68 38%,#0f6b48 100%);display:flex;flex-direction:column;gap:14px;position:relative;overflow:hidden}
+.arcade::before{content:"";position:absolute;inset:-40% -20% auto;height:70%;background:radial-gradient(circle,rgba(255,255,255,.18),transparent 60%);pointer-events:none}
+.logo{position:relative;display:flex;flex-direction:column;align-items:center;gap:0}
+.logo-svg{width:min(320px,86%);height:auto}
+.logo-ku{font-weight:800;font-size:18px;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.35);margin-top:-6px}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;position:relative}
+.cards.small{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.card{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;border-radius:16px;padding:8px 6px 10px;color:#fff;text-decoration:none;
+  font-weight:800;border:0;cursor:pointer;min-width:0;box-shadow:0 6px 0 var(--cs),0 10px 18px rgba(0,0,0,.25),inset 0 2px 0 rgba(255,255,255,.35);transition:transform .1s}
+.card:active{transform:translateY(4px);box-shadow:0 2px 0 var(--cs),0 4px 10px rgba(0,0,0,.25),inset 0 2px 0 rgba(255,255,255,.35)}
+.card .art{display:block;width:100%;aspect-ratio:4/3}
+.cards.small .card .art{aspect-ratio:1/1;width:78%}
+.card .ct{font-size:clamp(14px,4.4vw,19px);text-shadow:0 2px 0 rgba(0,0,0,.3);white-space:nowrap}
+.cards.small .card .ct{font-size:clamp(12px,3.6vw,15px)}
+.c-blue{background:linear-gradient(160deg,#5fe0ff,#139fd6);--cs:#0b6d96}
+.c-purple{background:linear-gradient(160deg,#b9a2f2,#7c5bd6);--cs:#523a9e}
+.c-yellow{background:linear-gradient(160deg,#ffd84d,#f2a90b);--cs:#b67600}
+.c-green{background:linear-gradient(160deg,#a6e85a,#55b52a);--cs:#36801a}
+.c-red{background:linear-gradient(160deg,#ff9a86,#e8584a);--cs:#a8352b}
+.join-row{display:flex;gap:8px;justify-content:center;position:relative;flex-wrap:wrap}
+.join-row input{background:rgba(255,255,255,.92);color:#123;border:0}
+.sheet-back{position:fixed;inset:0;background:rgba(10,15,14,.55);z-index:25;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--panel);width:100%;max-width:560px;border-radius:16px 16px 0 0;display:flex;flex-direction:column;gap:12px;
+  padding:18px max(16px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+@media (prefers-reduced-motion:no-preference){.sheet{animation:up .2s ease-out}}
+@keyframes up{from{transform:translateY(30px);opacity:.4}}
+@media (prefers-reduced-motion:reduce){.card{transition:none}}
+.clock{display:flex;flex-direction:column;gap:4px}
+.clock .ct{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:600}
+.clock .ct b{font-family:var(--f-mono);font-size:20px;min-width:2ch;text-align:center}
+.clock .track{height:8px;border-radius:999px;background:var(--line);overflow:hidden}
+.clock .track i{display:block;height:100%;background:var(--muted);border-radius:inherit;transition:width .25s linear}
+.clock.mine .track i{background:var(--accent)}
+.clock.warn .track i{background:var(--bad)} .clock.warn .ct b{color:var(--bad)}
+.voice{display:flex;gap:8px;align-items:stretch}
+.mic{flex:1;background:var(--good);color:#fff;font-size:16px;padding:14px;user-select:none;-webkit-user-select:none;touch-action:none;-webkit-touch-callout:none}
+.mic.rec{background:var(--bad);box-shadow:0 0 0 4px color-mix(in srgb,var(--bad) 35%,transparent)}
+@media (prefers-reduced-motion:no-preference){.mic.rec{animation:pulse 1s infinite}}
+@keyframes pulse{50%{box-shadow:0 0 0 9px color-mix(in srgb,var(--bad) 10%,transparent)}}
+.seat .talk{position:absolute;top:-8px;inset-inline-end:-6px;font-size:18px}
+.coin{font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;background:#ffd23f;color:#3a2a00}
+.stake{position:relative;display:flex;justify-content:center;gap:8px;flex-wrap:wrap;color:#fff;font-weight:700;font-size:14px;text-shadow:0 1px 0 rgba(0,0,0,.3)}
+.stake span{background:rgba(0,0,0,.22);padding:4px 12px;border-radius:999px}
+.coin-res{font-size:18px;font-weight:800}
+.coin-res.up{color:var(--good)} .coin-res.down{color:var(--bad)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:8px 16px;border-radius:8px;font-size:13px;z-index:20;max-width:90vw}
+@media (prefers-reduced-motion:reduce){.hand button{transition:none}.chain{scroll-behavior:auto}}
+
+/* ===== game-lobby look: green glow, candy buttons, top bar, bottom nav ===== */
+html:root:not([data-zz]){
+  --bg:rgba(0,0,0,.22); --panel:rgba(6,62,40,.62); --fg:#ffffff; --muted:#b8e6cd; --line:rgba(255,255,255,.17);
+  --accent:#ffc928; --accent-fg:#4a2c00; --hl:rgba(255,201,40,.45); --check:#ff5d4d; --bad:#ff6b5b; --good:#3fd17f;
+  color-scheme:dark}
+html{background:#074a2f}
+body{margin:0}
+body[data-view=game] .tb-ic{display:none}
+.stat span{white-space:nowrap;font-size:11.5px}
+body{background:transparent;position:relative;padding-top:0}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(1.5px 1.5px at 18% 22%,rgba(255,255,255,.8) 50%,transparent 51%),radial-gradient(1px 1px at 78% 14%,rgba(255,255,255,.7) 50%,transparent 51%),
+  radial-gradient(1.5px 1.5px at 64% 38%,rgba(255,255,255,.55) 50%,transparent 51%),radial-gradient(1px 1px at 30% 60%,rgba(255,255,255,.5) 50%,transparent 51%),
+  radial-gradient(1px 1px at 86% 70%,rgba(255,255,255,.5) 50%,transparent 51%),
+  radial-gradient(ellipse 110% 55% at 50% 0%,#46d796 0%,#1a9a63 38%,#0d7049 70%,#074a2f 100%)}
+body.has-nav{padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))}
+.panel{background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.02)),var(--panel);border:1px solid var(--line);border-radius:16px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 8px 18px rgba(0,0,0,.18)}
+h2{color:#ffe28a;text-shadow:0 1px 0 rgba(0,0,0,.3)}
+button{border-radius:12px}
+.primary{background:linear-gradient(#ffe270,#ffb703);color:#5a3400;font-weight:800;box-shadow:0 4px 0 #b97500,inset 0 2px 0 rgba(255,255,255,.6);text-shadow:0 1px 0 rgba(255,255,255,.45)}
+.primary:active{transform:translateY(3px);box-shadow:0 1px 0 #b97500,inset 0 2px 0 rgba(255,255,255,.6)}
+.ghost{background:rgba(255,255,255,.10);color:#fff;border:1px solid rgba(255,255,255,.22)}
+.danger{background:linear-gradient(#ff8a7a,#e8473a);color:#fff;box-shadow:0 3px 0 #9e2a20}
+input,select,.field input,.field select,.ad-search{background:rgba(0,0,0,.25);color:#fff;border:1px solid rgba(255,255,255,.2)}
+input::placeholder{color:rgba(255,255,255,.45)}
+option{color:#123;background:#fff}
+.sheet,.promo-box{background:linear-gradient(180deg,#14885a,#0b5c3c);color:#fff;border-top:2px solid rgba(255,255,255,.2)}
+.toast{background:#ffe270;color:#4a2c00;font-weight:700;box-shadow:0 4px 0 #b97500;bottom:calc(112px + env(safe-area-inset-bottom,0px))}
+.ver{color:rgba(255,255,255,.55)}
+.stat,.seat{background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.03)),rgba(6,62,40,.6);border:1px solid var(--line);border-radius:14px}
+.stat b{color:#fff}
+/* top bar */
+.topbar{position:sticky;top:0;z-index:15;display:flex;align-items:center;gap:6px;min-height:60px;
+  margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:calc(8px + env(safe-area-inset-top,0px)) max(10px,env(safe-area-inset-left,0px)) 8px;
+  background:linear-gradient(180deg,#13915f,#0b6a44);border-bottom:2px solid rgba(255,255,255,.14);box-shadow:0 6px 14px rgba(0,0,0,.22)}
+.tb-in{display:flex;align-items:center;gap:6px;flex:1;min-width:0}
+.tb-av{position:relative;flex:none;width:50px;height:50px;border-radius:50%;padding:3px;background:linear-gradient(#8ff5c0,#1aa66a);
+  box-shadow:0 0 0 2px #d8ffe9,0 0 14px rgba(130,255,195,.75);text-decoration:none}
+.tb-av img{display:block;width:44px;height:44px;border-radius:50%;object-fit:cover;background:#c9d6d0}
+.tb-av .lvl{position:absolute;bottom:-5px;inset-inline-end:-7px;min-width:22px;height:24px;display:grid;place-items:center;padding:0 3px;color:#fff;font:800 12px/1 var(--f-mono);
+  background:linear-gradient(#3fae4a,#1e6b28);border:2px solid #ffd54f;clip-path:polygon(50% 0,100% 18%,100% 70%,50% 100%,0 70%,0 18%);border-radius:0}
+.tb-pill{display:flex;align-items:center;justify-content:space-between;gap:2px;flex:1 1 0;min-width:64px;max-width:150px;height:32px;padding:0 3px 0 3px;margin-inline-start:8px;
+  border-radius:999px;background:rgba(0,0,0,.38);box-shadow:inset 0 2px 4px rgba(0,0,0,.35);color:#fff;text-decoration:none;font-weight:800;border:0;cursor:pointer}
+.tb-pill .ic{flex:none;width:32px;height:32px;margin-inline-start:-10px;filter:drop-shadow(0 2px 2px rgba(0,0,0,.4))}
+.tb-pill .ic svg,.tb-ic svg{width:100%;height:100%;display:block}
+.tb-pill b{font:800 12.5px/1 var(--f-mono);letter-spacing:-.04em;direction:ltr;white-space:nowrap;min-width:0;flex:1;text-align:center;overflow:visible}
+.tb-pill .plus{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font:900 18px/1 Arial,sans-serif;font-style:normal;color:#7a4a00;
+  background:linear-gradient(#ffe270,#f5a400);box-shadow:0 2px 0 #a86a00,inset 0 1px 0 rgba(255,255,255,.7)}
+.tb-ic{flex:none;width:36px;height:36px;padding:0;background:none;border:0;display:block;filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
+.tb-ic:active,.tb-pill:active,.tb-av:active{transform:scale(.94)}
+/* bottom nav */
+.bnav{position:fixed;left:0;right:0;bottom:0;z-index:16;display:grid;grid-template-columns:repeat(5,1fr);max-width:560px;margin:0 auto;
+  padding:4px 6px calc(6px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,#13915f,#0a5a3b);
+  border-top:2px solid rgba(255,255,255,.18);border-radius:22px 22px 0 0;box-shadow:0 -8px 18px rgba(0,0,0,.25)}
+.bnav>*{display:flex;flex-direction:column;align-items:center;gap:0;background:none;border:0;padding:0;color:#fff;font:800 13px/1.5 var(--f-ui);text-decoration:none;
+  text-shadow:0 2px 0 rgba(0,0,0,.4);box-shadow:none;cursor:pointer}
+.bnav .bi{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 50% 35%,#22a874,#0b5a3a);
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.14);transition:transform .15s}
+.bnav .bi svg{width:36px;height:36px;filter:drop-shadow(0 2px 1px rgba(0,0,0,.35))}
+.bnav .on .bi{transform:translateY(-12px) scale(1.14);box-shadow:0 0 0 3px #c8ffe1,0 0 20px rgba(150,255,205,.85);background:radial-gradient(circle at 50% 35%,#4fe0a0,#0f7a4f)}
+.bnav .on>span:last-child{margin-top:-10px;color:#fff6c8}
+/* game switcher */
+.gswitch{display:flex;justify-content:center;gap:2px;margin:4px auto 0;padding:5px;border-radius:999px;border:2px solid rgba(255,255,255,.18);background:rgba(0,0,0,.14);width:fit-content;position:relative}
+.gswitch a{display:flex;flex-direction:column;align-items:center;padding:3px 22px;border-radius:999px;color:rgba(255,255,255,.6);font-weight:700;font-size:13px;text-decoration:none;line-height:1.5}
+.gswitch a.on{color:#fff;background:rgba(255,255,255,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.2)}
+.gswitch svg{width:28px;height:28px}
+/* lobby cards */
+.arcade{display:flex;flex-direction:column;gap:14px;position:relative;background:none!important;overflow:visible!important;margin-inline:0!important;padding:0!important}
+.arcade::before{display:none}
+.logo{position:relative;display:flex;flex-direction:column;align-items:center;gap:0;margin-top:6px}
+.logo-svg{width:min(340px,92%);height:auto}
+.logo-ku{font-weight:800;font-size:18px;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.35);margin-top:-14px}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;position:relative}
+.cards.small{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.card{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;border-radius:16px;padding:8px 6px 10px;color:#fff;text-decoration:none;
+  font:inherit;font-weight:800;border:0;cursor:pointer;min-width:0;overflow:hidden;box-shadow:0 6px 0 var(--cs),0 10px 18px rgba(0,0,0,.25),inset 0 2px 0 rgba(255,255,255,.4);transition:transform .1s}
+.card::before{content:"";position:absolute;inset:0;background:radial-gradient(circle,rgba(255,255,255,.16) 1.5px,transparent 2px) 0 0/14px 14px;pointer-events:none}
+.card:active{transform:translateY(4px);box-shadow:0 2px 0 var(--cs),0 4px 10px rgba(0,0,0,.25),inset 0 2px 0 rgba(255,255,255,.4)}
+.card .art{display:block;width:100%;aspect-ratio:4/3;position:relative}
+.cards.small .card .art{aspect-ratio:1/1;width:78%}
+.card .ct{position:relative;font-size:clamp(14px,4.4vw,19px);text-shadow:0 2px 0 rgba(0,0,0,.3);white-space:nowrap}
+.cards.small .card .ct{font-size:clamp(12px,3.6vw,15px)}
+.c-blue{background:linear-gradient(160deg,#5fe0ff,#139fd6);--cs:#0b6d96}
+.c-purple{background:linear-gradient(160deg,#b9a2f2,#7c5bd6);--cs:#523a9e}
+.c-yellow{background:linear-gradient(160deg,#ffd84d,#f2a90b);--cs:#b67600}
+.c-green{background:linear-gradient(160deg,#a6e85a,#55b52a);--cs:#36801a}
+.c-red{background:linear-gradient(160deg,#ff9a86,#e8584a);--cs:#a8352b}
+@media (prefers-reduced-motion:reduce){.card,.bnav .bi{transition:none}}
+
+.join-row input{background:rgba(255,255,255,.92);color:#123;border:0}
+.stake span{background:rgba(0,0,0,.25)}
+.table{box-shadow:inset 0 0 0 3px rgba(0,0,0,.18),0 0 0 5px var(--rim,#0b5a3a),0 10px 22px rgba(0,0,0,.35)}
+.seat.turn{border-color:#ffc928;box-shadow:0 0 0 3px rgba(255,201,40,.35),0 0 14px rgba(255,201,40,.45)}
+.clock .track{background:rgba(0,0,0,.3)}
+
+/* ===== levels 1-100 ===== */
+.tb-av{background:conic-gradient(#ffd54f calc(var(--p,0) * 1%),rgba(255,255,255,.22) 0)}
+.tb-av img{border:2px solid #0b6a44}
+.lvl,.lv-chip,.lvc-badge,.lvup-b{--t1:#3fae4a;--t2:#1e6b28}
+[data-tier="1"]{--t1:#3fa2ff;--t2:#1556b0}
+[data-tier="2"]{--t1:#b07cff;--t2:#5b2bb0}
+[data-tier="3"]{--t1:#ff6b5b;--t2:#a8261b}
+[data-tier="4"]{--t1:#ffd54f;--t2:#b07800}
+[data-tier="5"]{--t1:#7fe6ff;--t2:#7a3bff}
+.tb-av .lvl{background:linear-gradient(var(--t1),var(--t2))}
+.lv-chip{display:inline-block;font:800 10px/1 var(--f-mono);padding:3px 6px;border-radius:6px;background:linear-gradient(var(--t1),var(--t2));color:#fff;
+  border:1px solid #ffd54f;margin-inline:4px;vertical-align:middle;direction:ltr;white-space:nowrap;text-shadow:0 1px 0 rgba(0,0,0,.35)}
+.lvl-card{display:flex;flex-direction:column;gap:8px}
+.lvc-top{display:flex;align-items:center;gap:12px}
+.lvc-badge{flex:none;width:54px;height:60px;display:grid;place-items:center;color:#fff;font:800 22px/1 var(--f-mono);text-shadow:0 2px 0 rgba(0,0,0,.35);
+  background:linear-gradient(var(--t1),var(--t2));clip-path:polygon(50% 0,100% 18%,100% 70%,50% 100%,0 70%,0 18%);box-shadow:inset 0 0 0 3px #ffd54f}
+.lvc-top .t{display:flex;flex-direction:column;min-width:0}
+.lvc-top b{font-size:18px;color:#fff}
+.lvc-bar{height:14px;border-radius:999px;background:rgba(0,0,0,.35);box-shadow:inset 0 2px 3px rgba(0,0,0,.4);overflow:hidden}
+.lvc-bar i{display:block;height:100%;border-radius:inherit;background:linear-gradient(#ffe270,#f5a400);box-shadow:inset 0 1px 0 rgba(255,255,255,.6);transition:width .6s ease-out}
+.lvup{position:fixed;inset:0;z-index:40;display:grid;place-items:center;background:rgba(0,20,10,.6);padding:16px}
+.lvup-box{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;padding:28px 22px 20px;border-radius:22px;max-width:320px;width:100%;
+  background:linear-gradient(180deg,#18a06a,#0b5c3c);border:2px solid rgba(255,255,255,.25);box-shadow:0 20px 40px rgba(0,0,0,.4);color:#fff;text-align:center;animation:pop .45s cubic-bezier(.2,1.6,.4,1)}
+.lvup-box .rays{position:absolute;left:50%;top:70px;width:260px;height:260px;margin:-130px 0 0 -130px;border-radius:50%;pointer-events:none;z-index:0;
+  background:repeating-conic-gradient(rgba(255,230,140,0) 0 8deg,rgba(255,230,140,.55) 11deg,rgba(255,230,140,0) 14deg 24deg);
+  -webkit-mask:radial-gradient(circle,#000 20%,transparent 68%);mask:radial-gradient(circle,#000 20%,transparent 68%);animation:spinr 6s linear infinite}
+.lvup-b{position:relative;width:96px;height:106px;display:grid;place-items:center;font:800 40px/1 var(--f-mono);color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.35);
+  background:linear-gradient(var(--t1),var(--t2));clip-path:polygon(50% 0,100% 18%,100% 70%,50% 100%,0 70%,0 18%);box-shadow:inset 0 0 0 4px #ffd54f}
+.lvup-box b{position:relative;font-size:24px;color:#ffe270;text-shadow:0 2px 0 rgba(0,0,0,.35)}
+.lvup-box span{position:relative}
+.lvup-box button{position:relative;margin-top:6px;min-width:140px}
+@keyframes pop{from{transform:scale(.4);opacity:0}}
+@keyframes spinr{to{transform:rotate(360deg)}}
+
+.langs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.lang-b{padding:9px 4px;font-size:13px;background:rgba(0,0,0,.22);color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:10px;font-weight:700}
+.lang-b.on{background:linear-gradient(#ffe270,#ffb703);color:#5a3400;border-color:transparent;box-shadow:0 3px 0 #b97500}
+.lvc-more{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:13px}
+.lvc-more b{color:#ffe270}
+
+/* ===== living lobby: light beams, bouncing logo, card shine ===== */
+html{overflow-x:hidden}
+html,body{touch-action:pan-y;overscroll-behavior-x:none;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+.arcade{isolation:isolate;overflow-x:clip}
+.card,.logo{max-width:100%}
+.arcade::after{content:"";position:absolute;left:0;right:0;top:-90px;height:660px;z-index:-1;pointer-events:none;transform-origin:50% 0;
+  background:conic-gradient(from 180deg at 50% 0%,transparent 0 146deg,rgba(225,255,238,.15) 152deg,transparent 160deg,rgba(225,255,238,.10) 168deg,transparent 175deg,
+    rgba(225,255,238,.17) 182deg,transparent 190deg,rgba(225,255,238,.10) 197deg,transparent 204deg,rgba(225,255,238,.14) 210deg,transparent 217deg 360deg);
+  -webkit-mask:linear-gradient(#000 25%,transparent 90%);mask:linear-gradient(#000 25%,transparent 90%);animation:beams 6s ease-in-out infinite alternate}
+@keyframes beams{from{transform:rotate(-8deg);opacity:.75}to{transform:rotate(8deg);opacity:1}}
+.logo .lt{transform-box:fill-box;transform-origin:50% 100%;animation:hop 3.4s ease-in-out infinite;animation-delay:calc(var(--i) * .13s)}
+@keyframes hop{0%,58%,100%{transform:none}66%{transform:translateY(-12px) scaleY(1.07)}74%{transform:translateY(0) scale(1.08,.92)}80%{transform:none}}
+.logo .moon{transform-box:fill-box;transform-origin:center;animation:moon 3.4s ease-in-out infinite}
+@keyframes moon{50%{opacity:.55;transform:scale(1.04)}}
+.logo .spk path{transform-box:fill-box;transform-origin:center;animation:twk 2.2s ease-in-out infinite}
+.logo .spk path:nth-child(2){animation-delay:-.6s}.logo .spk path:nth-child(3){animation-delay:-1.2s}.logo .spk path:nth-child(4){animation-delay:-1.7s}
+@keyframes twk{0%,100%{opacity:.2;transform:scale(.5)}50%{opacity:1;transform:scale(1.25) rotate(45deg)}}
+.card::after{content:"";position:absolute;top:-25%;bottom:-25%;left:-70%;width:45%;pointer-events:none;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.55) 50%,transparent);transform:skewX(-18deg);animation:sweep 4.8s ease-in-out infinite;animation-delay:var(--d,0s)}
+@keyframes sweep{0%{left:-70%}30%,100%{left:135%}}
+.cards .card:nth-child(2){--d:.5s}.cards.small .card:nth-child(1){--d:1.2s}.cards.small .card:nth-child(2){--d:1.6s}.cards.small .card:nth-child(3){--d:2s}
+.card .art>svg{animation:bob 3s ease-in-out infinite}
+.cards .card:nth-child(2) .art>svg{animation-delay:-1s}.cards.small .card:nth-child(2) .art>svg{animation-delay:-2s}
+@keyframes bob{50%{transform:translateY(-5px)}}
+.art .vs{transform-box:fill-box;transform-origin:center;animation:vs 1.4s ease-in-out infinite}
+@keyframes vs{50%{transform:scale(1.14);filter:drop-shadow(0 0 6px #fff3b0)}}
+.art .beat{transform-box:fill-box;transform-origin:center;animation:beat 1.2s ease-in-out infinite}
+@keyframes beat{0%,100%{transform:scale(1)}15%{transform:scale(1.2)}30%{transform:scale(1)}45%{transform:scale(1.12)}}
+.bnav .on .bi{animation:navGlow 2s ease-in-out infinite}
+@keyframes navGlow{50%{box-shadow:0 0 0 3px #c8ffe1,0 0 30px rgba(150,255,205,1)}}
+.tb-pill .ic svg{animation:coinFlip 5s ease-in-out infinite}
+.tb-pill+.tb-pill .ic svg{animation-delay:-2.5s}
+@keyframes coinFlip{0%,80%,100%{transform:none}90%{transform:perspective(80px) rotateY(180deg)}}
+.tb-av{animation:avGlow 2.6s ease-in-out infinite}
+@keyframes avGlow{50%{box-shadow:0 0 0 2px #d8ffe9,0 0 22px rgba(130,255,195,1)}}
+
+/* robot (offline) card */
+.card.wide{flex-direction:row;justify-content:flex-start;gap:10px;padding:8px 14px;min-height:92px}
+.card.wide .art{width:96px;flex:none;aspect-ratio:4/3}
+.card.wide .ct{display:flex;flex-direction:column;align-items:flex-start;gap:0;line-height:1.35;white-space:normal;text-align:start}
+.card.wide .ct small{font-size:12px;font-weight:700;opacity:.92}
+.c-teal{background:linear-gradient(160deg,#6ff0d2,#13a888);--cs:#0b7a62}
+.art .bob2{animation:bob 2.2s ease-in-out infinite}
+.art .eye{transform-box:fill-box;transform-origin:center;animation:blinkEye 3.6s infinite}
+@keyframes blinkEye{0%,92%,100%{transform:none}95%{transform:scaleY(.1)}}
+.art .blink{animation:blinkLed 1s steps(2) infinite}
+@keyframes blinkLed{50%{opacity:.25}}
+.guest-bot{margin-top:4px}
+
+.botgame .voice{display:none!important}
+
+/* ===== majlis: chat rooms ===== */
+.wrap{max-width:560px}
+.tin{background:rgba(0,0,0,.25);color:#fff;border:1px solid rgba(255,255,255,.2);font:inherit;font-family:var(--f-ui);letter-spacing:0;text-transform:none;text-align:start;direction:auto;width:100%;box-sizing:border-box;padding:11px 12px;border-radius:12px}
+textarea.tin{resize:vertical;min-height:70px}
+.rtabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;border-radius:999px;background:rgba(0,0,0,.2)}
+.rtabs button{background:none;color:rgba(255,255,255,.7);font-weight:800;padding:9px 4px;border-radius:999px;box-shadow:none}
+.rtabs button.on{background:linear-gradient(#22b97a,#0f7a4f);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.25)}
+.quick{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.qk{position:relative;overflow:hidden;display:flex;align-items:center;gap:8px;min-height:64px;padding:10px 12px;border-radius:16px;color:#fff;font-weight:800;font-size:15px;text-align:start;
+  box-shadow:0 5px 0 var(--cs),0 8px 14px rgba(0,0,0,.2),inset 0 2px 0 rgba(255,255,255,.4)}
+.qk .ic{font-size:28px;filter:drop-shadow(0 2px 2px rgba(0,0,0,.3));animation:bob 2.6s ease-in-out infinite}
+.qk .ct{text-shadow:0 2px 0 rgba(0,0,0,.25)}
+.qk::after{content:"";position:absolute;top:-30%;bottom:-30%;left:-70%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.5),transparent);transform:skewX(-18deg);animation:sweep 5s ease-in-out infinite}
+.qk:active{transform:translateY(3px)}
+.sec-h{display:flex;justify-content:space-between;align-items:center;font-weight:800;color:#fff;font-size:16px}
+.rooms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.rcard{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:0;border-radius:16px;overflow:hidden;background:#e9fff4;color:#123;text-align:start;padding:0;border:3px solid rgba(255,255,255,.85);box-shadow:0 6px 14px rgba(0,0,0,.25);font-weight:400}
+.rcard .cv{position:relative;display:grid;width:100%;aspect-ratio:1/1;background:linear-gradient(135deg,#3fd17f,#139fd6);display:grid;place-items:center;font-size:48px;overflow:hidden}
+.rcard .cv img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.rcard .on{position:absolute;top:8px;inset-inline-start:8px;display:flex;align-items:center;gap:5px;padding:4px 9px;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;font:800 13px/1 var(--f-mono)}
+.rcard .lock{position:absolute;top:8px;inset-inline-end:8px;font-size:16px;background:rgba(0,0,0,.45);border-radius:999px;padding:3px 6px}
+.eqz{display:inline-flex;align-items:flex-end;gap:2px;height:12px}
+.eqz i{display:block;width:3px;height:100%;background:#5ff2c0;border-radius:2px;animation:eqb 1s ease-in-out infinite;transform-origin:bottom}
+.eqz i:nth-child(2){animation-delay:-.4s}.eqz i:nth-child(3){animation-delay:-.7s}
+@keyframes eqb{0%,100%{transform:scaleY(.3)}50%{transform:scaleY(1)}}
+.rcard .tx{display:flex;flex-direction:column;gap:1px;padding:8px 10px;min-width:0}
+.rcard b{font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rcard small{font-size:12px;color:#4a6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rcard small.ds{color:#567}
+.rm-head{position:relative;min-height:128px;border-radius:18px;overflow:hidden;padding:12px;display:flex;flex-direction:column;justify-content:space-between;gap:8px;
+  background:linear-gradient(135deg,#3fd17f,#139fd6) center/cover no-repeat;color:#fff;box-shadow:0 8px 18px rgba(0,0,0,.25)}
+.rm-head::before{content:"";position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,.15),rgba(0,0,0,.75))}
+.rm-head>*{position:relative}
+.rm-top{display:flex;justify-content:space-between;gap:6px}
+.rm-top .row{gap:6px}
+.rm-ib{width:40px;height:40px;padding:0;border-radius:50%;background:rgba(0,0,0,.4);color:#fff;font-size:18px;border:1px solid rgba(255,255,255,.25);box-shadow:none}
+.rm-title b{font-size:20px;display:block;text-shadow:0 2px 4px rgba(0,0,0,.5)}
+.rm-title span{font-size:12px;opacity:.9}
+.rm-sub{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:12px}
+.rm-sub span{background:rgba(0,0,0,.4);padding:3px 9px;border-radius:999px}
+.rm-acts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.people{display:flex;gap:8px;overflow-x:auto;padding:4px 2px;scrollbar-width:none}
+.rm-p{display:flex;flex-direction:column;align-items:center;gap:2px;width:60px;flex:none;padding:0;background:none;box-shadow:none;color:#fff;font-size:11px;font-weight:700}
+.rm-p span{max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rm-p img{width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid #8ff5c0;background:#c9d6d0;transition:box-shadow .2s}
+.rm-p.talk img{border-color:#ffd54f;box-shadow:0 0 0 3px rgba(255,213,79,.6),0 0 16px #ffd54f}
+.chat{height:calc(100dvh - 500px);min-height:240px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:10px;border-radius:16px;background:rgba(0,0,0,.22);box-shadow:inset 0 2px 8px rgba(0,0,0,.25)}
+.msg{display:flex;gap:7px;align-items:flex-start;max-width:90%}
+.msg.mine{align-self:flex-end;flex-direction:row-reverse}
+.msg>img{width:32px;height:32px;border-radius:50%;object-fit:cover;flex:none;background:#c9d6d0}
+.bub{background:#fff;color:#123;border-radius:14px;padding:6px 10px;min-width:0;box-shadow:0 2px 4px rgba(0,0,0,.15)}
+.msg.mine .bub{background:#dcfcd0}
+.bub .nm{font-size:11px;font-weight:800;color:#0b6d96;display:flex;align-items:center;gap:2px}
+.bub .tx{white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px;line-height:1.5}
+.bub .meta{display:flex;justify-content:flex-end;align-items:center;gap:4px;font:11px/1 var(--f-mono);color:#789;margin-top:2px}
+.bub .more{background:none;border:0;padding:0 4px;color:#789;font-size:16px;box-shadow:none;line-height:1}
+.vc{display:flex;align-items:center;gap:8px;min-width:170px}
+.vc .play{width:34px;height:34px;padding:0;border-radius:50%;background:linear-gradient(#22b97a,#0f7a4f);color:#fff;font-size:14px;box-shadow:none;flex:none}
+.vc .wave{display:flex;align-items:center;gap:2px;height:24px;flex:1}
+.vc .wave i{display:block;width:3px;border-radius:2px;background:#22b97a;opacity:.7}
+.vc .dur{font:11px/1 var(--f-mono);color:#567;white-space:nowrap}
+.bar{display:flex;gap:6px;align-items:center}
+.bar .tin{flex:1;min-width:0;background:#fff;color:#123;border:0}
+.bar .ibtn{width:46px;height:46px;flex:none;padding:0;border-radius:50%;font-size:18px}
+.mic{width:58px;height:58px;flex:none;padding:0;border-radius:50%;font-size:24px;color:#fff;background:linear-gradient(#5ff2c0,#13a888);box-shadow:0 4px 0 #0b7a62;
+  touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.mic.rec{background:linear-gradient(#ff8a7a,#e8473a);box-shadow:0 0 0 6px rgba(255,90,74,.35);animation:recPulse 1s infinite}
+@keyframes recPulse{50%{box-shadow:0 0 0 12px rgba(255,90,74,.12)}}
+.rec-info{text-align:center;font:800 14px/1 var(--f-mono);color:#ffb3a8}
+.cover-pick{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.cover-pick img{width:84px;height:84px;border-radius:14px;object-fit:cover}
+.filebtn{display:inline-flex;align-items:center;gap:6px;cursor:pointer;padding:10px 14px;border-radius:12px;font-weight:700}
+.ban-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}
+.sheet .big{width:100%}
+.bar .tin::placeholder{color:#7a8a90}
+html[dir="ltr"] #rmBack{transform:scaleX(-1)}
+
+/* ---- voice room with seats ---- */
+body.inroom::before{background:linear-gradient(rgba(0,20,15,.35),rgba(0,10,8,.82)),var(--roomBg,radial-gradient(ellipse 110% 55% at 50% 0%,#46d796 0%,#1a9a63 38%,#0d7049 70%,#074a2f 100%)) center/cover no-repeat}
+.rm-bar1{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.rm-info{display:flex;align-items:center;gap:8px;min-width:0;padding:5px 12px 5px 5px;border-radius:999px;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.18)}
+.rm-info img{width:44px;height:44px;border-radius:12px;object-fit:cover;background:linear-gradient(135deg,#3fd17f,#139fd6);flex:none}
+.rm-info .t{display:flex;flex-direction:column;min-width:0;line-height:1.3}
+.rm-info b#rmName{font-size:15px;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:44vw}
+.rm-info .t>span{font-size:11px;color:#cfe;white-space:nowrap}
+.rm-tools{display:flex;gap:6px;flex:none}
+.aud{display:flex;align-items:center;gap:8px}
+.aud-n{flex:none;display:flex;align-items:center;gap:4px;background:rgba(0,0,0,.4);color:#fff;border-radius:999px;padding:6px 10px;font-size:13px}
+.aud .people{flex:1;min-width:0}
+.aud .rm-p{width:44px}.aud .rm-p img{width:36px;height:36px}.aud .rm-p span{display:none}
+.seats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px 6px;padding:6px 0}
+.seat-b{display:flex;flex-direction:column;align-items:center;gap:3px;padding:0;background:none;border:0;box-shadow:none;color:#fff;min-width:0;font-size:12px;font-weight:800}
+.seat-b .ring{position:relative;width:min(16vw,62px);aspect-ratio:1;border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(circle at 50% 35%,rgba(255,255,255,.28),rgba(255,255,255,.08));border:2px solid rgba(255,255,255,.35);box-shadow:inset 0 2px 6px rgba(255,255,255,.2),0 4px 10px rgba(0,0,0,.25)}
+.seat-b .ring svg{width:46%;height:46%;color:rgba(255,255,255,.85)}
+.seat-b .ring img{width:100%;height:100%;border-radius:50%;object-fit:cover;background:#c9d6d0}
+.seat-b.on .ring{border-color:#d8ffe9}
+.seat-b .mute{position:absolute;bottom:-4px;inset-inline-end:-4px;width:22px;height:22px;border-radius:50%;background:#e8473a;display:grid;place-items:center;font-size:11px;border:2px solid #fff}
+.seat-b .link{position:absolute;top:-4px;inset-inline-end:-4px;width:22px;height:22px;border-radius:50%;background:#ffb703;color:#5a3400;display:grid;place-items:center;font-size:12px;font-weight:900;border:2px solid #fff}
+.seat-b .link.wait{background:#9ad;color:#fff}
+.seat-b .own{position:absolute;top:-8px;inset-inline-start:-4px;font-size:16px}
+.seat-b.speak .ring{border-color:#ffd54f;box-shadow:0 0 0 3px rgba(255,213,79,.55),0 0 18px #ffd54f}
+.seat-b.speak .ring::after{content:"";position:absolute;inset:-8px;border-radius:50%;border:2px solid rgba(255,213,79,.6);animation:ripple 1s ease-out infinite}
+@keyframes ripple{from{transform:scale(.9);opacity:1}to{transform:scale(1.25);opacity:0}}
+.seat-b .nm{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-shadow:0 1px 2px rgba(0,0,0,.6)}
+.seat-b.mine .ring{border-color:#5ff2c0}
+.chat .notice{align-self:stretch;background:rgba(0,0,0,.35);color:#9ff0c8;border-radius:12px;padding:8px 10px;font-size:13px}
+.chat .notice:empty{display:none}
+.mic.live{background:linear-gradient(#ffe270,#ffb703);color:#5a3400;box-shadow:0 4px 0 #b97500}
+.mic.live svg{width:26px;height:26px}
+.mic.live.off{background:linear-gradient(#ff8a7a,#e8473a);color:#fff;box-shadow:0 4px 0 #9e2a20}
+
+/* ===== room themes (bought in the shop, used in the Majlis) ===== */
+.fx{position:absolute;inset:0;overflow:hidden;pointer-events:none;--fxh:110vh}
+.fx i{position:absolute;font-style:normal;line-height:1;opacity:0;will-change:transform,opacity;text-shadow:0 0 6px currentColor}
+.fx.up i{bottom:-6%;animation:fxUp linear infinite}
+.fx.down i{top:-6%;animation:fxDown linear infinite}
+.fx.tw i{animation:fxTw ease-in-out infinite}
+@keyframes fxUp{0%{transform:translate(0,0) scale(.6);opacity:0}10%{opacity:.95}90%{opacity:.8}100%{transform:translate(var(--sx),calc(-1 * var(--fxh))) scale(1.05);opacity:0}}
+@keyframes fxDown{0%{transform:translate(0,0) rotate(0);opacity:0}10%{opacity:.95}90%{opacity:.8}100%{transform:translate(var(--sx),var(--fxh)) rotate(200deg);opacity:0}}
+@keyframes fxTw{0%,100%{opacity:.1;transform:scale(.6)}50%{opacity:1;transform:scale(1.15)}}
+.rt .ring{border-color:var(--rc)!important;background:var(--rb)!important;box-shadow:0 0 14px var(--rg),inset 0 2px 6px rgba(255,255,255,.3)!important;isolation:isolate}
+.rt .ring::before{content:"";position:absolute;inset:-5px;border-radius:50%;z-index:-1;pointer-events:none;
+  -webkit-mask:radial-gradient(circle,transparent 63%,#000 65%);mask:radial-gradient(circle,transparent 63%,#000 65%)}
+.rt-ocean{--rc:#7fdcff;--rg:rgba(95,211,255,.7);--rb:radial-gradient(circle at 50% 30%,rgba(160,230,255,.5),rgba(0,80,150,.45))}
+.rt-rose{--rc:#ff8fb8;--rg:rgba(255,110,170,.75);--rb:radial-gradient(circle at 50% 30%,rgba(255,190,215,.5),rgba(160,20,80,.45))}
+.rt-night{--rc:#b9a2ff;--rg:rgba(160,130,255,.75);--rb:radial-gradient(circle at 50% 30%,rgba(190,170,255,.45),rgba(40,20,110,.55))}
+.rt-snow{--rc:#ffffff;--rg:rgba(220,240,255,.9);--rb:radial-gradient(circle at 50% 30%,rgba(255,255,255,.6),rgba(150,200,240,.4))}
+.rt-fire{--rc:#ffb347;--rg:rgba(255,120,30,.9);--rb:radial-gradient(circle at 50% 70%,rgba(255,170,60,.55),rgba(150,20,0,.5))}
+.rt-fire .ring{animation:flick 1.4s ease-in-out infinite}
+@keyframes flick{50%{box-shadow:0 0 22px rgba(255,90,0,1),inset 0 2px 6px rgba(255,255,255,.3)}}
+.rt-galaxy{--rc:transparent;--rg:rgba(190,140,255,.8);--rb:radial-gradient(circle at 50% 30%,rgba(210,180,255,.4),rgba(30,10,80,.6))}
+.rt-galaxy .ring::before{background:conic-gradient(#ff5f6d,#ffc371,#fffb7d,#5effa0,#4fd8ff,#7a5cff,#ff5fd2,#ff5f6d);animation:spinr 3s linear infinite}
+.rt-gold{--rc:transparent;--rg:rgba(255,200,70,.85);--rb:radial-gradient(circle at 50% 30%,rgba(255,236,170,.5),rgba(120,70,0,.5))}
+.rt-gold .ring::before{background:conic-gradient(#fff3b0,#e2a400,#fff7d0,#b97a00,#ffe27a,#fff3b0);animation:spinr 4s linear infinite}
+.rt-diamond{--rc:transparent;--rg:rgba(150,240,255,.95);--rb:radial-gradient(circle at 50% 30%,rgba(230,255,255,.6),rgba(30,90,140,.5))}
+.rt-diamond .ring::before{background:conic-gradient(#e0ffff,#7fe8ff,#ffffff,#b39dff,#9ff3ff,#ffd6f5,#e0ffff);animation:spinr 2.5s linear infinite}
+.rt-diamond .ring::after{content:"";position:absolute;inset:-18px;border-radius:50%;z-index:-2;pointer-events:none;
+  background:repeating-conic-gradient(rgba(180,245,255,0) 0 10deg,rgba(180,245,255,.55) 13deg,rgba(180,245,255,0) 16deg 30deg);
+  -webkit-mask:radial-gradient(circle,#000 30%,transparent 70%);mask:radial-gradient(circle,#000 30%,transparent 70%);animation:spinr 6s linear infinite}
+.rtp{position:relative;overflow:hidden;border-radius:12px;aspect-ratio:2/1;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at 50% 0%,#1d6b52,#082a20)}
+.rtp .fx{--fxh:200px}
+.rtp .mini{position:relative;display:grid;grid-template-columns:repeat(5,auto);gap:4px}
+.rtp .ring{position:relative;display:grid;place-items:center;width:20px;aspect-ratio:1;border-radius:50%;border:2px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12)}
+.rtp .ring svg{width:50%;height:50%;color:rgba(255,255,255,.85)}
+.rtp .ring::after{inset:-9px}
+
+/* ---- gifts ---- */
+.gbtn{width:46px;height:46px;flex:none;padding:0;border-radius:50%;font-size:22px;background:linear-gradient(#ff8fb8,#e8457a);box-shadow:0 4px 0 #a32456;color:#fff}
+.gbtn .bob{display:inline-block;animation:bob 1.6s ease-in-out infinite}
+.gsheet{max-height:86vh;overflow:auto}
+.gsheet>*,.sheet>*{flex-shrink:0}
+.gto{display:flex;flex-wrap:wrap;gap:8px;padding:4px 2px;min-height:20px}
+.gto button{display:flex;flex-direction:column;align-items:center;gap:2px;width:60px;flex:none;padding:4px 0;background:none;box-shadow:none;color:#fff;font-size:11px;border:0;border-radius:12px}
+.gto button img{width:44px;height:44px;border-radius:50%;object-fit:cover;border:3px solid transparent;background:#c9d6d0}
+.gto button.on img{border-color:#ffd54f;box-shadow:0 0 12px #ffd54f}
+.gto button span{max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ggrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.ggrid button{display:flex;flex-direction:column;align-items:center;gap:0;padding:8px 2px;border-radius:14px;background:rgba(0,0,0,.25);border:2px solid transparent;color:#fff;box-shadow:none;font-weight:700}
+.ggrid button.on{border-color:#ffd54f;background:rgba(255,213,79,.18)}
+.ggrid .ge{font-size:30px;line-height:1.2;filter:drop-shadow(0 3px 3px rgba(0,0,0,.35))}
+.ggrid small{font-size:11px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ggrid b{font:800 12px/1.3 var(--f-mono);color:#ffe270}
+.ghint{color:#ffe270;font-size:13px;font-weight:700}
+.gbal{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:800}
+.gbal b{font-family:var(--f-mono);color:#ffe270}
+.msg.gift .bub{background:linear-gradient(135deg,#fff3c4,#ffd1e6);border:2px solid #ffd54f}
+.gline{display:flex;align-items:center;gap:6px;font-weight:800;color:#7a2a50;flex-wrap:wrap}
+.gline .ge{font-size:30px}
+.gfx{position:fixed;inset:0;z-index:30;pointer-events:none;display:grid;place-items:center}
+.gfx .rays{position:absolute;width:150vmin;height:150vmin;border-radius:50%;background:repeating-conic-gradient(rgba(255,230,140,0) 0 8deg,rgba(255,230,140,.4) 11deg,rgba(255,230,140,0) 14deg 24deg);
+  -webkit-mask:radial-gradient(circle,#000 10%,transparent 60%);mask:radial-gradient(circle,#000 10%,transparent 60%);animation:spinr 6s linear infinite}
+.gfx .big{position:relative;font-size:min(42vw,190px);line-height:1;filter:drop-shadow(0 10px 20px rgba(0,0,0,.45));animation:gpop 3.2s cubic-bezier(.2,1.4,.4,1) forwards}
+.gfx .ban{position:absolute;bottom:22vh;max-width:90vw;padding:10px 18px;border-radius:999px;background:linear-gradient(90deg,#e8457a,#ffb703);color:#fff;font-weight:800;font-size:16px;
+  text-align:center;box-shadow:0 6px 18px rgba(0,0,0,.35);animation:gban 3.2s ease forwards}
+@keyframes gpop{0%{transform:scale(.1) rotate(-30deg);opacity:0}15%{transform:scale(1.15) rotate(6deg);opacity:1}25%{transform:scale(1) rotate(0)}80%{transform:scale(1) translateY(-10px);opacity:1}100%{transform:scale(.6) translateY(-40vh);opacity:0}}
+@keyframes gban{0%{transform:translateY(40px);opacity:0}15%,80%{transform:none;opacity:1}100%{opacity:0}}
+.gfx .cf{position:absolute;font-size:22px;animation:gcf 2.4s ease-out forwards}
+@keyframes gcf{0%{transform:translate(0,0) scale(.4);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(1.2) rotate(240deg);opacity:0}}
+#fx{position:fixed;inset:0;z-index:-1}
+.theme-pick{display:flex;gap:8px;overflow-x:auto;padding:4px 2px}
+.theme-pick button{flex:none;width:110px;display:flex;flex-direction:column;gap:4px;padding:6px;border-radius:12px;background:rgba(0,0,0,.25);border:2px solid transparent;color:#fff;box-shadow:none;font-size:12px;font-weight:700}
+.theme-pick button.on{border-color:#ffd54f}
+.theme-pick .rtp{aspect-ratio:16/9}
+
+.tap{cursor:pointer}
+.earn-tot{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.earn-tot div{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 4px;border-radius:14px;background:rgba(0,0,0,.25)}
+.earn-tot b{font:800 18px/1.2 var(--f-mono);color:#ffe270}
+.earn-tot span{font-size:11px;color:var(--muted)}
+.earn-big{display:flex;flex-direction:column;align-items:center;gap:2px;padding:14px;border-radius:16px;background:linear-gradient(135deg,rgba(255,213,79,.25),rgba(232,69,122,.2));border:1px solid rgba(255,213,79,.4)}
+.earn-big b{font:800 28px/1.2 var(--f-mono);color:#ffe270}
+.earn-split{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;font-size:13px}
+.earn-split span{background:rgba(0,0,0,.25);padding:4px 10px;border-radius:999px}
+.earn-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.earn-list li{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:12px;background:rgba(0,0,0,.2)}
+.earn-list .ge{font-size:24px;flex:none}
+.earn-list .t{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.35}
+.earn-list .t b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+.earn-list .t small{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.earn-list .a{font:800 14px/1 var(--f-mono);color:#5ff2a0;white-space:nowrap}
+.earn-big b,.earn-list .a,.earn-tot b{direction:ltr;unicode-bidi:isolate}
+.earn-list .tag{font-size:10px;padding:1px 6px;border-radius:999px;background:#ffd54f;color:#5a3400;margin-inline-start:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <div id="meChip" class="tb-in" hidden><a class="tb-av" href="./#settings" aria-label="پڕۆفایل"><img id="meImg" alt=""><span class="lvl js-lvl">1</span></a><span id="meName" hidden></span><a class="tb-pill" href="./#coins" aria-label="کۆین"><span class="ic"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="17" fill="#f5b400" stroke="#9a6200" stroke-width="2"/><circle cx="20" cy="20" r="12" fill="#ffd84a" stroke="#c98a00" stroke-width="1.6"/><path d="M20 12l2.4 5 5.4.6-4 3.7 1.1 5.4L20 24l-4.9 2.7 1.1-5.4-4-3.7 5.4-.6z" fill="#e09a00"/><ellipse cx="13" cy="11" rx="5" ry="2.2" fill="#fff6c8" opacity=".85" transform="rotate(-35 13 11)"/></svg></span><b id="coinBal">0</b><i class="plus">+</i></a><a class="tb-pill" href="./#shop" aria-label="AG"><span class="ic"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="21" r="17" fill="#8a5a12"/><circle cx="20" cy="19.5" r="17" fill="#e9b949" stroke="#7a4f0e" stroke-width="1.6"/><circle cx="20" cy="19.5" r="12.6" fill="none" stroke="#7a4f0e" stroke-width="1.6" stroke-dasharray="2.2 1.6"/><text x="20" y="24.4" text-anchor="middle" font-family="Oswald,Arial Narrow,Arial,sans-serif" font-weight="700" font-size="14" fill="#3a2508">AG</text><ellipse cx="12.5" cy="10.5" rx="4.5" ry="2" fill="#fff4c8" opacity=".55" transform="rotate(-35 12.5 10.5)"/></svg></span><b id="agBal">0</b><i class="plus">+</i></a><a class="tb-ic" href="./#shop" aria-label="دکان"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M3 8h7l6 23h22l5-17H12" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><path d="M12 14h31l-5 17H16z" fill="#ffc928" stroke="#a86d00" stroke-width="2.5" stroke-linejoin="round"/><path d="M20 17v11M27 17v11M34 17v11" stroke="#a86d00" stroke-width="2"/><circle cx="18" cy="39" r="4" fill="#fff" stroke="#7a4f00" stroke-width="2"/><circle cx="35" cy="39" r="4" fill="#fff" stroke="#7a4f00" stroke-width="2"/></svg></a><a class="tb-ic" href="./#settings" aria-label="ڕێکخستن"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="17" fill="none" stroke="#5f6b72" stroke-width="10" stroke-dasharray="6.68 6.68"/><circle cx="24" cy="24" r="17" fill="none" stroke="#d3dade" stroke-width="7" stroke-dasharray="6.68 6.68"/><circle cx="24" cy="24" r="14" fill="#b9c3c9" stroke="#5f6b72" stroke-width="2"/><circle cx="24" cy="24" r="6" fill="#5f6b72"/><circle cx="24" cy="24" r="3" fill="#2f383d"/></svg></a></div>
+  </header>
+
+  <div id="loading" class="panel"><span class="muted">گرێدان ب سێرڤەری ڤە…</span></div>
+  <section id="login" class="panel" hidden>
+    <strong>🎙 مەجلیس</strong>
+    <span class="muted">بۆ چوونا ناڤ غورفان، ب هەژمارا خۆ یا Google بچە ژوور.</span>
+    <button id="googleBtn" class="primary big" type="button">چوونا ژوور ب Google</button>
+    <div class="field"><span>🌐 زمان · Language</span><div class="langs"></div></div>
+  </section>
+  <section id="banned" class="panel" hidden><strong>هەژمارا تە هاتییە ڕاوەستاندن.</strong></section>
+
+  <section id="list" hidden style="display:flex;flex-direction:column;gap:14px">
+    <div class="rtabs" id="rtabs"><button type="button" data-t="all" class="on">ئاشکراکرن</button><button type="button" data-t="hot">🔥 چالاک</button><button type="button" data-t="mine">غورفێن من</button></div>
+    <div class="sec-h"><span>چوونا ب لەز</span></div>
+    <div class="quick">
+      <button type="button" class="qk c-blue" id="qMine"><span class="ic">🎙</span><span class="ct">غورفەکێ چێکە</span></button>
+      <button type="button" class="qk c-green" id="qHot"><span class="ic">🔥</span><span class="ct">غورفێن چالاک</span></button>
+      <button type="button" class="qk c-purple" id="qMy"><span class="ic">⭐</span><span class="ct">غورفێن من</span></button>
+      <button type="button" class="qk c-teal" id="qCode"><span class="ic">🔎</span><span class="ct">ل غورفەکێ بگەڕێ</span></button>
+    </div>
+    <input id="roomSearch" class="tin" placeholder="🔎 ناڤێ غورفێ، کۆد یان ناڤێ خودانی…" autocomplete="off">
+    <div class="sec-h"><span>پێشنیاز</span><span class="row" style="gap:6px"><button id="turnBtn" class="ghost" type="button" hidden style="padding:6px 10px;font-size:12px">🛡 TURN</button><button id="earnBtn" class="ghost" type="button" style="padding:6px 10px;font-size:12px">💰 داهاتێ من</button></span></div>
+    <div class="rooms" id="roomGrid"></div>
+    <span class="muted" id="roomEmpty" hidden></span>
+  </section>
+
+  <section id="room" hidden style="display:flex;flex-direction:column;gap:10px">
+    <div class="rm-bar1">
+      <div class="rm-info"><img id="rmThumb" alt=""><div class="t"><b id="rmName"></b><span><span id="rmOwner"></span> · #<b id="rmCode" class="no-tr"></b></span></div></div>
+      <div class="rm-tools"><button class="rm-ib" id="rmEarn" type="button" aria-label="داهات">💰</button><button class="rm-ib" id="rmMute" type="button" aria-label="دەنگ">🔊</button><button class="rm-ib" id="rmEdit" type="button" aria-label="ڕێکخستن" hidden>⚙</button><button class="rm-ib" id="rmBack" type="button" aria-label="دەرکەفتن">⏻</button></div>
+    </div>
+    <div class="aud"><span class="aud-n">👤 <b id="rmOnline">0</b></span><div class="people" id="people"></div></div>
+    <div class="seats" id="seats"></div>
+    <button id="audioUnlock" class="primary" type="button" hidden>🔊 ل ڤێرە بکە دا گوهـ ل ئاخفتنێ ببی</button>
+    <div class="rm-acts"><button id="rmInvite" class="primary" type="button">🔗 هەڤالان داخواز بکە</button><button id="rmJoin" class="primary" type="button">⭐ بەشداربە</button></div>
+    <div class="chat" id="chat"><div class="notice" id="rmDesc"></div></div>
+    <div class="rec-info" id="recInfo" hidden></div>
+    <div class="bar">
+      <button class="mic live" id="liveBtn" type="button" aria-label="مایک" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M6 11a6 6 0 0 0 12 0M12 17v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+      <button class="mic" id="micBtn" type="button" aria-label="بگرە و باخڤە">🎤</button>
+      <input id="msgIn" class="tin" maxlength="500" placeholder="پەیامەکێ بنڤیسە…" autocomplete="off">
+      <button class="primary ibtn" id="sendBtn" type="button" aria-label="بهنێرە">➤</button>
+      <button class="gbtn" id="giftBtn" type="button" aria-label="دیاری"><span class="bob">🎁</span></button>
+    </div>
+    <span class="muted" id="barHint" style="text-align:center">ل کورسیەکا ڤالا بکە دا ڕاستەوخۆ باخڤی · یان 🎤 بگرە بۆ پەیاما دەنگی</span>
+    <div id="audios" hidden></div>
+  </section>
+</div>
+
+<div id="editSheet" class="sheet-back" hidden>
+  <div class="sheet" role="dialog" aria-labelledby="edTitle">
+    <div class="row" style="justify-content:space-between"><strong id="edTitle"></strong><button id="edClose" class="ghost" type="button" aria-label="بگرە">✕</button></div>
+    <label class="field"><span>ناڤێ غورفێ</span><input id="edName" class="tin" maxlength="40"></label>
+    <label class="field"><span>دەربارە (نە پێدڤییە)</span><textarea id="edDesc" class="tin" maxlength="200"></textarea></label>
+    <div class="field"><span>وێنەیێ غورفێ</span>
+      <div class="cover-pick"><img id="edCover" alt="" hidden><label class="ghost filebtn">📷 وێنەیەکێ هەلبژێرە<input id="edFile" type="file" accept="image/*" hidden></label><button id="edNoCover" class="ghost" type="button">بێ وێنە</button></div></div>
+    <div class="field"><span>کێ دشێت غورفێ ببینیت؟</span>
+      <div class="seg c2" id="edPub"><button type="button" data-v="1">🌍 هەمی کەس<small>ل لیستێ دیار دبیت</small></button><button type="button" data-v="0">🔗 تنێ ب لینکێ<small>بۆ هەڤالان</small></button></div></div>
+    <div class="field"><span>🎨 شێوازێ غورفێ</span><div class="theme-pick" id="edThemes"></div><a href="./#rtheme" style="color:#ffe270;font-size:13px">🛒 شێوازێن پتر ل دکانێ</a></div>
+    <div id="edBans" hidden></div>
+    <button id="edSave" class="primary big" type="button"></button>
+    <button id="edDelete" class="danger" type="button" hidden>🗑 غورفێ ژێ ببە</button>
+  </div>
+</div>
+<div id="turnSheet" class="sheet-back" hidden>
+  <div class="sheet" role="dialog" aria-labelledby="tsTitle">
+    <div class="row" style="justify-content:space-between"><strong id="tsTitle">🛡 سێرڤەرێ دەنگی (TURN)</strong><button id="tsClose" class="ghost" type="button" aria-label="بگرە">✕</button></div>
+    <span class="muted">ئەگەر هندەک کەس گوهـ ل ئاخفتنا ڕاستەوخۆ نەبن، سێرڤەرەکێ TURN دانە (بۆ نموونە ژ metered.ca).</span>
+    <label class="field"><span>Metered app name (… .metered.live)</span><input id="tsApp" class="tin" dir="ltr" placeholder="myapp"></label>
+    <label class="field"><span>Metered API key</span><input id="tsKey" class="tin" dir="ltr"></label>
+    <span class="muted">یان:</span>
+    <label class="field"><span>URLs (ب , جودا بکە)</span><input id="tsUrls" class="tin no-tr" dir="ltr" placeholder="turn:global.relay.metered.ca:80,turns:global.relay.metered.ca:443"></label>
+    <label class="field"><span>Username</span><input id="tsUser" class="tin" dir="ltr"></label>
+    <label class="field"><span>Credential</span><input id="tsPass" class="tin" dir="ltr"></label>
+    <button id="tsSave" class="primary big" type="button">پاشەکەفت بکە</button>
+  </div>
+</div>
+<div id="menuSheet" class="sheet-back" hidden>
+  <div class="sheet" role="dialog" aria-labelledby="menuTitle">
+    <div class="row" style="justify-content:space-between"><strong id="menuTitle"></strong><button id="menuClose" class="ghost" type="button" aria-label="بگرە">✕</button></div>
+    <div id="menuActs" style="display:flex;flex-direction:column;gap:8px"></div>
+  </div>
+</div>
+<nav class="bnav" id="bnav" hidden><a href="./#settings"><span class="bi"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="15" r="9" fill="#ffd27a" stroke="#9a6200" stroke-width="2"/><path d="M8 42c0-11 7-16 16-16s16 5 16 16z" fill="#3a8dff" stroke="#164a99" stroke-width="2"/><circle cx="21" cy="12" r="2.5" fill="#fff" opacity=".7"/></svg></span><span>پڕۆفایل</span></a><a href="majlis.html" class="on"><span class="bi"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M6 22 24 8l18 14v18a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3z" fill="#c97a2a" stroke="#6b3a10" stroke-width="2" stroke-linejoin="round"/><path d="M3 23 24 6l21 17" fill="none" stroke="#ffc928" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><rect x="10" y="21" width="20" height="13" rx="5" fill="#fff"/><path d="M14 33l-2 5 6-4z" fill="#fff"/><circle cx="15" cy="27.5" r="1.6" fill="#3a8dff"/><circle cx="20" cy="27.5" r="1.6" fill="#3a8dff"/><circle cx="25" cy="27.5" r="1.6" fill="#3a8dff"/><rect x="24" y="26" width="16" height="11" rx="4.5" fill="#ffd54f"/><path d="M36 36l3 4-6-3z" fill="#ffd54f"/></svg></span><span>مەجلیس</span></a><a href="./"><span class="bi"><svg viewBox="0 0 48 48" aria-hidden="true"><g stroke-linecap="round"><path d="M12 36 38 8" stroke="#55606a" stroke-width="7"/><path d="M12 36 38 8" stroke="#eef3f6" stroke-width="4"/><path d="M36 36 10 8" stroke="#55606a" stroke-width="7"/><path d="M36 36 10 8" stroke="#dfe7ec" stroke-width="4"/><path d="M8 30l10 10M40 30 30 40" stroke="#7a4f00" stroke-width="7"/><path d="M8 30l10 10M40 30 30 40" stroke="#ffc928" stroke-width="4"/></g><circle cx="8" cy="42" r="3.5" fill="#ffc928" stroke="#7a4f00" stroke-width="1.5"/><circle cx="40" cy="42" r="3.5" fill="#ffc928" stroke="#7a4f00" stroke-width="1.5"/></svg></span><span>یاری</span></a><a href="./#shop"><span class="bi"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M3 8h7l6 23h22l5-17H12" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><path d="M12 14h31l-5 17H16z" fill="#ffc928" stroke="#a86d00" stroke-width="2.5" stroke-linejoin="round"/><path d="M20 17v11M27 17v11M34 17v11" stroke="#a86d00" stroke-width="2"/><circle cx="18" cy="39" r="4" fill="#fff" stroke="#7a4f00" stroke-width="2"/><circle cx="35" cy="39" r="4" fill="#fff" stroke="#7a4f00" stroke-width="2"/></svg></span><span>دکان</span></a><a href="./#lb"><span class="bi"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M14 6h20v9c0 9-4.5 15-10 15S14 24 14 15z" fill="#ffc928" stroke="#9a6200" stroke-width="2"/><path d="M14 10H7c0 8 4 11 8 11M34 10h7c0 8-4 11-8 11" fill="none" stroke="#ffc928" stroke-width="3.5"/><rect x="20" y="29" width="8" height="6" fill="#e09a00"/><rect x="14" y="35" width="20" height="7" rx="2" fill="#9a6200"/><path d="M24 10l1.6 3.3 3.6.5-2.6 2.5.6 3.6-3.2-1.7-3.2 1.7.6-3.6-2.6-2.5 3.6-.5z" fill="#fff6c8"/></svg></span><span>ڕیزبەندی</span></a></nav>
+<div id="fx" class="fx"></div>
+<div id="giftSheet" class="sheet-back" hidden>
+  <div class="sheet gsheet" role="dialog" aria-labelledby="gTitle">
+    <div class="row" style="justify-content:space-between"><strong id="gTitle">🎁 دیاری بهنێرە</strong><button id="gClose" class="ghost" type="button" aria-label="بگرە">✕</button></div>
+    <span class="muted">بۆ کێ؟ (هەتا ٥ کەسان)</span>
+    <div class="gto" id="gTo"></div>
+    <span class="ghint" id="gHint" hidden>👆 ل سەر وێنەیێ وی کەسی بدە یێ تە دڤێت دیاریێ بۆ بهنێری</span>
+    <div class="ggrid" id="gGrid"></div>
+    <div class="seg c3" id="gQty" style="grid-template-columns:repeat(4,1fr)"><button type="button" data-v="1">×1</button><button type="button" data-v="5">×5</button><button type="button" data-v="10">×10</button><button type="button" data-v="30">×30</button></div>
+    <div class="gbal"><span>💰 باڵانسێ تە</span><b><span id="gBal" class="no-tr">0</span> AG</b></div>
+    <span class="muted">🎁 40% ژ بهایێ دیاریێ دچیتە هەژمارا وەرگری، و 10% بۆ خودانێ غورفێ.</span>
+    <button id="gSend" class="primary big" type="button"></button>
+    <a class="ghost btn" href="./#shop" style="text-align:center;padding:10px;border-radius:12px;color:#fff;text-decoration:none">💰 AG بکڕە</a>
+  </div>
+</div>
+<div id="earnSheet" class="sheet-back" hidden>
+  <div class="sheet gsheet" role="dialog" aria-labelledby="erTitle">
+    <div class="row" style="justify-content:space-between"><strong id="erTitle">💰 داهاتێ من</strong><button id="erClose" class="ghost" type="button" aria-label="بگرە">✕</button></div>
+    <div class="rtabs" id="erTabs" hidden style="grid-template-columns:1fr 1fr"><button type="button" data-t="me" class="on">💰 یا من</button><button type="button" data-t="app">🛡 داهاتێ ئەپێ</button></div>
+    <div id="erBody"></div>
+    <span class="muted">🔒 تنێ تو دشێی ڤێ ببینی.</span>
+  </div>
+</div>
+<div id="toast" class="toast" hidden></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+// ---------- languages: Badini is written in the page; others are swapped in on screen ----------
+const LANGS=[["kmr","بادینی"],["ckb","سۆرانی"],["ar","العربية"],["en","English"]];
+let LANG=(()=>{try{const v=localStorage.getItem("lang");return LANGS.some(l=>l[0]===v)?v:"kmr"}catch(e){return"kmr"}})();
+const I18N={" (تو)":[" (تۆ)"," (أنت)"," (you)"]," (شەترەنج و دۆمینۆ)":[" (شەترەنج و دۆمینۆ)"," (الشطرنج والدومينو)"," (chess & domino)"]," AG نە. ئێکەم AG بکڕە.":[" AG نییە. سەرەتا AG بکڕە."," AG. اشترِ AG أولاً."," AG. Buy AG first."]," AG هاتنە زێدەکرن":[" AG زیادکرا"," AG أُضيفت"," AG added"]," AG هاتنە زێدەکرن بۆ ":[" AG زیادکرا بۆ "," AG أُضيفت إلى "," AG added to "]," AG؟":[" AG؟"," AG؟"," AG?"]," AG؟ دیسا بکە":[" AG؟ دووبارە دابگرە"," AG؟ اضغط مرة أخرى"," AG? Tap again"]," XP · بەرابەر +":[" XP · یەکسان +"," XP · تعادل +"," XP · draw +"]," XP\u2069 بۆ ئاستێ ":[" XP\u2069 بۆ ئاستی "," XP\u2069 للمستوى "," XP\u2069 to level "]," · ئاستێ دوماهیێ 👑":[" · کۆتا ئاست 👑"," · المستوى الأعلى 👑"," · max level 👑"]," · خال: ":[" · خاڵ: "," · النقاط: "," · points: "]," · دوماهی: ":[" · دوایین: "," · آخر مرة: "," · last: "]," · دۆڕان +":[" · دۆڕان +"," · خسارة +"," · loss +"]," · دەور ":[" · خول "," · الجولة "," · round "]," · وەسل: ":[" · وەسڵ: "," · الإيصال: "," · receipt: "]," · ژ: ":[" · لە: "," · من: "," · from: "]," بر":[" بردییەوە"," فاز"," won"]," بر (":[" بردییەوە ("," فاز ("," won ("]," بهنێرە ب ڕێکا ":[" بنێرە لە ڕێگەی "," أرسل عبر "," send via "]," بۆ:":[" بۆ:"," إلى:"," to:"]," خال":[" خاڵ"," نقطة"," pts"]," د.ع.":[" د.ع."," د.ع."," IQD"],"د.ع.":["د.ع.","د.ع.","IQD"]," دینار":[" دینار"," دينار"," IQD"]," دینار · ":[" دینار · "," دينار · "," IQD · "]," ل سەر مۆبایلێ ڤەکە":[" لەسەر مۆبایل بیکەرەوە"," افتحه على الهاتف"," open it on your phone"]," پارچە":[" پارچە"," قطع"," tiles"]," چرکە":[" چرکە"," ثانية"," s"]," چرکەیان دا تو دبەی":[" چرکەدا تۆ دەیبەیتەوە"," ثانية ستفوز"," seconds you win"]," کڕی":[" کڕی"," اشترى"," bought"]," یاری هاتنە ژێبرن":[" یاری سڕانەوە"," لعبة حُذفت"," games deleted"]," 🪙 دیاری بۆ تە!":[" 🪙 دیاری بۆ تۆ!"," 🪙 هدية لك!"," 🪙 gift for you!"]," 🪙 چوونە سەر حسابا تە":[" 🪙 چوو سەر هەژمارەکەت"," 🪙 أُضيفت إلى حسابك"," 🪙 added to your account"]," 🪙 ڤەگەڕیان بۆ تە":[" 🪙 گەڕایەوە بۆت"," 🪙 أُعيدت لك"," 🪙 returned to you"],") دەمێ مێز تژی دبیت، یاری ب خۆ دەست پێ دکەت.":[") کاتێک مێزەکە پڕ بوو، یاری خۆکارانە دەست پێدەکات.",") عندما تمتلئ الطاولة تبدأ اللعبة تلقائياً.",") The game starts by itself when the table is full."],"). ل دکانێ ب AG بکڕە، یان سوبەهی دیاریا ڕۆژانە وەربگرە.":["). لە دووکان بە AG بیکڕە، یان سبەی دیاریی ڕۆژانە وەربگرە.","). اشترِ بـ AG من المتجر، أو خذ الهدية اليومية غداً.","). Buy with AG in the shop, or get tomorrow's daily gift."],"AG یا تە بەس ناکەت.":["AGەکەت بەس ناکات.","رصيد AG لا يكفي.","Not enough AG."],"AG یا تە بەس ناکەت. ئێکەم AG بکڕە.":["AGەکەت بەس ناکات. سەرەتا AG بکڕە.","رصيد AG لا يكفي. اشترِ AG أولاً.","Not enough AG. Buy AG first."],"FIB (مصرف العراق الأول)":["FIB (بانکی یەکەمی عێراق)","FIB (مصرف العراق الأول)","FIB (First Iraqi Bank)"],"Qi Card / سوپەرکی":["Qi Card / سوپەرکی","Qi Card / سوبر كي","Qi Card / SuperKi"],"سوپەرکی (Qi Card)":["سوپەرکی (Qi Card)","سوبر كي (Qi Card)","SuperKi (Qi Card)"],"ئادار":["ئازار","آذار","March"],"ئاسایی":["ئاسایی","عادي","Classic"],"ئاسایی (بێ کێشان)":["ئاسایی (بێ ڕاکێشان)","عادي (بدون سحب)","Classic (no drawing)"],"ئاست ":["ئاست ","المستوى ","Level "],"ئاستێ نوو!":["ئاستی نوێ!","مستوى جديد!","Level up!"],"ئاگر":["ئاگر","نار","Fire"],"ئۆنلاین":["ئۆنلاین","متصل","Online"],"ئۆنلاین (":["ئۆنلاین (","المتصلون (","Online ("],"ئێکەم ب هەژمارا خۆ بچە ژوور.":["سەرەتا بە هەژمارەکەت بچۆ ژوورەوە.","سجّل الدخول بحسابك أولاً.","Sign in with your account first."],"ئێکەم جار دۆمینۆیێ ڤەکە دا 🪙 دیاریا خۆ وەربگری.":["سەرەتا دۆمینۆ بکەرەوە بۆ وەرگرتنی دیارییە 🪙ەکەت.","افتح الدومينو أولاً لتحصل على هدية 🪙.","Open Domino once to get your 🪙 gift."],"ئەدمین هێشتا ژمارێن پارە وەرگرتنێ دانەناینە.":["ئەدمین هێشتا ژمارەکانی وەرگرتنی پارەی دانەناوە.","لم يضع المشرف أرقام الدفع بعد.","The admin hasn't set payment numbers yet."],"ئەرێ":["بەڵێ","نعم","Yes"],"ئەرێ، دەرکەڤە":["بەڵێ، دەربچۆ","نعم، اخرج","Yes, leave"],"ئەرێ، ڕادەست دبم":["بەڵێ، خۆم بەدەستەوە دەدەم","نعم، أستسلم","Yes, resign"],"ئەلماس":["ئەڵماس","ألماس","Diamond"],"ئەلماسا زڤڕۆک":["ئەڵماسی سووڕاوە","ألماسة دوّارة","Spinning diamond"],"ئەپا ":["ئەپی ","تطبيق ","App "],"ئەپێ دیسا ڤەکە":["ئەپەکە دووبارە بکەرەوە","افتح التطبيق مجدداً","Open the app again"],"ئەڤ داخوازە بەری نوکە هاتییە کرن":["ئەم داواکارییە پێشتر کراوە","هذا الطلب أُرسل سابقاً","This request was already sent"],"ئەڤ مۆبایلە تۆمارکرنا دەنگی پشتگیری ناکەت.":["ئەم مۆبایلە پشتگیری تۆمارکردنی دەنگ ناکات.","هذا الهاتف لا يدعم تسجيل الصوت.","This phone doesn't support voice recording."],"ئەڤ مێزە نەهاتە دیتن.":["ئەم مێزە نەدۆزرایەوە.","لم يتم العثور على الطاولة.","Table not found."],"ئەڤ وێنە نەهاتە خواندن.":["ئەم وێنەیە نەخوێندرایەوە.","تعذّرت قراءة الصورة.","Couldn't read this image."],"ئەڤ پارچە ":["ئەم پارچەیە ","هذه القطعة ","This tile "],"ئەڤ یاریە نەهاتە دیتن.":["ئەم یارییە نەدۆزرایەوە.","لم يتم العثور على اللعبة.","Game not found."],"ئەڤڕۆ هاتین":["ئەمڕۆ هاتوون","زاروا اليوم","Visited today"],"ئەڤڕۆ یاری کرین":["ئەمڕۆ یارییان کرد","لعبوا اليوم","Played today"],"ئەڤە بۆ یاریکەران ل دکانێ دیار دبن. ئەوا ڤالا بهێلی ناهێتە نیشاندان.":["ئەمانە لە دووکان بۆ یاریزانان دەردەکەون. ئەوەی بەتاڵ بێت پیشان نادرێت.","تظهر هذه للاعبين في المتجر. الحقل الفارغ لا يظهر.","Players see these in the shop. Empty ones are hidden."],"ئەگەر دەرکەڤی، تو دۆڕی. پشتڕاستی؟":["ئەگەر دەربچیت، دەدۆڕێیت. دڵنیایت؟","إذا خرجت ستخسر. هل أنت متأكد؟","If you leave, you lose. Are you sure?"],"ئەگەر دەرکەڤی، یاری دێ بۆ هەڤرکی تە بیت. پشتڕاستی؟":["ئەگەر دەربچیت، یاری بۆ ڕکابەرەکەت دەبێت. دڵنیایت؟","إذا خرجت سيفوز خصمك. هل أنت متأكد؟","If you leave, your opponent wins. Are you sure?"],"ئەگەر پارچە نەبیت، ژ کۆمێ دکێشی هەتا پارچەکا گونجای دەردکەڤیت.":["ئەگەر پارچەت نەبوو، لە کۆمەڵە ڕادەکێشیت تا پارچەیەکی گونجاو دەردەچێت.","إذا لم تكن لديك قطعة، تسحب من الكومة حتى تجد قطعة مناسبة.","If you can't play, draw from the pile until you get a tile that fits."],"ئەیلوول":["ئەیلوول","أيلول","September"],"ب زانیاریێن پڕۆژەیا خۆ یا Firebase پڕ بکە (بنێرە README.md).":["بە زانیارییەکانی پڕۆژەی Firebase ـەکەت پڕی بکەرەوە (بڕوانە README.md).","املأه ببيانات مشروع Firebase الخاص بك (انظر README.md).","fill it with your Firebase project details (see README.md)."],"ب هەژمارا خۆ یا Google (ئیمەیلا Gmail) بچە ژوور. یاریکەرێن دی دێ ناڤێ تە بینن.":["بە هەژماری Google ـەکەت (ئیمەیڵی Gmail) بچۆ ژوورەوە. یاریزانانی تر ناوت دەبینن.","سجّل الدخول بحساب Google (بريد Gmail). سيرى اللاعبون الآخرون اسمك.","Sign in with your Google (Gmail) account. Other players will see your name."],"ب کیژ ڕێکێ دێ پارەی هنێری؟":["بە چ ڕێگەیەک پارە دەنێریت؟","بأي طريقة سترسل المبلغ؟","How will you send the money?"],"ب کێشان":["بە ڕاکێشان","مع السحب","With drawing"],"باشە":["باشە","حسناً","OK"],"باڵانسێ تە":["باڵانسەکەت","رصيدك","Your balance"],"بها: ":["نرخ: ","السعر: ","Price: "],"بهنێرە ←":["بینێرە ←","أرسل ←","Send →"],"بچە ناڤ":["بچۆ ناو","ادخل","Join"],"بچە ناڤ مێزێ ب کۆدێ":["بە کۆد بچۆ ناو مێز","ادخل الطاولة بالرمز","Join a table by code"],"بچە ناڤ یاریا هەڤالێ خۆ":["بچۆ ناو یاریی هاوڕێکەت","انضم إلى لعبة صديقك","Join your friend's game"],"بچە ناڤ یاریێ":["بچۆ ناو یاری","ادخل اللعبة","Join game"],"بچە پەیجا چوونا ژوور":["بڕۆ بۆ پەڕەی چوونەژوورەوە","اذهب إلى صفحة الدخول","Go to sign-in page"],"بڕ نە دروستە":["بڕەکە دروست نییە","المبلغ غير صحيح","Invalid amount"],"بڕێ ":["بڕی ","مبلغ ","Amount "],"بکاربینە":["بەکاری بهێنە","استخدم","Use"],"بکڕە":["بیکڕە","اشترِ","Buy"],"بکڕە ب ":["بیکڕە بە ","اشترِ بـ ","Buy for "],"بکڕە؟ دیسا بکە":["بیکڕیت؟ دووبارە دابگرە","تشتري؟ اضغط مرة أخرى","Buy? Tap again"],"بگرە":["دایبخە","إغلاق","Close"],"بگرە و باخڤە":["دایگرە و قسە بکە","اضغط مطولاً وتكلم","Hold to talk"],"بگەڕێ":["بگەڕێ","ابحث","Search"],"بێ بها":["بەخۆڕایی","مجاني","Free"],"بێ نیشان":["بێ نیشانە","بدون شارة","No badge"],"بێ کێشان":["بێ ڕاکێشان","بدون سحب","no drawing"],"بەرابەر":["یەکسان","تعادل","Draw"],"بەرابەر · کەس نەبر":["یەکسان · کەس نەیبردەوە","تعادل · لم يفز أحد","Draw · nobody won"],"بەفر":["بەفر","ثلج","Snow"],"تاج":["تاج","تاج","Crown"],"تشت":["شتەکان","العناصر","Items"],"تو":["تۆ","أنت","You"],"تو تەماشەڤانی — نۆرا ":["تۆ تەماشاکەریت — نۆرەی ","أنت مشاهد — دور ","You're watching — turn: "],"تو دۆڕای":["دۆڕاندت","خسرت","You lost"],"تو دۆڕای (":["دۆڕاندت (","خسرت (","You lost ("],"تو دەرکەفتی":["تۆ دەرچوویت","لقد خرجت","You left"],"تو نەشێی یاری بکەی. ئەگەر ئەڤە خەلەتییە، پەیوەندیێ ب خودانێ یاریێ بکە.":["ناتوانیت یاری بکەیت. ئەگەر ئەمە هەڵەیە، پەیوەندی بە خاوەنی یارییەکەوە بکە.","لا يمكنك اللعب. إذا كان هذا خطأً فتواصل مع صاحب اللعبة.","You can't play. If this is a mistake, contact the game owner."],"تو پشتڕاستی؟":["دڵنیایت؟","هل أنت متأكد؟","Are you sure?"],"تو گەهشتییە ئاستێ ":["گەیشتیتە ئاستی ","وصلت إلى المستوى ","You reached level "],"تو گەهشتییە ئاستێ 100! 👑":["گەیشتیتە ئاستی 100! 👑","وصلت إلى المستوى 100! 👑","You reached level 100! 👑"],"تو گەهشتییە بلندترین ئاست!":["گەیشتیتە بەرزترین ئاست!","وصلت إلى أعلى مستوى!","You reached the top level!"],"تو: ":["تۆ: ","أنت: ","You: "],"تیرمەه":["تەممووز","تموز","July"],"تیما زەر":["تیمی زەرد","الفريق الأصفر","Yellow team"],"تیما زەر · ":["تیمی زەرد · ","الفريق الأصفر · ","Yellow team · "],"تیما شین":["تیمی شین","الفريق الأزرق","Blue team"],"تیما شین · ":["تیمی شین · ","الفريق الأزرق · ","Blue team · "],"تە بر 🎉":["بردتەوە 🎉","فزت 🎉","You won 🎉"],"تە بر! (":["بردتەوە! (","فزت! (","You won! ("],"تە بر! 🎉":["بردتەوە! 🎉","فزت! 🎉","You won! 🎉"],"تە هێشتا چ داخواز نەهنارتینە.":["هێشتا هیچ داواکارییەکت نەناردووە.","لم ترسل أي طلب بعد.","You haven't sent any requests yet."],"تەباخ":["ئاب","آب","August"],"تەختێ شەترەنجێ":["تەختەی شەترەنج","رقعة الشطرنج","Chess board"],"تەماشەڤان":["تەماشاکەر","مشاهد","Spectator"],"حزیران":["حوزەیران","حزيران","June"],"خال هاتنە سفرکرن":["خاڵەکان سفر کرانەوە","تم تصفير النقاط","Points reset"],"خالان سفر بکە":["خاڵەکان سفر بکەرەوە","صفّر النقاط","Reset points"],"خۆ ڕادەست بکە":["خۆت بەدەستەوە بدە","استسلم","Resign"],"خۆ ڕادەست کر":["خۆی بەدەستەوەدا","استسلام","resigned"],"د ناڤ ڤی فایلی دا،":["لەناو ئەم فایلەدا،","داخل هذا الملف،","In this file,"],"داخواز نەهاتە دیتن":["داواکاری نەدۆزرایەوە","لم يُعثر على الطلب","Request not found"],"داخواز نەهاتە هنارتن. دووبارە بکە.":["داواکاری نەنێردرا. دووبارە هەوڵ بدەرەوە.","لم يُرسل الطلب. حاول مجدداً.","Request not sent. Try again."],"داخواز هاتە هنارتن. چاڤەڕێی پشتڕاستکرنا ئەدمینی بە.":["داواکاری نێردرا. چاوەڕێی پشتڕاستکردنەوەی ئەدمین بە.","تم إرسال الطلب. انتظر تأكيد المشرف.","Request sent. Wait for the admin to confirm."],"داخوازێ بهنێرە":["داواکاری بنێرە","أرسل الطلب","Send request"],"داخوازێن من":["داواکارییەکانم","طلباتي","My requests"],"داخوازێن کڕینا AG":["داواکارییەکانی کڕینی AG","طلبات شراء AG","AG purchase requests"],"دار":["دار","خشب","Wood"],"دارێ گوێز":["داری گوێز","خشب الجوز","Walnut"],"دوماهیک کڕین":["دوایین کڕین","آخر شراء","Last purchase"],"دوو ب دوو":["دوو بە دوو","اثنان ضد اثنين","2 vs 2"],"دکان":["دووکان","المتجر","Shop"],"دگەل هەڤالەکی":["لەگەڵ هاوڕێیەک","مع صديق","With a friend"],"دۆمینۆ":["دۆمینۆ","دومينو","Domino"],"دۆمینۆ ئۆنلاین":["دۆمینۆی ئۆنلاین","دومينو أونلاين","Online Domino"],"دەرباز بە":["تێپەڕە","تجاوز","Pass"],"دەرکەتن":["دەرچوون","خروج","Leave"],"دەرکەتن ژ هەژمارێ":["چوونەدەرەوە لە هەژمار","تسجيل الخروج","Sign out"],"دەرکەفت":["دەرچوو","انسحب","left"],"دەرکەفتن":["دەرچوون","خروج","Leave"],"دەرکەڤی؟":["دەردەچیت؟","تخرج؟","Leave?"],"دەریا":["دەریا","البحر","Ocean"],"دەم ب دوماهی هات · لڤین ب خۆ هاتە کرن":["کات تەواو بوو · جووڵە خۆکارانە کرا","انتهى الوقت · تمت الحركة تلقائياً","Time's up · moved automatically"],"دەور ب دوماهی هات":["خول تەواو بوو","انتهت الجولة","Round over"],"دەورا پاشی ←":["خولی دواتر ←","الجولة التالية ←","Next round →"],"زێدە بکە":["زیاد بکە","أضف","Add"],"زێڕ و ئەلماس":["زێڕ و ئەڵماس","ذهب وألماس","Gold & diamonds"],"زێڕین (پەیکەر)":["زێڕین (پەیکەر)","ذهبي (تماثيل)","Golden (figures)"],"ساڵ":["ساڵ","السنة","Year"],"ستێر":["ئەستێرە","نجمة","Star"],"سپی":["سپی","الأبيض","White"],"سپی ♔":["سپی ♔","الأبيض ♔","White ♔"],"سێرڤەر هێشتا نەهاتییە ڕێکخستن.":["سێرڤەر هێشتا ڕێکنەخراوە.","لم يتم إعداد الخادم بعد.","The server isn't set up yet."],"سەرنەکەفت: ":["سەرکەوتوو نەبوو: ","فشل: ","Failed: "],"سەرکەفتن ٣ خال · بەرابەر ١ خال · دۆڕان ٠":["بردنەوە ٣ خاڵ · یەکسان ١ خاڵ · دۆڕان ٠","فوز ٣ نقاط · تعادل ١ · خسارة ٠","Win 3 pts · draw 1 · loss 0"],"سەرکەفتن: +50 🪙":["بردنەوە: +50 🪙","الفوز: +50 🪙","Win: +50 🪙"],"سەوزێ کلاسیک":["سەوزی کلاسیک","أخضر كلاسيكي","Classic green"],"شاژن":["شاژن","ملكة","Queen"],"شوبات":["شوبات","شباط","February"],"شینێ پاشایی":["شینی شاهانە","أزرق ملكي","Royal blue"],"شێر":["شێر","أسد","Lion"],"شێوەیێ پارچان":["شێوەی پارچەکان","شكل القطع","Piece style"],"شەترەنج":["شەترەنج","شطرنج","Chess"],"شەترەنجا ئۆنلاین":["شەترەنجی ئۆنلاین","شطرنج أونلاين","Online Chess"],"شەڤ":["شەو","ليل","Night"],"فیل":["فیل","فيل","Elephant"],"قەدیفەیا سۆر":["قەدیفەی سوور","مخمل أحمر","Red velvet"],"قەلا":["قەڵا","قلعة","Castle"],"ل سەر پاکێتەکێ بکە، دا ڕێکێن پارەدانێ دیار ببن.":["پاکێجێک دابگرە بۆ دەرکەوتنی ڕێگاکانی پارەدان.","اضغط على باقة لتظهر طرق الدفع.","Tap a pack to see payment methods."],"ل لایێ ڕاستێ ▶":["لای ڕاست ▶","الطرف الأيمن ▶","Right end ▶"],"◀ ل لایێ چەپێ":["◀ لای چەپ","◀ الطرف الأيسر","◀ Left end"],"ل ناڤ یان ئیمەیلێ بگەڕێ…":["بە ناو یان ئیمەیڵ بگەڕێ…","ابحث بالاسم أو البريد…","Search name or email…"],"ل پەیجا سەرەکی":["لە پەڕەی سەرەکی","في الصفحة الرئيسية","On the home page"],"ل یاریکەران دگەڕێم… (":["بە دوای یاریزاندا دەگەڕێم… (","أبحث عن لاعبين… (","Looking for players… ("],"ل یاریکەرەکێ دگەڕێم…":["بە دوای یاریزانێکدا دەگەڕێم…","أبحث عن لاعب…","Looking for a player…"],"لڤین":["جووڵەکان","النقلات","Moves"],"لڤین نەهاتە پاشەکەفتکرن.":["جووڵە پاشەکەوت نەکرا.","لم تُحفظ النقلة.","Move wasn't saved."],"مۆر":["مۆر","بنفسجي","Purple"],"میسرا کەڤن":["میسری کۆن","مصر القديمة","Ancient Egypt"],"مێ":["مێ","أنثى","Female"],"نێر":["نێر","ذكر","Male"],"مێز تژی بوو.":["مێزەکە پڕ بوو.","الطاولة ممتلئة.","The table is full."],"مێز تژی یە یان یاری دەست پێ کرییە.":["مێزەکە پڕە یان یاری دەستی پێکردووە.","الطاولة ممتلئة أو بدأت اللعبة.","Table is full or the game has started."],"مێز نەما.":["مێزەکە نەما.","الطاولة لم تعد موجودة.","The table is gone."],"مێز نەهاتە چێکرن.":["مێز دروست نەکرا.","تعذّر إنشاء الطاولة.","Couldn't create the table."],"مێزا تایبەت":["مێزی تایبەت","طاولة خاصة","Private table"],"مێزا دار":["مێزی دار","طاولة خشب","Wooden table"],"مێزێ چێکە":["مێز دروست بکە","أنشئ الطاولة","Create table"],"مەڕمەڕ":["مەڕمەڕ","رخام","Marble"],"ناڤ":["ناو","الاسم","Name"],"ناڤێ وەرگری":["ناوی وەرگر","اسم المستلم","Recipient name"],"ناڤێ وەرگری: ":["ناوی وەرگر: ","اسم المستلم: ","Recipient: "],"ناڤەکی بنڤیسە.":["ناوێک بنووسە.","اكتب اسماً.","Enter a name."],"نوو بوو":["نوێکرایەوە","تم التحديث","Updated"],"نوکە چ یاری نینن.":["ئێستا هیچ یارییەک نییە.","لا توجد ألعاب الآن.","No games right now."],"نوکە چ یاری چاڤەڕێ نینن. «دگەل هەڤالەکی» بکە، و کۆدێ بۆ هەڤالێ خۆ بهنێرە.":["ئێستا هیچ یارییەک چاوەڕێ نییە. «لەگەڵ هاوڕێیەک» دابگرە و کۆدەکە بۆ هاوڕێکەت بنێرە.","لا توجد ألعاب بانتظار لاعب. اضغط «مع صديق» وأرسل الرمز لصديقك.","No games waiting. Tap “With a friend” and send the code to your friend."],"نوکە یاری دکەن (":["ئێستا یاری دەکەن (","يلعبون الآن (","Playing now ("],"نوکە یاری دکەن ▾":["ئێستا یاری دەکەن ▾","يلعبون الآن ▾","Playing now ▾"],"نۆرا ":["نۆرەی ","دور ","Turn: "],"نۆرا تەیە":["نۆرەی تۆیە","دورك","Your turn"],"نۆرا هەڤالێ تەیە":["نۆرەی ڕکابەرەکەتە","دور خصمك","Opponent's turn"],"کش! نۆرا تەیە":["کش! نۆرەی تۆیە","كش! دورك","Check! Your turn"],"کش! نۆرا هەڤالێ تەیە":["کش! نۆرەی ڕکابەرەکەتە","كش! دور خصمك","Check! Opponent's turn"],"نیسان":["نیسان","نيسان","April"],"نیشان ل ڕەخێ ناڤێ تە":["نیشانە لە تەنیشت ناوەکەت","شارة بجانب اسمك","Badge next to your name"],"نەخێر":["نەخێر","لا","No"],"نەشیای بچییە ناڤ مێزێ.":["نەتتوانی بچیتە ناو مێز.","تعذّر دخول الطاولة.","Couldn't join the table."],"نەشیای بچییە ناڤ یاریێ.":["نەتتوانی بچیتە ناو یاری.","تعذّر دخول اللعبة.","Couldn't join the game."],"نەهاتە پاشەکەفتکرن.":["پاشەکەوت نەکرا.","لم يتم الحفظ.","Not saved."],"نەهاتە کێشان.":["ڕانەکێشرا.","تعذّر السحب.","Couldn't draw."],"نەهاتە گوهۆڕین.":["نەگۆڕدرا.","لم يتم التغيير.","Couldn't change it."],"هاتین":["هاتوون","زيارات","Visits"],"هاتە ڕاوەستاندن":["ڕاگیرا","تم الإيقاف","Banned"],"هێشتا چ پارچە نەهاتینە دانان":["هێشتا هیچ پارچەیەک دانەنراوە","لم توضع أي قطعة بعد","No tiles played yet"],"هێشتا چ یاری ب دوماهی نەهاتینە.":["هێشتا هیچ یارییەک تەواو نەبووە.","لم تنتهِ أي لعبة بعد.","No finished games yet."],"هێشتا کەس نەهاتییە ڤێ یاریێ. یاریکەرەکێ بگەڕێ، و دێ ب خۆ کەڤییە یاریێ دگەل ئێکەم کەسێ ئەوژی دگەڕیت.":["هێشتا کەس نەهاتووەتە ئەم یارییە. بە دوای یاریزانێکدا بگەڕێ، خۆکارانە لەگەڵ یەکەم کەسێک کە دەگەڕێت دەکەویتە یاری.","لم ينضم أحد بعد. ابحث عن لاعب وستبدأ تلقائياً مع أول شخص يبحث أيضاً.","Nobody has joined yet. Find a player and you'll be matched with the first person who's also searching."],"هەتا ١٠١":["تا ١٠١","حتى ١٠١","To 101"],"هەتا ١٠١ خالان":["تا ١٠١ خاڵ","حتى ١٠١ نقطة","To 101 points"],"هەر ئێک ٧ پارچە. ئەگەر پارچە نەبیت، دەرباز دبی. ئەوێ هەمی پارچێن خۆ دانین دبەت.":["هەریەک ٧ پارچە. ئەگەر پارچەت نەبوو تێدەپەڕیت. ئەوەی هەموو پارچەکانی دابنێت دەیباتەوە.","لكل لاعب ٧ قطع. إذا لم تكن لديك قطعة تتجاوز. من يضع كل قطعه يفوز.","7 tiles each. If you can't play, you pass. First to play all tiles wins."],"هەر یاری: 25 🪙":["هەر یارییەک: 25 🪙","كل لعبة: 25 🪙","Each game: 25 🪙"],"هەر یاری: سەرکەفتن +":["هەر یارییەک: بردنەوە +","كل لعبة: فوز +","Each game: win +"],"هەسپ":["ئەسپ","حصان","Horse"],"هەمان هەژمارا شەترەنجێ ب کار دهێت.":["هەمان هەژماری شەترەنج بەکاردێت.","يُستخدم نفس حساب الشطرنج.","Uses the same account as chess."],"هەمی چوونا ژوور":["هەموو چوونەژوورەوەکان","كل مرات الدخول","All sign-ins"],"هەمی یاری":["هەموو یارییەکان","كل الألعاب","All games"],"هەمی یاریکەر":["هەموو یاریزانەکان","كل اللاعبين","All players"],"هەمی یاریکەر دبینن: ل یاریێ، ل لیستا ئۆنلاین و ل ١٠ یاریکەرێن ئێکێ.":["هەموو یاریزانەکان دەیبینن: لە یاری، لیستی ئۆنلاین و ١٠ یاریزانی یەکەم.","يراها الجميع: في اللعبة وقائمة المتصلين وأفضل ١٠.","Everyone sees it: in games, the online list and the top 10."],"هەژمارا تە هاتییە ڕاوەستاندن.":["هەژمارەکەت ڕاگیراوە.","تم إيقاف حسابك.","Your account has been banned."],"هەڤرک دەرکەفت · تە بر 🎉":["ڕکابەر دەرچوو · بردتەوە 🎉","انسحب الخصم · فزت 🎉","Opponent left · you won 🎉"],"هەڤرک دەرکەفت… ئەگەر نەزڤڕیت، د ":["ڕکابەر دەرچوو… ئەگەر نەگەڕێتەوە، لە ماوەی ","انسحب الخصم… إن لم يعد خلال ","Opponent left… if they don't return in "],"هەڤرک: ":["ڕکابەر: ","الخصم: ","Opponent: "],"هەیڤ":["مانگ","الشهر","Month"],"هەیە":["هەیە","لديك","Owned"],"وێنەیا Google":["وێنەی Google","صورة Google","Google photo"],"وەشان ":["وەشان ","الإصدار ","Version "],"١ ب ١":["١ بە ١","١ ضد ١","1 vs 1"],"١ ب ١ · یاسا هەلبژێرە":["١ بە ١ · یاسا هەڵبژێرە","١ ضد ١ · اختر القواعد","1 vs 1 · choose rules"],"١. پاکێتەکێ هەلبژێرە":["١. پاکێجێک هەڵبژێرە","١. اختر باقة","1. Choose a pack"],"١٠٠ AG = ١٬٠٠٠ د.ع. · پاکێتێن مەزن AGیێن دیاری (ب زەر) ژی دگەل خۆ دئینن":["١٠٠ AG = ١٬٠٠٠ د.ع. · پاکێجە گەورەکان AGی دیاری (بە زەرد) لەگەڵ خۆیان دەهێنن","١٠٠ AG = ١٬٠٠٠ د.ع. · الباقات الكبيرة فيها AG هدية (بالأصفر)","100 AG = 1,000 IQD · bigger packs include bonus AG (in yellow)"],"١٤ ڕۆژێن دوماهیێ":["دوایین ١٤ ڕۆژ","آخر ١٤ يوماً","Last 14 days"],"٢ یاریکەر":["٢ یاریزان","لاعبان","2 players"],"٤ یاریکەر":["٤ یاریزان","٤ لاعبين","4 players"],"٤ یاریکەر · یاسا هەلبژێرە":["٤ یاریزان · یاسا هەڵبژێرە","٤ لاعبين · اختر القواعد","4 players · choose rules"],"پات — یاری بەرابەر ب دوماهی هات":["پات — یاری بە یەکسانی کۆتایی هات","تعادل (بات) — انتهت اللعبة بالتعادل","Stalemate — the game is a draw"],"پارچێن تە":["پارچەکانت","قطعك","Your tiles"],"پارچێن میسرا کەڤن":["پارچەکانی میسری کۆن","قطع مصر القديمة","Ancient Egypt pieces"],"پارچە ":["پارچە ","قطعة ","Tile "],"پارە گەهشت؟ دیسا بکە":["پارە گەیشت؟ دووبارە دابگرە","وصل المبلغ؟ اضغط مجدداً","Money arrived? Tap again"],"پاشڤە":["گەڕانەوە","رجوع","Back"],"پاشەکەفت بوو":["پاشەکەوت کرا","تم الحفظ","Saved"],"پاشەکەفت بکە":["پاشەکەوت بکە","حفظ","Save"],"پاشەکەفت نەبوو":["پاشەکەوت نەکرا","لم يتم الحفظ","Not saved"],"پاشەکەفت نەبوو. دووبارە بکە.":["پاشەکەوت نەکرا. دووبارە هەوڵ بدەرەوە.","لم يتم الحفظ. حاول مجدداً.","Not saved. Try again."],"پشتڕاستی؟ دیسا بکە":["دڵنیایت؟ دووبارە دابگرە","متأكد؟ اضغط مجدداً","Sure? Tap again"],"پشتی ئەدمین پارەی پشتڕاست دکەت، AG ب خۆ دچیتە د هەژمارا تە دا.":["دوای ئەوەی ئەدمین پارەکە پشتڕاست دەکاتەوە، AG خۆکارانە دەچێتە هەژمارەکەت.","بعد أن يؤكد المشرف الدفع، تُضاف AG إلى حسابك تلقائياً.","Once the admin confirms the payment, the AG goes into your account automatically."],"پشتی تە پارە هنارتی، ڤێ پڕ بکە":["دوای ناردنی پارە، ئەمە پڕ بکەرەوە","بعد إرسال المبلغ، املأ هذا","After you've sent the money, fill this in"],"پڕۆفایل":["پرۆفایل","الملف","Profile"],"پیادە ببیتە چ؟":["سەرباز ببێتە چی؟","ترقية الجندي إلى؟","Promote pawn to?"],"پەیام درێژە. کورتتر باخڤە.":["پەیامەکە درێژە. کورتتر قسە بکە.","الرسالة طويلة. تكلم باختصار.","Message too long. Keep it shorter."],"پەیام نەهاتە هنارتن.":["پەیام نەنێردرا.","لم تُرسل الرسالة.","Message not sent."],"چ داخواز نینن.":["هیچ داواکارییەک نییە.","لا توجد طلبات.","No requests."],"چاڤەڕێ":["چاوەڕێ","بانتظار","Pending"],"چاڤەڕێی یاریکەرێ دووێ":["چاوەڕێی یاریزانی دووەم","بانتظار اللاعب الثاني","Waiting for the second player"],"چاڤەڕێ…":["چاوەڕێ…","بانتظار…","Waiting…"],"چریا ئێکێ":["تشرینی یەکەم","تشرين الأول","October"],"چریا دووێ":["تشرینی دووەم","تشرين الثاني","November"],"کانوونا ئێکێ":["کانوونی یەکەم","كانون الأول","December"],"کانوونا دووێ":["کانوونی دووەم","كانون الثاني","January"],"گولان":["مایس","أيار","May"],"چوونا ژوور":["چوونەژوورەوە","الدخول","Sign in"],"چوونا ژوور ب Google":["چوونەژوورەوە بە Google","الدخول عبر Google","Sign in with Google"],"چوونا ژوور بۆ سێرڤەری":["چوونەژوورەوە بۆ سێرڤەر","الدخول إلى الخادم","Sign in to the server"],"چوونا ژوور سەرنەکەفت: ":["چوونەژوورەوە سەرنەکەوت: ","فشل الدخول: ","Sign-in failed: "],"چوونا ژوور: ":["چوونەژوورەوە: ","الدخول: ","Sign-in: "],"چەند دەورە":["چەند خولێک","عدة جولات","Several rounds"],"چەند دەورە: یێ دبەت خالێن پارچێن هەڤرکان وەردگریت. ئێکەم کەس یان تیم دگەهیتە ١٠١ دبەت.":["چەند خولێک: براوە خاڵی پارچەکانی ڕکابەران وەردەگرێت. یەکەم کەس یان تیم کە بگاتە ١٠١ دەیباتەوە.","عدة جولات: الفائز يأخذ نقاط قطع الخصوم. أول من يصل إلى ١٠١ يفوز.","Several rounds: the winner takes the points on opponents' tiles. First to 101 wins."],"ڕاوەستاندی":["ڕاگیراو","موقوف","Banned"],"ڕاوەستینە":["ڕایبگرە","إيقاف","Stop"],"ڕۆژ":["ڕۆژ","اليوم","Day"],"ڕۆژ، هەیڤ و ساڵێ هەمییان هەلبژێرە، یان هەمییان ڤالا بهێلە.":["ڕۆژ و مانگ و ساڵ هەموویان هەڵبژێرە، یان هەموویان بەتاڵ بهێڵەرەوە.","اختر اليوم والشهر والسنة كلها، أو اتركها كلها فارغة.","Pick day, month and year, or leave all of them empty."],"ڕۆژا ژدایکبوونێ":["ڕۆژی لەدایکبوون","تاريخ الميلاد","Birthday"],"ڕیزبەندی":["ڕیزبەندی","الترتيب","Ranking"],"ڕێ بدە":["ڕێگە بدە","اسمح","Allow"],"ڕێ نەهاتە دان ب مایکێ. ل ڕێکخستنێن گەڕۆکێ ڕێ بدە.":["ڕێگە بە مایک نەدرا. لە ڕێکخستنەکانی وێبگەڕ ڕێگە بدە.","لم يُسمح بالميكروفون. اسمح به من إعدادات المتصفح.","Microphone blocked. Allow it in your browser settings."],"ڕێ هاتە دان":["ڕێگە درا","تم السماح","Allowed"],"ڕێکا پارەدانێ هەلبژێرە.":["ڕێگای پارەدان هەڵبژێرە.","اختر طريقة الدفع.","Choose a payment method."],"ڕێکخستن":["ڕێکخستن","الإعدادات","Settings"],"ڕێکەکا دی":["ڕێگایەکی تر","طريقة أخرى","Another method"],"ڕەت بکەی؟ دیسا بکە":["ڕەتی دەکەیتەوە؟ دووبارە دابگرە","ترفض؟ اضغط مجدداً","Reject? Tap again"],"ڕەش":["ڕەش","الأسود","Black"],"ڕەش و زێڕ":["ڕەش و زێڕ","أسود وذهبي","Black & gold"],"ڕەش ♚":["ڕەش ♚","الأسود ♚","Black ♚"],"ڕەنگێ مێز و پارچێن دۆمینۆیێ ل سەر شاشا تە.":["ڕەنگی مێز و پارچەکانی دۆمینۆ لەسەر شاشەکەت.","لون الطاولة وقطع الدومينو على شاشتك.","Table and tile colours on your screen."],"ڕەنگێن تەختەی":["ڕەنگەکانی تەختە","ألوان الرقعة","Board colours"],"ڕەگەز":["ڕەگەز","الجنس","Gender"],"ڕەگەز و ڕۆژا ژدایکبوونێ تەنێ بۆ تە دیار دبن. ناڤ و وێنە بۆ هەمی یاریکەران دیار دبن.":["ڕەگەز و ڕۆژی لەدایکبوون تەنها بۆ خۆت دەردەکەون. ناو و وێنە هەموو یاریزانان دەیبینن.","الجنس وتاريخ الميلاد يظهران لك فقط. الاسم والصورة يراهما الجميع.","Gender and birthday are only visible to you. Everyone sees your name and photo."],"ژ کۆمێ دکێشی":["لە کۆمەڵە ڕادەکێشیت","تسحب من الكومة","draw from the pile"],"ژمارا مۆبایلا تە یا پارە ژێ هنارتی":["ژمارەی ئەو مۆبایلەی پارەکەت لێوە نارد","رقم الهاتف الذي أرسلت منه","Phone number you paid from"],"ژمارا مۆبایلا خۆ بنڤیسە.":["ژمارەی مۆبایلەکەت بنووسە.","اكتب رقم هاتفك.","Enter your phone number."],"ژمارا وەسلێ (Transaction ID)":["ژمارەی وەسڵ (Transaction ID)","رقم الإيصال (Transaction ID)","Receipt number (Transaction ID)"],"ژمارا وەسلێ بنڤیسە.":["ژمارەی وەسڵ بنووسە.","اكتب رقم الإيصال.","Enter the receipt number."],"ژمارێن پارە وەرگرتنێ":["ژمارەکانی وەرگرتنی پارە","أرقام استلام الدفع","Payment numbers"],"ژمارە ب خۆ دهێتە کۆپیکرن و ئەپ ڤەدبیت. پارەی بهنێرە، پاشان ڤەگەڕە ڤێرە.":["ژمارەکە خۆکارانە کۆپی دەکرێت و ئەپەکە دەکرێتەوە. پارەکە بنێرە، پاشان بگەڕێوە ئێرە.","يُنسخ الرقم تلقائياً ويُفتح التطبيق. أرسل المبلغ ثم عُد إلى هنا.","The number is copied and the app opens. Send the money, then come back here."],"ژمارە کۆپی بوو، ئەپ ڤەدبیت…":["ژمارە کۆپی کرا، ئەپ دەکرێتەوە…","تم نسخ الرقم، جارٍ فتح التطبيق…","Number copied, opening the app…"],"ژێ ببە":["بیسڕەوە","احذف","Delete"],"ڤالا":["بەتاڵ","فارغ","Empty"],"کش مات":["کش مات","كش مات","checkmate"],"کلاسیک":["کلاسیک","كلاسيكي","Classic"],"کڕین سەرنەکەفت. دووبارە بکە.":["کڕین سەرنەکەوت. دووبارە هەوڵ بدەرەوە.","فشل الشراء. حاول مجدداً.","Purchase failed. Try again."],"کڕینا AG":["کڕینی AG","شراء AG","Buy AG"],"کۆد هاتە کۆپیکرن":["کۆد کۆپی کرا","تم نسخ الرمز","Code copied"],"کۆد پێنج پیت و ژمارەیە.":["کۆد پێنج پیت و ژمارەیە.","الرمز ٥ أحرف وأرقام.","The code is 5 letters/numbers."],"کۆد:":["کۆد:","الرمز:","Code:"],"کۆدێ بۆ هەڤالێن خۆ بهنێرە. (":["کۆدەکە بۆ هاوڕێکانت بنێرە. (","أرسل الرمز لأصدقائك. (","Send the code to your friends. ("],"کۆدێ مێزێ":["کۆدی مێز","رمز الطاولة","Table code"],"کۆدێ مێزێ:":["کۆدی مێز:","رمز الطاولة:","Table code:"],"کۆدێ یاریێ":["کۆدی یاری","رمز اللعبة","Game code"],"کۆم: ":["کۆمەڵە: ","الكومة: ","Pile: "],"کۆما خالان: ":["کۆی خاڵ: ","مجموع النقاط: ","Total points: "],"کۆپی":["کۆپی","نسخ","Copy"],"کۆین":["کۆین","عملات","Coins"],"کۆین بۆ یاریا دۆمینۆیێنە: هەر یاری 25 🪙، و یێ دبەت +50 🪙 وەردگریت. 1 🪙 = 1 AG.":["کۆین بۆ یاریی دۆمینۆیە: هەر یارییەک 25 🪙، براوە +50 🪙 وەردەگرێت. 1 🪙 = 1 AG.","العملات للعب الدومينو: كل لعبة 25 🪙 والفائز يأخذ +50 🪙. 1 🪙 = 1 AG.","Coins are for domino: each game costs 25 🪙, the winner gets +50 🪙. 1 🪙 = 1 AG."],"کۆینێن تە":["کۆینەکانت","عملاتك","Your coins"],"کێشان ژ کۆمێ":["ڕاکێشان لە کۆمەڵە","اسحب من الكومة","Draw from pile"],"کەس نینە.":["کەس نییە.","لا أحد.","Nobody."],"کەس نەهاتە دیتن.":["کەس نەدۆزرایەوە.","لم يُعثر على أحد.","No one found."],"گرێدان ب سێرڤەری ڤە پچڕی.":["پەیوەندی بە سێرڤەرەوە پچڕا.","انقطع الاتصال بالخادم.","Lost connection to the server."],"گرێدان ب سێرڤەری ڤە…":["پەیوەندیکردن بە سێرڤەرەوە…","جارٍ الاتصال بالخادم…","Connecting to the server…"],"گول":["گوڵ","وردة","Rose"],"گەلەستێرک":["گەلەستێرە","مجرّة","Galaxy"],"گەڕیان سەرنەکەفت. دووبارە بکە.":["گەڕان سەرنەکەوت. دووبارە هەوڵ بدەرەوە.","فشل البحث. حاول مجدداً.","Search failed. Try again."],"یاری":["یاری","اللعب","Play"],"یاری بکە دگەل هەڤالێن خۆ، ڕاستەوخۆ":["لەگەڵ هاوڕێکانت ڕاستەوخۆ یاری بکە","العب مع أصدقائك مباشرة","Play live with your friends"],"یاری دکەن":["یاری دەکەن","يلعبون","Playing"],"یاری نەهاتە دیتن.":["یاری نەدۆزرایەوە.","لم يُعثر على اللعبة.","Game not found."],"یاری نەهاتە چێکرن: ":["یاری دروست نەکرا: ","تعذّر إنشاء اللعبة: ","Couldn't create game: "],"یاری هاتە ژێبرن":["یاری سڕایەوە","تم حذف اللعبة","Game deleted"],"یاری کرین":["یارییان کرد","لعبوا","Played"],"یاری گیرا · ":["یاری گیرا · ","اللعبة مقفلة · ","Blocked · "],"یاریکەر":["یاریزان","لاعب","Player"],"یاریکەر هاتە دیتن! یاری دەست پێ کر":["یاریزان دۆزرایەوە! یاری دەستی پێکرد","تم العثور على لاعب! بدأت اللعبة","Player found! Game started"],"یاریکەران بگەڕێ":["بە دوای یاریزاندا بگەڕێ","ابحث عن لاعبين","Find players"],"یاریکەری":["یاریزان","لاعب","players"],"یاریکەرێ ڕەش هێشتا نەهاتییە":["یاریزانی ڕەش هێشتا نەهاتووە","لم يدخل لاعب الأسود بعد","Black hasn't joined yet"],"یاریکەرەک دەرکەفت… ":["یاریزانێک دەرچوو… ","خرج لاعب… ","A player left… "],"یاریکەرەکێ بگەڕێ":["بە دوای یاریزاندا بگەڕێ","ابحث عن لاعب","Find a player"],"یاریێن ئەڤڕۆ":["یارییەکانی ئەمڕۆ","ألعاب اليوم","Games today"],"یاریێن نوکە":["یارییەکانی ئێستا","الألعاب الحالية","Current games"],"یاریێن چالاک":["یارییە چالاکەکان","ألعاب نشطة","Active games"],"یاریێن چاڤەڕێی یاریکەرەکێ دکەن":["یارییەکان کە چاوەڕێی یاریزانن","ألعاب بانتظار لاعب","Games waiting for a player"],"یاریێن ڤالا ژێ ببە":["یارییە بەتاڵەکان بسڕەوە","احذف الألعاب الفارغة","Delete empty games"],"یاریەکا نوو":["یارییەکی نوێ","لعبة جديدة","New game"],"یەک ب یەک":["یەک بە یەک","واحد ضد واحد","one on one"],"— هەلبژێرە —":["— هەڵبژێرە —","— اختر —","— choose —"],"↻ نوو بکە":["↻ نوێی بکەرەوە","↻ تحديث","↻ Refresh"],"⏳ چاڤەڕێ":["⏳ چاوەڕێ","⏳ بانتظار","⏳ Pending"],"♟ یاری دکەت":["♟ یاری دەکات","♟ يلعب","♟ playing"],"♟ یاریکەرەکێ بگەڕێ":["♟ بە دوای یاریزاندا بگەڕێ","♟ ابحث عن لاعب","♟ Find a player"],"⚙ ڕێکخستن":["⚙ ڕێکخستن","⚙ الإعدادات","⚙ Settings"],"⚙ ڕێکخستنێن پڕۆفایلێ":["⚙ ڕێکخستنەکانی پرۆفایل","⚙ إعدادات الملف","⚙ Profile settings"],"✅ تە ":["✅ تۆ ","✅ أنت ","✅ You "],"✅ هاتە پشتڕاستکرن":["✅ پشتڕاستکرایەوە","✅ تم التأكيد","✅ Approved"],"✅ پشتڕاست بکە":["✅ پشتڕاستی بکەرەوە","✅ تأكيد","✅ Approve"],"✓ بکاردئینی":["✓ بەکاردێت","✓ مُستخدم","✓ In use"],"✓ ژمارە هاتە کۆپیکرن. ":["✓ ژمارە کۆپی کرا. ","✓ تم نسخ الرقم. ","✓ Number copied. "],"✨ دەگمەن":["✨ دەگمەن","✨ نادر","✨ Rare"],"❌ هاتە ڕەتکرن":["❌ ڕەتکرایەوە","❌ مرفوض","❌ Rejected"],"❌ ڕەت بکە":["❌ ڕەتی بکەرەوە","❌ رفض","❌ Reject"],"🁫 دۆمینۆ":["🁫 دۆمینۆ","🁫 دومينو","🁫 Domino"],"🁫 مێزا دۆمینۆیێ":["🁫 مێزی دۆمینۆ","🁫 طاولة الدومينو","🁫 Domino table"],"🎁 دیاریا ڕۆژانە: +":["🎁 دیاریی ڕۆژانە: +","🎁 الهدية اليومية: +","🎁 Daily gift: +"],"🏆 ١٠ یاریکەرێن ئێکێ":["🏆 ١٠ یاریزانی یەکەم","🏆 أفضل ١٠ لاعبين","🏆 Top 10 players"],"🏆 ڕیزبەندی":["🏆 ڕیزبەندی","🏆 الترتيب","🏆 Ranking"],"🏆 ڕیزبەندیا تە":["🏆 ڕیزبەندیت","🏆 ترتيبك","🏆 Your rank"],"💰 داخوازێن کڕینا AG":["💰 داواکارییەکانی کڕینی AG","💰 طلبات شراء AG","💰 AG purchase requests"],"📷 وێنەیەکێ هەلبژێرە":["📷 وێنەیەک هەڵبژێرە","📷 اختر صورة","📷 Choose a photo"],"🔊 پەیامەکا دەنگی هات · ل شاشێ بکە دا گوهـ لێ ببی":["🔊 پەیامی دەنگی هات · شاشەکە دابگرە بۆ گوێگرتن","🔊 وصلت رسالة صوتية · اضغط الشاشة للاستماع","🔊 Voice message · tap the screen to listen"],"🛒 دکان":["🛒 دووکان","🛒 المتجر","🛒 Shop"],"🛡 ئەدمین":["🛡 ئەدمین","🛡 المشرف","🛡 Admin"],"🛡 پەیجا ئەدمینی":["🛡 پەڕەی ئەدمین","🛡 صفحة المشرف","🛡 Admin page"],"🪙 کۆین":["🪙 کۆین","🪙 عملات","🪙 Coins"],"🪙 کۆین بکڕە ب AG":["🪙 کۆین بکڕە بە AG","🪙 اشترِ عملات بـ AG","🪙 Buy coins with AG"],"🪙 کۆینێن تە بەس ناکەن (پێدڤی ":["🪙 کۆینەکانت بەس ناکەن (پێویستە ","🪙 عملاتك لا تكفي (تحتاج ","🪙 Not enough coins (need "],"ماینە ":["ماوە ","المتبقي ","Left: "],"هەمی XP: ":["کۆی XP: ","مجموع XP: ","Total XP: "],"زمان":["زمان","اللغة","Language"],"ڕیزبەندیا تە":["ڕیزبەندیت","ترتيبك","Your rank"],"ئۆنلاین ▾":["ئۆنلاین ▾","متصل ▾","Online ▾"],"ل یاریکەرەکێ دگەڕێم… ":["بە دوای یاریزانێکدا دەگەڕێم… ","أبحث عن لاعب… ","Looking for a player… "],"ئاستێ نوو":["ئاستی نوێ","مستوى جديد","New level"]," بۆ ئاستێ ":[" بۆ ئاستی "," للمستوى "," to level "],"🌐 زمان · Language":["🌐 زمان · Language","🌐 اللغة · Language","🌐 Language"],"· کانوونا دووێ":["· کانوونی دووەم","· كانون الثاني","· January"],"· شوبات":["· شوبات","· شباط","· February"],"· ئادار":["· ئازار","· آذار","· March"],"· نیسان":["· نیسان","· نيسان","· April"],"· گولان":["· مایس","· أيار","· May"],"· حزیران":["· حوزەیران","· حزيران","· June"],"· تیرمەه":["· تەممووز","· تموز","· July"],"· تەباخ":["· ئاب","· آب","· August"],"· ئەیلوول":["· ئەیلوول","· أيلول","· September"],"· چریا ئێکێ":["· تشرینی یەکەم","· تشرين الأول","· October"],"· چریا دووێ":["· تشرینی دووەم","· تشرين الثاني","· November"],"· کانوونا ئێکێ":["· کانوونی یەکەم","· كانون الأول","· December"],"🤖 دگەل ڕۆبۆتی":["🤖 لەگەڵ ڕۆبۆت","🤖 ضد الروبوت","🤖 vs Robot"],"بێ ئینتەرنێت ژی کار دکەت":["بێ ئینتەرنێتیش کار دەکات","يعمل بدون إنترنت أيضاً","Works offline too"],"🤖 یاری دگەل ڕۆبۆتی":["🤖 یاری لەگەڵ ڕۆبۆت","🤖 العب ضد الروبوت","🤖 Play vs Robot"],"🤖 ڕۆبۆت":["🤖 ڕۆبۆت","🤖 روبوت","🤖 Robot"]," · ئاسان":[" · ئاسان"," · سهل"," · easy"]," · ناڤنجی":[" · مامناوەند"," · متوسط"," · medium"]," · زەحمەت":[" · قورس"," · صعب"," · hard"],"ئاسان":["ئاسان","سهل","Easy"],"ناڤنجی":["مامناوەند","متوسط","Medium"],"زەحمەت":["قورس","صعب","Hard"],"ئاستێ ڕۆبۆتی":["ئاستی ڕۆبۆت","مستوى الروبوت","Robot level"],"ڕەنگێ تە":["ڕەنگی تۆ","لونك","Your colour"],"ب هەلکەفت":["بە هەڵکەوت","عشوائي","Random"],"یاری دگەل ڕۆبۆتی بێ ئینتەرنێت ژی کار دکەت · بێ خال و بێ XP":["یاری لەگەڵ ڕۆبۆت بێ ئینتەرنێتیش کار دەکات · بێ خاڵ و بێ XP","اللعب ضد الروبوت يعمل بدون إنترنت · بدون نقاط أو XP","Robot games work offline · no points or XP"],"دەست پێ بکە":["دەست پێبکە","ابدأ","Start"],"🔄 یاریەکا نوو":["🔄 یارییەکی نوێ","🔄 لعبة جديدة","🔄 New game"],"بۆ ڤێ چەندێ ئینتەرنێت و چوونا ژوور پێدڤییە.":["بۆ ئەمە ئینتەرنێت و چوونەژوورەوە پێویستە.","يتطلب هذا الإنترنت وتسجيل الدخول.","This needs internet and sign-in."],"بێ ئینتەرنێت · تنێ یاری دگەل ڕۆبۆتی":["بێ ئینتەرنێت · تەنها یاری لەگەڵ ڕۆبۆت","بدون إنترنت · اللعب ضد الروبوت فقط","Offline · robot games only"],"ڕۆبۆت هزر دکەت…":["ڕۆبۆت بیر دەکاتەوە…","الروبوت يفكر…","Robot is thinking…"],"🆓 بەلاشە · بێ ئینتەرنێت ژی":["🆓 بەخۆڕایی · بێ ئینتەرنێتیش","🆓 مجاني · يعمل بدون إنترنت","🆓 Free · works offline"],"🆓 بەلاشە · کۆین نە کێم دبن و نە زێدە دبن":["🆓 بەخۆڕایی · کۆین نە کەم دەبێت نە زیاد","🆓 مجاني · لا تنقص العملات ولا تزيد","🆓 Free · coins don't go up or down"],"⭐ XP زێدە دبن: سەرکەفتن +10 / +15 / +20 (ل دویف ئاستی) · بەرابەر +8 · دۆڕان +4":["⭐ XP زیاد دەبێت: بردنەوە +10 / +15 / +20 (بەپێی ئاست) · یەکسان +8 · دۆڕان +4","⭐ تزيد XP: فوز +10 / +15 / +20 (حسب المستوى) · تعادل +8 · خسارة +4","⭐ Earn XP: win +10 / +15 / +20 (by level) · draw +8 · loss +4"],"⏳ XPیا ڕۆبۆتی هەر خولەکەکێ ئێک جار دهێت":["⏳ XPی ڕۆبۆت هەر خولەکێک جارێک دێت","⏳ XP الروبوت مرة كل دقيقة","⏳ Robot XP comes at most once a minute"]," هاتە دەرکرن":[" دەرکرا"," تم طرده"," was removed"],"» ل AG Chess and Domino":["» لە AG Chess and Domino","» في AG Chess and Domino","” on AG Chess and Domino"],"🎙 وەرە غورفا «":["🎙 وەرە ژووری «","🎙 تعال إلى غرفة «","🎙 Join the room “"],"ئاشکراکرن":["دۆزینەوە","اكتشاف","Discover"],"ئەڤ غورفە نەهاتە دیتن.":["ئەم ژوورە نەدۆزرایەوە.","لم يتم العثور على الغرفة.","Room not found."],"ئەڤ غورفە هاتە ژێبرن.":["ئەم ژوورە سڕایەوە.","تم حذف هذه الغرفة.","This room was deleted."],"بهنێرە":["بینێرە","أرسل","Send"],"بۆ مەجلیسێ ئینتەرنێت پێدڤییە.":["مەجلیس ئینتەرنێتی پێویستە.","المجلس يحتاج إلى الإنترنت.","The Majlis needs internet."],"بۆ هەڤالان":["بۆ هاوڕێیان","للأصدقاء","for friends"],"بۆ چوونا ناڤ غورفان، ب هەژمارا خۆ یا Google بچە ژوور.":["بۆ چوونە ناو ژوورەکان، بە هەژماری Google ـەکەت بچۆ ژوورەوە.","لدخول الغرف، سجّل الدخول بحساب Google.","Sign in with Google to enter the rooms."],"بێ وێنە":["بێ وێنە","بدون صورة","No picture"],"تو هێشتا نەچوویە چ غورفان. غورفەکێ چێکە یان «⭐ بەشداربە» ل غورفەکێ بکە.":["هێشتا نەچوویتە هیچ ژوورێک. ژوورێک دروست بکە یان لە ژوورێک «⭐ بەشداربە» دابگرە.","لم تنضم إلى أي غرفة بعد. أنشئ غرفة أو اضغط «⭐ انضم» في غرفة.","You haven't joined any rooms yet. Create one or tap “⭐ Join” in a room."],"تو ژ ڤێ غورفێ هاتییە دەرکرن.":["تۆ لەم ژوورە دەرکراویت.","تم طردك من هذه الغرفة.","You've been removed from this room."],"تە بەری نوکە غورفەک هەیە.":["پێشتر ژوورێکت هەیە.","لديك غرفة بالفعل.","You already have a room."],"دوگمێ بگرە و باخڤە، پاشان بهێلە":["دوگمەکە دابگرە و قسە بکە، پاشان بەری بدە","اضغط مطولاً وتكلم ثم اترك","Hold the button, talk, then let go"],"دەربارە (نە پێدڤییە)":["دەربارە (ئارەزوومەندانە)","الوصف (اختياري)","About (optional)"],"دەنگ":["دەنگ","الصوت","Sound"],"دەنگ هاتە گرتن":["دەنگ کوژایەوە","تم كتم الصوت","Sound off"],"دەنگ ڤەبوو":["دەنگ هەڵکرا","تم تشغيل الصوت","Sound on"],"غورف هاتە ژێبرن":["ژوور سڕایەوە","تم حذف الغرفة","Room deleted"],"غورفا من":["ژوورەکەم","غرفتي","My room"],"غورفێ چێکە":["ژوور دروست بکە","أنشئ الغرفة","Create room"],"غورفێن من":["ژوورەکانم","غرفي","My rooms"],"غورفێن چالاک":["ژوورە چالاکەکان","الغرف النشطة","Active rooms"],"غورفەکێ چێکە":["ژوورێک دروست بکە","أنشئ غرفة","Create a room"],"ل غورفەکێ بگەڕێ":["بە دوای ژوورێکدا بگەڕێ","ابحث عن غرفة","Find a room"],"ل لیستێ دیار دبیت":["لە لیستەکەدا دەردەکەوێت","تظهر في القائمة","shown in the list"],"مەجلیس":["مەجلیس","المجلس","Majlis"],"🎙 مەجلیس":["🎙 مەجلیس","🎙 المجلس","🎙 Majlis"],"ناڤێ غورفێ":["ناوی ژوور","اسم الغرفة","Room name"],"ناڤەکی بۆ غورفێ بنڤیسە.":["ناوێک بۆ ژوورەکە بنووسە.","اكتب اسماً للغرفة.","Enter a room name."],"نەهاتە ژێبرن.":["نەسڕایەوە.","تعذّر الحذف.","Couldn't delete."],"نەهاتە کرن.":["نەکرا.","تعذّر ذلك.","Couldn't do that."],"هێدی هێدی…":["هێواش هێواش…","على مهلك…","Slow down…"],"هێشتا چ غورف نینن. ئێکەم کەس بە و غورفەکێ چێکە!":["هێشتا هیچ ژوورێک نییە. یەکەم کەس بە و ژوورێک دروست بکە!","لا توجد غرف بعد. كن الأول وأنشئ غرفة!","No rooms yet. Be the first to create one!"],"وێنەیێ غورفێ":["وێنەی ژوور","صورة الغرفة","Room picture"],"پێشنیاز":["پێشنیار","التوصية","Recommended"],"پەیامەکێ بنڤیسە…":["پەیامێک بنووسە…","اكتب رسالة…","Write a message…"],"چ غورف نەهاتنە دیتن.":["هیچ ژوورێک نەدۆزرایەوە.","لم يتم العثور على غرف.","No rooms found."],"چوونا ب لەز":["چوونە ژوورەوەی خێرا","الدخول السريع","Quick access"],"ڤەگەڕینە":["بیگەڕێنەوە","إعادة","Allow back"],"کێ دشێت غورفێ ببینیت؟":["کێ دەتوانێت ژوورەکە ببینێت؟","من يمكنه رؤية الغرفة؟","Who can see the room?"],"یاریکەرێن دەرکری":["یاریزانە دەرکراوەکان","اللاعبون المطرودون","Removed players"],"⚙ ڕێکخستنا غورفێ":["⚙ ڕێکخستنی ژوور","⚙ إعدادات الغرفة","⚙ Room settings"],"✓ بەشدارم":["✓ بەشدارم","✓ منضم","✓ Joined"],"⭐ بەشداربە":["⭐ بەشداربە","⭐ انضم","⭐ Join"],"⭐ غورف کەفتە د لیستا تە دا":["⭐ ژوورەکە چووە لیستەکەت","⭐ أُضيفت الغرفة إلى قائمتك","⭐ Room added to your list"],"🌍 هەمی کەس":["🌍 هەموو کەس","🌍 الجميع","🌍 Everyone"],"🎙 غورفەکا نوو":["🎙 ژوورێکی نوێ","🎙 غرفة جديدة","🎙 New room"],"🎤 بگرە و باخڤە · بهێلە دا بچیت (هەتا ٣٠ چرکەیان)":["🎤 دایگرە و قسە بکە · بەری بدە بۆ ناردن (تا ٣٠ چرکە)","🎤 اضغط مطولاً وتكلم · اترك للإرسال (حتى ٣٠ ثانية)","🎤 Hold to talk · let go to send (up to 30 s)"],"🔊 پەیامەکا دەنگی هات · ل ▶ بکە دا گوهـ لێ ببی":["🔊 پەیامی دەنگی هات · ▶ دابگرە بۆ گوێگرتن","🔊 وصلت رسالة صوتية · اضغط ▶ للاستماع","🔊 Voice message · tap ▶ to listen"],"🔎 ناڤێ غورفێ، کۆد یان ناڤێ خودانی…":["🔎 ناوی ژوور، کۆد یان ناوی خاوەن…","🔎 اسم الغرفة أو الرمز أو اسم المالك…","🔎 Room name, code or owner…"],"🔗 تنێ ب لینکێ":["🔗 تەنها بە لینک","🔗 بالرابط فقط","🔗 Link only"],"🔗 هەڤالان داخواز بکە":["🔗 هاوڕێکان بانگ بکە","🔗 ادعُ أصدقاءك","🔗 Invite friends"],"🔗 لینک هاتە کۆپیکرن · بۆ هەڤالێن خۆ بهنێرە":["🔗 لینک کۆپی کرا · بۆ هاوڕێکانت بنێرە","🔗 تم نسخ الرابط · أرسله لأصدقائك","🔗 Link copied · send it to your friends"],"🔥 چالاک":["🔥 چالاک","🔥 نشطة","🔥 Active"],"🗑 غورفێ ژێ ببە":["🗑 ژوورەکە بسڕەوە","🗑 احذف الغرفة","🗑 Delete room"],"🗑 ژێ ببە":["🗑 بیسڕەوە","🗑 احذف","🗑 Delete"],"🚫 ژ غورفێ دەرکە":["🚫 لە ژوورەکە دەریبکە","🚫 اطرد من الغرفة","🚫 Remove from room"],"🔊 ل ڤێرە بکە دا گوهـ ل ئاخفتنێ ببی":["🔊 لێرە دابگرە بۆ گوێگرتن لە قسەکان","🔊 اضغط هنا لسماع المحادثة","🔊 Tap here to hear the room"],"ل کورسیەکا ڤالا بکە دا ڕاستەوخۆ باخڤی · یان 🎤 بگرە بۆ پەیاما دەنگی":["کورسییەکی بەتاڵ دابگرە بۆ قسەکردنی ڕاستەوخۆ · یان 🎤 دابگرە بۆ پەیامی دەنگی","اضغط على مقعد فارغ للتحدث مباشرة · أو اضغط 🎤 لرسالة صوتية","Tap an empty seat to talk live · or hold 🎤 for a voice message"],"مایکا تە یا گرتییە · ل 🎙 بکە دا باخڤی":["مایکەکەت داخراوە · 🎙 دابگرە بۆ قسەکردن","المايك مغلق · اضغط 🎙 للتحدث","Your mic is off · tap 🎙 to talk"],"تو ل سەر کورسیێ یی · هەمی کەس گوهـ ل تە دبن":["تۆ لەسەر کورسیت · هەموو کەس گوێیان لێتە","أنت على المقعد · الجميع يسمعك","You're on a seat · everyone can hear you"],"🎙 مایکێ ڤەکە":["🎙 مایک بکەرەوە","🎙 افتح المايك","🎙 Unmute"],"🔇 مایکێ بگرە":["🔇 مایک دابخە","🔇 أغلق المايك","🔇 Mute"],"⬇ ژ کورسیێ دابەزە":["⬇ لە کورسی دابەزە","⬇ انزل من المقعد","⬇ Leave the seat"],"⬇ ژ کورسیێ داخە":["⬇ لە کورسی دایبەزێنە","⬇ أنزله من المقعد","⬇ Take off the seat"],"ئەڤ کورسیە یا گرتییە.":["ئەم کورسییە گیراوە.","هذا المقعد مشغول.","That seat is taken."],"مایک":["مایک","المايك","Mic"],"🛡 سێرڤەرێ دەنگی (TURN)":["🛡 سێرڤەری دەنگ (TURN)","🛡 خادم الصوت (TURN)","🛡 Voice server (TURN)"],"ئەگەر هندەک کەس گوهـ ل ئاخفتنا ڕاستەوخۆ نەبن، سێرڤەرەکێ TURN دانە (بۆ نموونە ژ metered.ca).":["ئەگەر هەندێک کەس گوێیان لە قسەی ڕاستەوخۆ نەبوو، سێرڤەرێکی TURN دابنێ (بۆ نموونە لە metered.ca).","إذا لم يسمع بعض الأشخاص المحادثة المباشرة، أضف خادم TURN (مثلاً من metered.ca).","If some people can't hear live talk, add a TURN server (e.g. from metered.ca)."],"URLs (ب , جودا بکە)":["URLs (بە , جیایان بکەرەوە)","URLs (افصل بفاصلة ,)","URLs (comma separated)"],"⚠ دەنگ نەگەهشت. دبیت ئینتەرنێتا ئێکێ ژ وە ڕێ نەدەت · دیسا دهێتە تاقیکرن…":["⚠ دەنگ نەگەیشت. لەوانەیە ئینتەرنێتی یەکێکتان ڕێگە نەدات · دووبارە هەوڵ دەدرێتەوە…","⚠ لم يصل الصوت. ربما شبكة أحدكم تمنعه · جارٍ إعادة المحاولة…","⚠ Voice didn't get through. One of your networks may block it · retrying…"],"یان:":["یان:","أو:","or:"],"🔒 غورفەکێ چێکە":["🔒 ژوورێک دروست بکە","🔒 أنشئ غرفة","🔒 Create a room"],"🔒 بۆ چێکرنا غورفێ دڤێت بگەهییە ئاستێ ":["🔒 بۆ دروستکردنی ژوور دەبێت بگەیتە ئاستی ","🔒 لإنشاء غرفة يجب أن تصل إلى المستوى ","🔒 To create a room you need level "],". ئاستێ تە نوکە ":[". ئاستت ئێستا ",". مستواك الآن ",". Your level now: "]," یە · یاری بکە دا ئاستێ تە بلند ببیت!":[" ە · یاری بکە بۆ بەرزکردنەوەی ئاستت!"," · العب لترفع مستواك!"," · play to level up!"],"🎙 شێوازێ غورفێ ل مەجلیسێ":["🎙 شێوازی ژوور لە مەجلیس","🎙 أشكال الغرف في المجلس","🎙 Majlis room styles"],"کورسی و باکگراوندا غورفا تە دلڤن. پشتی کڕینێ، ل ⚙ ڕێکخستنا غورفێ هەلبژێرە.":["کورسی و باکگراوندی ژوورەکەت دەجووڵێن. دوای کڕین، لە ⚙ ڕێکخستنی ژوور هەڵیبژێرە.","مقاعد وخلفية غرفتك تتحرك. بعد الشراء اختره من ⚙ إعدادات الغرفة.","Your room's seats and background come alive. After buying, pick it in ⚙ Room settings."],"🎙 ل مەجلیسێ دانە":["🎙 لە مەجلیس دایبنێ","🎙 استخدمه في المجلس","🎙 Use in Majlis"],"🎨 شێوازێ غورفێ":["🎨 شێوازی ژوور","🎨 شكل الغرفة","🎨 Room style"],"🛒 شێوازێن پتر ل دکانێ":["🛒 شێوازی زیاتر لە دووکان","🛒 أشكال أكثر في المتجر","🛒 More styles in the shop"],"🎁 دیاری بهنێرە":["🎁 دیاری بنێرە","🎁 أرسل هدية","🎁 Send a gift"],"بۆ کێ؟ (هەتا ٥ کەسان)":["بۆ کێ؟ (تا ٥ کەس)","لمن؟ (حتى ٥ أشخاص)","To whom? (up to 5)"],"💰 باڵانسێ تە":["💰 باڵانسەکەت","💰 رصيدك","💰 Your balance"],"🎁 50% ژ بهایێ دیاریێ دچیتە هەژمارا وەرگری، و 10% بۆ خودانێ غورفێ.":["🎁 50%ی نرخی دیاری دەچێتە هەژماری وەرگر، و 10% بۆ خاوەنی ژوور.","🎁 50% من قيمة الهدية تذهب للمستلم و10% لصاحب الغرفة.","🎁 50% of the gift goes to the receiver and 10% to the room owner."],"💰 AG بکڕە":["💰 AG بکڕە","💰 اشترِ AG","💰 Buy AG"],"🎁 بهنێرە · ":["🎁 بینێرە · ","🎁 أرسل · ","🎁 Send · "],"کەس ل غورفێ نینە بێ تو.":["جگە لە تۆ کەس لە ژوورەکەدا نییە.","لا أحد في الغرفة غيرك.","Nobody else is in the room."],"دیاری نەهاتە هنارتن.":["دیاری نەنێردرا.","لم تُرسل الهدية.","Gift not sent."],"🎁 دیاری هاتە هنارتن":["🎁 دیاری نێردرا","🎁 تم إرسال الهدية","🎁 Gift sent"],"دیاری":["دیاری","هدية","Gift"],"گولا سۆر":["گوڵی سوور","الوردة الحمراء","Red rose"],"شەڤا ستێران":["شەوی ئەستێرەکان","ليلة النجوم","Starry night"],"بەفرا سپی":["بەفری سپی","الثلج الأبيض","White snow"],"ئاگرێ نەورۆزێ":["ئاگری نەورۆز","نار نوروز","Newroz fire"],"گەلەستێرکا ڕەنگین":["گەلەستێرەی ڕەنگاوڕەنگ","المجرة الملوّنة","Rainbow galaxy"],"قەسرا زێڕین":["کۆشکی زێڕین","القصر الذهبي","Golden palace"],"ئەلماسا شاهانە":["ئەڵماسی شاهانە","الألماسة الملكية","Royal diamond"],"دل":["دڵ","قلب","Heart"],"چۆکلێت":["چۆکلێت","شوكولاتة","Chocolate"],"کێک":["کێک","كعكة","Cake"],"دبەکێ پەمبی":["ورچی پەمۆ","دبدوب","Teddy bear"],"ئەنگوستیلک":["ئەڵقە","خاتم","Ring"],"ترۆمبێلا سپۆرت":["ئۆتۆمبێلی سپۆرت","سيارة رياضية","Sports car"],"ڕۆکێت":["ڕۆکێت","صاروخ","Rocket"],"تاجا پاشای":["تاجی پاشا","تاج الملك","King's crown"],"ئەو نوکە ل غورفێ نینە.":["ئەو ئێستا لە ژوورەکەدا نییە.","ليس في الغرفة الآن.","They're not in the room now."],"💰 داهاتێ من":["💰 داهاتەکەم","💰 أرباحي","💰 My earnings"],"💰 یا من":["💰 هی من","💰 أرباحي","💰 Mine"],"🛡 داهاتێ ئەپێ":["🛡 داهاتی ئەپ","🛡 أرباح التطبيق","🛡 App earnings"],"🔒 تنێ تو دشێی ڤێ ببینی.":["🔒 تەنها خۆت دەتوانیت ئەمە ببینیت.","🔒 أنت فقط ترى هذا.","🔒 Only you can see this."],"ئەڤڕۆ":["ئەمڕۆ","اليوم","Today"],"ئەڤ هەیڤە":["ئەم مانگە","هذا الشهر","This month"],"هەمی":["هەموو","الكل","All"],"هەمی ئەو AGیێن بۆ تە هاتین":["هەموو ئەو AGیانەی بۆت هاتوون","كل AG التي وصلتك","All the AG you've received"],"🎁 ژ دیاریان: ":["🎁 لە دیارییەکان: ","🎁 من الهدايا: ","🎁 From gifts: "],"🏠 ژ غورفا تە: ":["🏠 لە ژوورەکەت: ","🏠 من غرفتك: ","🏠 From your room: "],"🏠 غورفا تە":["🏠 ژوورەکەت","🏠 غرفتك","🏠 your room"],"هێشتا چ دیاری بۆ تە نەهاتینە.":["هێشتا هیچ دیارییەکت بۆ نەهاتووە.","لم تصلك أي هدية بعد.","No gifts for you yet."],"داهاتێ ئەپێ (40%) · ≈ ":["داهاتی ئەپ (40%) · ≈ ","أرباح التطبيق (40%) · ≈ ","App earnings (40%) · ≈ "]," دیاری":[" دیاری"," هدية"," gifts"],"💰 هەمی هنارتن: ":["💰 کۆی ناردن: ","💰 مجموع المرسل: ","💰 Total sent: "],"هێشتا چ دیاری نەهاتینە هنارتن.":["هێشتا هیچ دیارییەک نەنێردراوە.","لم تُرسل أي هدية بعد.","No gifts sent yet."],"نەهاتە خواندن.":["نەخوێندرایەوە.","تعذّرت القراءة.","Couldn't load."],"داهات":["داهات","الأرباح","Earnings"],"👆 ئێکەم ل سەری کەسەکی هەلبژێرە":["👆 سەرەتا لە سەرەوە کەسێک هەڵبژێرە","👆 اختر شخصاً من الأعلى أولاً","👆 Pick a person above first"],"👆 ل سەر وێنەیێ وی کەسی بدە یێ تە دڤێت دیاریێ بۆ بهنێری":["👆 وێنەی ئەو کەسە دابگرە کە دەتەوێت دیاری بۆ بنێریت","👆 اضغط على صورة الشخص الذي تريد إهداءه","👆 Tap the person you want to gift"],"دیاری نەهاتە هنارتن. ":["دیاری نەنێردرا. ","لم تُرسل الهدية. ","Gift not sent. "],"(Rules نوو نەکرینە یان بها نەهاتینە تۆمارکرن)":["(Rules نوێ نەکراونەتەوە یان نرخەکان تۆمار نەکراون)","(لم تُحدَّث القواعد أو لم تُسجَّل الأسعار)","(Rules not updated or prices not saved)"],"🎁 40% ژ بهایێ دیاریێ دچیتە هەژمارا وەرگری، و 10% بۆ خودانێ غورفێ.":["🎁 40%ی نرخی دیاری دەچێتە هەژماری وەرگر، و 10% بۆ خاوەنی ژوور.","🎁 40% من قيمة الهدية تذهب للمستلم و10% لصاحب الغرفة.","🎁 40% of the gift goes to the receiver and 10% to the room owner."],"داهاتێ ئەپێ (50%) · ≈ ":["داهاتی ئەپ (50%) · ≈ ","أرباح التطبيق (50%) · ≈ ","App earnings (50%) · ≈ "],"💸 فرۆتن":["💸 فرۆشتن","💸 بيع","💸 Sell"],"💸 AGیێن خۆ بفرۆشە ئەدمینی":["💸 AGەکانت بە ئەدمین بفرۆشە","💸 بِع AG للمشرف","💸 Sell your AG to the admin"],"پارە بۆ حسابا تە دهێتە هنارتن":["پارە بۆ هەژمارەکەت دەنێردرێت","يُرسل المبلغ إلى حسابك","The money is sent to your account"],"چەند AG؟ (کێمترین 500)":["چەند AG؟ (کەمترین 500)","كم AG؟ (الحد الأدنى 500)","How much AG? (min 500)"],"تو دێ وەرگری":["وەری دەگریت","ستستلم","You'll receive"],"پارە بۆ کیژ حسابێ بهێت؟":["پارە بۆ کام هەژمار بێت؟","إلى أي حساب يُرسل المبلغ؟","Which account should get the money?"],"ژمارا حسابا تە / ژمارا مۆبایلێ":["ژمارەی هەژمارەکەت / ژمارەی مۆبایل","رقم حسابك / رقم الهاتف","Your account / phone number"],"ناڤێ خودانێ حسابێ":["ناوی خاوەنی هەژمار","اسم صاحب الحساب","Account holder's name"],"💸 داخوازا فرۆتنێ بهنێرە":["💸 داواکاری فرۆشتن بنێرە","💸 أرسل طلب البيع","💸 Send sell request"],"AG ل هەمان دەم ژ هەژمارا تە دهێنە کێمکرن. پشتی ئەدمین پارەی دهنێریت، داخواز دبیتە ✅. ئەگەر هاتە ڕەتکرن، AG دزڤڕنە تە.":["AG هەر ئێستا لە هەژمارەکەت کەم دەکرێت. دوای ئەوەی ئەدمین پارەکە دەنێرێت، داواکاری دەبێتە ✅. ئەگەر ڕەتکرایەوە، AG دەگەڕێتەوە بۆت.","تُخصم AG من حسابك فوراً. بعد أن يرسل المشرف المبلغ يصبح الطلب ✅. وإذا رُفض تعود AG إليك.","The AG is taken from your account right away. When the admin sends the money the request turns ✅. If it's rejected, the AG comes back."],"داخوازێن فرۆتنێ یێن من":["داواکارییەکانی فرۆشتنم","طلبات البيع الخاصة بي","My sell requests"],"💸 داخوازێن فرۆتنا AG ":["💸 داواکارییەکانی فرۆشتنی AG ","💸 طلبات بيع AG ","💸 AG sell requests "],"پارەی بۆ حسابا وی بهنێرە، پاشان ✅ بکە. AG دچنە هەژمارا تە. ئەگەر ❌ بکەی، AG دزڤڕنە وی.":["پارەکە بۆ هەژمارەکەی بنێرە، پاشان ✅ دابگرە. AG دەچێتە هەژمارەکەت. ئەگەر ❌ بکەیت، AG دەگەڕێتەوە بۆی.","أرسل المبلغ إلى حسابه ثم اضغط ✅. تذهب AG إلى حسابك. وإذا ضغطت ❌ تعود إليه.","Send the money to their account, then tap ✅. The AG goes to you. If you tap ❌, it goes back to them."],"💸 AG بفرۆشە":["💸 AG بفرۆشە","💸 بِع AG","💸 Sell AG"],"هێشتا تە چ AG نەفرۆتینە.":["هێشتا هیچ AGێکت نەفرۆشتووە.","لم تبع أي AG بعد.","You haven't sold any AG yet."],"✅ پارە هاتە هنارتن":["✅ پارە نێردرا","✅ تم إرسال المبلغ","✅ Money sent"],"❌ هاتە ڕەتکرن · AG زڤڕین":["❌ ڕەتکرایەوە · AG گەڕایەوە","❌ مرفوض · أُعيدت AG","❌ Rejected · AG returned"],"کێمترین فرۆتن ":["کەمترین فرۆشتن ","الحد الأدنى للبيع ","Minimum sale is "]," AG یە.":[" AG ـە."," AG."," AG."],"ڕێکا وەرگرتنا پارەی هەلبژێرە.":["ڕێگای وەرگرتنی پارە هەڵبژێرە.","اختر طريقة استلام المبلغ.","Choose how to receive the money."],"ژمارا حسابێ بنڤیسە.":["ژمارەی هەژمار بنووسە.","اكتب رقم الحساب.","Enter the account number."],"پشتڕاستی؟ ":["دڵنیایت؟ ","متأكد؟ ","Sure? "]," · دیسا بکە":[" · دووبارە دابگرە"," · اضغط مجدداً"," · tap again"],"✅ داخواز هاتە هنارتن. چاڤەڕێی ئەدمینی بە.":["✅ داواکاری نێردرا. چاوەڕێی ئەدمین بە.","✅ تم إرسال الطلب. انتظر المشرف.","✅ Request sent. Wait for the admin."],"📋 ژمارێ کۆپی بکە":["📋 ژمارەکە کۆپی بکە","📋 انسخ الرقم","📋 Copy number"],"ژمارە کۆپی بوو":["ژمارە کۆپی کرا","تم نسخ الرقم","Number copied"]," د.ع. هاتنە هنارتن؟ دیسا بکە":[" د.ع. نێردرا؟ دووبارە دابگرە"," د.ع. تم إرسالها؟ اضغط مجدداً"," IQD sent? Tap again"]," AG چوونە هەژمارا تە":[" AG چووە هەژمارەکەت"," AG أُضيفت لحسابك"," AG added to your account"],"AG زڤڕینە ":["AG گەڕایەوە بۆ ","أُعيدت AG إلى ","AG returned to "],"🐍 مار و پەیژە 🪜":["🐍 مار و پەیژە 🪜","🐍 السلم والثعبان 🪜","🐍 Snakes & Ladders 🪜"],"مار و پەیژە":["مار و پەیژە","السلم والثعبان","Snakes & Ladders"],"🌐 یاریا ئۆنلاین":["🌐 یاری ئۆنلاین","🌐 العب أونلاين","🌐 Play online"],"٢ یان ٤ یاریکەر · ب کۆینان":["٢ یان ٤ یاریزان · بە کۆین","٢ أو ٤ لاعبين · بالعملات","2 or 4 players · with coins"],"👥 دگەل هەڤالان":["👥 لەگەڵ هاوڕێیان","👥 مع الأصدقاء","👥 With friends"],"🤖 دگەل کۆمپیوتەری":["🤖 لەگەڵ کۆمپیوتەر","🤖 ضد الكمبيوتر","🤖 Vs computer"],"📱 ل سەر ئێک مۆبایلی":["📱 لەسەر یەک مۆبایل","📱 على جهاز واحد","📱 Pass & play"],"٢ هەتا ٤ کەس · بەلاشە":["٢ تا ٤ کەس · بەخۆڕایی","من ٢ إلى ٤ أشخاص · مجاناً","2 to 4 people · free"],"📖 یاسا":["📖 یاسا","📖 القواعد","📖 Rules"],"٣ یاریکەر":["٣ یاریزان","٣ لاعبين","3 players"],"بهایێ چوونێ: 25 🪙":["نرخی بەشداری: 25 🪙","رسوم الدخول: 25 🪙","Entry: 25 🪙"],"🥇 یێ ئێکێ +50 🪙 وەردگریت":["🥇 یەکەم +50 🪙 وەردەگرێت","🥇 الأول يأخذ +50 🪙","🥇 1st place gets +50 🪙"],"🥇 + 🥈 هەر ئێک +50 🪙 وەردگرن":["🥇 + 🥈 هەریەکە +50 🪙 وەردەگرن","🥇 + 🥈 كل منهما يأخذ +50 🪙","🥇 + 🥈 each get +50 🪙"],"📖 یاسایێن مار و پەیژە":["📖 یاساکانی مار و پەیژە","📖 قواعد السلم والثعبان","📖 Snakes & Ladders rules"],"🎲 ل نۆرا خۆ ل سەر زاری بدە. دانکا تە ب ژمارا زاری دچیتە پێش.":["🎲 لە نۆرەی خۆت زارەکە دابگرە. پارچەکەت بە ژمارەی زار دەچێتە پێش.","🎲 في دورك اضغط على النرد. تتقدّم قطعتك بعدد النرد.","🎲 On your turn tap the dice. Your piece moves forward by the number rolled."],"🪜 ئەگەر ل بنێ پەیژێ ڕاوەستیای، دچییە سەری.":["🪜 ئەگەر لە بنی پەیژە وەستایت، دەچیتە سەرەوە.","🪜 إذا وقفت أسفل السلم تصعد إلى أعلاه.","🪜 Stop at the foot of a ladder and you climb to its top."],"🐍 ئەگەر ل سەرێ ماری ڕاوەستیای، دخزییە خوارێ هەتا کلکێ وی.":["🐍 ئەگەر لەسەر سەری مار وەستایت، دەخزێیتە خوارەوە تا کلکی.","🐍 إذا وقفت على رأس الثعبان تنزلق إلى ذيله.","🐍 Stop on a snake's head and you slide down to its tail."],"6️⃣ ئەگەر 6 هات، جارەکا دی زاری دهاڤێژی (هەتا ٣ جاران).":["6️⃣ ئەگەر 6 هات، جارێکی تر زار دەهاوێیت (تا ٣ جار).","6️⃣ إذا حصلت على 6 ترمي مرة أخرى (حتى ٣ مرات).","6️⃣ Roll a 6 and you roll again (up to 3 times)."],"👑 بۆ گەهشتنا 100، پێدڤییە ژمارا زاری تام بیت.":["👑 بۆ گەیشتن بە 100، ژمارەی زار دەبێت تەواو بێت.","👑 للوصول إلى 100 يجب أن يكون الرقم مضبوطاً.","👑 You need the exact number to land on 100."],"⏱ هەر نۆرەک 15 چرکەیە. ئەگەر تو زاری نەهاڤێژی، ب خۆ دهێتە هاڤێتن.":["⏱ هەر نۆرەیەک 15 چرکەیە. ئەگەر زار نەهاوێیت، خۆکارانە دەهاوێژرێت.","⏱ لكل دور 15 ثانية. إذا لم ترمِ يُرمى النرد تلقائياً.","⏱ Each turn is 15 seconds. If you don't roll, it rolls for you."],"🪙 ئۆنلاین: هەر ئێک 25 کۆینان ددەت. ٢ یاریکەر: یێ ئێکێ +50 وەردگریت. ٤ یاریکەر: یێ ئێکێ و یێ دووێ هەر ئێک +50 وەردگرن.":["🪙 ئۆنلاین: هەریەکە 25 کۆین دەدات. ٢ یاریزان: یەکەم +50 وەردەگرێت. ٤ یاریزان: یەکەم و دووەم هەریەکە +50 وەردەگرن.","🪙 أونلاين: كل لاعب يدفع 25 عملة. لاعبان: الأول يأخذ +50. ٤ لاعبين: الأول والثاني كل منهما +50.","🪙 Online: everyone pays 25 coins. 2 players: 1st gets +50. 4 players: 1st and 2nd each get +50."],"🤖 دگەل کۆمپیوتەری و ل سەر ئێک مۆبایلی بەلاشە.":["🤖 لەگەڵ کۆمپیوتەر و لەسەر یەک مۆبایل بەخۆڕاییە.","🤖 اللعب ضد الكمبيوتر وعلى جهاز واحد مجاني.","🤖 Vs computer and pass & play are free."],"🔗 هنارتن":["🔗 ناردن","🔗 مشاركة","🔗 Share"],"🚪 دەرکەفتن":["🚪 دەرچوون","🚪 خروج","🚪 Leave"],"زار":["زار","النرد","Dice"],"ل دەستپێکێ":["لە سەرەتا","في البداية","At start"],"🎲 بهاڤێژە!":["🎲 بهاوێژە!","🎲 ارمِ النرد!","🎲 Roll!"]," · بهاڤێژە!":[" · بهاوێژە!"," · ارمِ النرد!"," · roll!"],"خانە ":["خانە ","الخانة ","Square "],"چاڤەڕێی ":["چاوەڕێی ","انتظر ","Waiting for "]," بە…":[" بە…","…","…"],"پێدڤییە تام بگەهییە 100":["دەبێت تەواو بگەیتە 100","يجب الوصول إلى 100 بالضبط","You need exactly 100"],"🎲 6 · جارەکا دی!":["🎲 6 · جارێکی تر!","🎲 6 · مرة أخرى!","🎲 6 · roll again!"]," گەهشتە 100":[" گەیشتە 100"," وصل إلى 100"," reached 100"],"🚪 دەرکەفت":["🚪 دەرچوو","🚪 خرج","🚪 Left"],"یاریکەرێ سۆر":["یاریزانی سوور","اللاعب الأحمر","Red player"],"یاریکەرێ شین":["یاریزانی شین","اللاعب الأزرق","Blue player"],"یاریکەرێ کەسک":["یاریزانی سەوز","اللاعب الأخضر","Green player"],"یاریکەرێ زەر":["یاریزانی زەرد","اللاعب الأصفر","Yellow player"],"یاری ب دوماهی هات":["یاری کۆتایی هات","انتهت اللعبة","Game over"]," بر!":[" بردیەوە!"," فاز!"," wins!"],"ئەڤ کۆدە یێ مێزەکا دۆمینۆیێ یە.":["ئەم کۆدە هی مێزێکی دۆمینۆیە.","هذا الرمز لطاولة دومينو.","This code is for a domino table."],"دەم ب دوماهی هات · زار ب خۆ هاتە هاڤێتن":["کات تەواو بوو · زار خۆکارانە هاوێژرا","انتهى الوقت · رُمي النرد تلقائياً","Time's up · dice rolled for you"],"لینک هاتە کۆپیکرن":["لینک کۆپی کرا","تم نسخ الرابط","Link copied"],"🐍 مار و پەیژە":["🐍 مار و پەیژە","🐍 السلم والثعبان","🐍 Snakes & Ladders"],"🎲 شێوازێن زاری · مار و پەیژە":["🎲 شێوازی زار · مار و پەیژە","🎲 أشكال النرد · السلم والثعبان","🎲 Dice styles · Snakes & Ladders"],"هەمی یاریکەر زارا تە دبینن دەمێ نۆرا تە. یێن ✨ دەگمەن ڕۆناهی ددەن.":["هەموو یاریزانان زارەکەت دەبینن لە نۆرەی تۆدا. ✨ دەگمەنەکان دەدرەوشێنەوە.","يرى الجميع نردك في دورك. النادرة ✨ تتوهّج.","Everyone sees your dice on your turn. ✨ Rare ones glow."],"🐍 تەختێ مار و پەیژێ":["🐍 تەختەی مار و پەیژە","🐍 لوحة السلم والثعبان","🐍 Snakes & Ladders board"],"شێوازێ تەختی ل سەر شاشا تە.":["شێوازی تەختە لەسەر شاشەکەت.","شكل اللوحة على شاشتك.","The board look on your screen."],"سپیێ کلاسیک":["سپی کلاسیک","الأبيض الكلاسيكي","Classic white"],"سۆرێ ئاگری":["سووری ئاگرین","الأحمر الناري","Fire red"],"شینێ دەریایێ":["شینی دەریا","أزرق البحر","Ocean blue"],"کەسکێ نەعنا":["سەوزی پونگ","أخضر النعناع","Mint green"],"شەکرۆک":["شەکرۆکە","حلوى","Candy"],"نیۆن":["نیۆن","نيون","Neon"],"مەرمەر":["مەڕمەڕ","رخام","Marble"],"زێڕێ پاشایی":["زێڕی پاشایی","الذهب الملكي","Royal gold"],"زمرووتا ڕۆناهی":["زمڕووتی ڕووناک","الزمرد المضيء","Glowing emerald"],"یاقووتا سۆر":["یاقووتی سوور","الياقوت الأحمر","Ruby"],"یاقووتا شین":["یاقووتی شین","الياقوت الأزرق","Sapphire"],"تاجا ئەلماسی":["تاجی ئەڵماسی","تاج الألماس","Diamond crown"],"ڕەنگینێ کلاسیک":["ڕەنگاوڕەنگی کلاسیک","الملوّن الكلاسيكي","Classic colours"],"باغچە":["باخچە","الحديقة","Garden"],"شەڤا نیۆن":["شەوی نیۆن","ليلة النيون","Neon night"],"پاشایی":["پاشایی","ملكي","Royal"],"🛒 زار و تەخت":["🛒 زار و تەختە","🛒 النرد واللوحة","🛒 Dice & boards"]};
+const LI={ckb:0,ar:1,en:2}[LANG];
+let trExact=null,trRe=null,trMap=null;
+if(LANG!=="kmr"){
+  trExact=I18N;trMap={};const parts=[];
+  Object.keys(I18N).filter(k=>/[\s().:!?،·…—▾◀▶←+\u2066\u2069]/.test(k)&&k.length>=3).sort((a,b)=>b.length-a.length).forEach(k=>{
+    trMap[k]=I18N[k][LI];const esc=k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+    const L=/[\p{L}\p{M}]/u;parts.push((L.test(k[0])?"(?<![\\p{L}\\p{M}])":"")+esc+(L.test(k[k.length-1])?"(?![\\p{L}\\p{M}])":""))});
+  try{trRe=new RegExp(parts.join("|"),"gu")}catch(e){trRe=null}
+}
+const AR_D="٠١٢٣٤٥٦٧٨٩";
+function tr(t){if(!trExact||!t||!/[؀-ۿ]/.test(t))return t;
+  const k=t.trim();let o;const e=trExact[k];
+  if(e)o=t.replace(k,e[LI]);else o=trRe?t.replace(trRe,m=>trMap[m]!=null?trMap[m]:m):t;
+  if(LANG==="en")o=o.replace(/[٠-٩]/g,d=>AR_D.indexOf(d)).replace(/٬/g,",");
+  return o}
+const trDone=new WeakMap(),SVGNS="http://www.w3.org/2000/svg";
+function trText(n){const v=n.nodeValue;if(trDone.get(n)===v)return;const o=tr(v);if(o!==v)n.nodeValue=o;trDone.set(n,n.nodeValue)}
+function trAttrs(el){for(const a of["placeholder","aria-label","title"]){const v=el.getAttribute(a);if(v){const o=tr(v);if(o!==v)el.setAttribute(a,o)}}}
+function trTree(root){if(!root)return;
+  if(root.nodeType===3){if(!root.parentNode||root.parentNode.namespaceURI!==SVGNS)trText(root);return}
+  if(root.nodeType!==1||root.namespaceURI===SVGNS||root.tagName==="SCRIPT"||root.tagName==="STYLE"||root.classList.contains("no-tr"))return;
+  trAttrs(root);
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT,{acceptNode:n=>{
+    if(n.nodeType===1)return(n.namespaceURI===SVGNS||n.tagName==="SCRIPT"||n.tagName==="STYLE"||n.classList.contains("no-tr"))?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT;
+    return NodeFilter.FILTER_ACCEPT}});
+  let n;while((n=w.nextNode()))n.nodeType===3?trText(n):trAttrs(n)}
+if(LANG!=="kmr"){
+  const rtl=LANG!=="en";document.documentElement.lang={ckb:"ckb",ar:"ar",en:"en"}[LANG];document.documentElement.dir=rtl?"rtl":"ltr";
+  document.querySelectorAll('[dir="rtl"]').forEach(e=>e.dir=rtl?"rtl":"ltr");
+  document.title=tr(document.title);trTree(document.body);
+  new MutationObserver(ms=>{for(const m of ms){if(m.type==="childList")m.addedNodes.forEach(trTree);
+    else if(m.type==="characterData"){const p=m.target.parentNode;if(!p||(p.namespaceURI!==SVGNS&&!(p.closest&&p.closest(".no-tr"))))trText(m.target)}
+    else if(m.type==="attributes"&&m.target.namespaceURI!==SVGNS)trAttrs(m.target)}})
+    .observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:["placeholder","aria-label","title"]});
+}
+function setLang(v){try{localStorage.setItem("lang",v)}catch(e){}location.reload()}
+function fillLangs(){document.querySelectorAll(".langs").forEach(box=>{box.textContent="";
+  for(const[k,n]of LANGS){const b=document.createElement("button");b.type="button";b.className="lang-b no-tr"+(k===LANG?" on":"");b.textContent=n;
+    b.onclick=()=>{if(k!==LANG)setLang(k)};box.append(b)}})}
+fillLangs();
+// ---------- levels 1-100: every level asks for more XP than the last ----------
+const LV_MAX=100,XP_WIN=30,XP_DRAW=15,XP_LOSS=10,lvNeed=l=>40+10*l;
+function lvInfo(x){x=Math.max(0,Number(x)||0);let l=1;while(l<LV_MAX&&x>=lvNeed(l)){x-=lvNeed(l);l++}
+  return{l,cur:x,need:l<LV_MAX?lvNeed(l):0,max:l>=LV_MAX}}
+const lvTier=l=>l>=100?5:l>=80?4:l>=50?3:l>=30?2:l>=10?1:0;
+let myXp=null;
+function fillLvlCard(c,i){c.textContent="";
+  const top=document.createElement("div");top.className="lvc-top";
+  const bd=document.createElement("span");bd.className="lvc-badge";bd.dataset.tier=lvTier(i.l);bd.textContent=i.l;
+  const t=document.createElement("div");t.className="t";const b=document.createElement("b");b.textContent="ئاست "+i.l+(i.max?" · ئاستێ دوماهیێ 👑":"");
+  const m=document.createElement("span");m.className="muted";m.textContent=i.max?"تو گەهشتییە بلندترین ئاست!":("\u2066"+i.cur+" / "+i.need+" XP\u2069 بۆ ئاستێ "+(i.l+1));
+  t.append(b,m);top.append(bd,t);
+  const bar=document.createElement("div");bar.className="lvc-bar";const f=document.createElement("i");f.style.width=(i.max?100:Math.round(i.cur/i.need*100))+"%";bar.append(f);
+  const h=document.createElement("span");h.className="muted";h.textContent="هەر یاری: سەرکەفتن +"+XP_WIN+" XP · بەرابەر +"+XP_DRAW+" · دۆڕان +"+XP_LOSS+" (شەترەنج و دۆمینۆ)";
+  const more=document.createElement("div");more.className="lvc-more";
+  const left=document.createElement("span");left.append("ماینە ");const lb=document.createElement("b");lb.textContent=i.max?"0":(i.need-i.cur)+" XP";left.append(lb);if(!i.max)left.append(" بۆ ئاستێ "+(i.l+1));
+  const tot=document.createElement("span");tot.append("هەمی XP: ");const tb=document.createElement("b");tb.textContent=Number(myXp||0).toLocaleString("en-US");tot.append(tb);
+  more.append(left,tot);
+  c.append(top,bar,more,h)}
+function levelUp(l){const o=document.createElement("div");o.className="lvup";o.setAttribute("role","status");
+  const bx=document.createElement("div");bx.className="lvup-box";const r=document.createElement("div");r.className="rays";
+  const bd=document.createElement("span");bd.className="lvup-b";bd.dataset.tier=lvTier(l);bd.textContent=l;
+  const b=document.createElement("b");b.textContent="ئاستێ نوو!";const s=document.createElement("span");s.textContent=l>=LV_MAX?"تو گەهشتییە ئاستێ 100! 👑":"تو گەهشتییە ئاستێ "+l;
+  const ok=document.createElement("button");ok.className="primary";ok.textContent="باشە";ok.onclick=()=>o.remove();
+  bx.append(r,bd,b,s,ok);o.append(bx);o.onclick=e=>{if(e.target===o)o.remove()};document.body.append(o)}
+function watchXp(){fdb.ref("xp/"+me+"/x").on("value",s=>{const x=s.val()||0,prev=myXp;myXp=x;const i=lvInfo(x);if(typeof renderList==="function")renderList();
+  document.querySelectorAll(".js-lvl").forEach(e=>{e.textContent=i.l;e.dataset.tier=lvTier(i.l)});
+  document.querySelectorAll(".tb-av").forEach(a=>a.style.setProperty("--p",i.max?100:Math.round(i.cur/i.need*100)));
+  document.querySelectorAll(".lvl-card").forEach(c=>fillLvlCard(c,i));
+  if(prev!=null&&lvInfo(prev).l<i.l)levelUp(i.l)})}
+// once per finished game, for me only
+const xpBusy={};
+async function awardXp(k,g,amt){if(!me||!g||xpBusy[k+g])return;xpBusy[k+g]=1;
+  try{if(localStorage.getItem("xp."+k+"."+g))return}catch(e){}
+  try{const s=await fdb.ref("xp/"+me).once("value");const v=s.val()||{};
+    if(!(v.g===g&&v.k===k)){await fdb.ref("xp/"+me).set({x:(Number(v.x)||0)+amt,g,k,t:firebase.database.ServerValue.TIMESTAMP});toast("+"+amt+" XP ⭐")}
+    try{localStorage.setItem("xp."+k+"."+g,"1")}catch(e){}
+  }catch(e){if(k==="b")toast("⏳ XPیا ڕۆبۆتی هەر خولەکەکێ ئێک جار دهێت")}}
+// small "Lv N" tag next to other players' names
+const xpCache={};
+function lvlChip(uid){const sp=document.createElement("span");sp.className="lv-chip";sp.hidden=true;if(!uid||!fdb)return sp;
+  const put=x=>{const l=lvInfo(x).l;sp.textContent="Lv "+l;sp.dataset.tier=lvTier(l);sp.hidden=false};
+  const c=xpCache[uid];if(c&&Date.now()-c.at<60000)put(c.x);
+  else fdb.ref("xp/"+uid+"/x").once("value").then(s=>{xpCache[uid]={x:s.val()||0,at:Date.now()};put(s.val()||0)}).catch(()=>{});
+  return sp}
+
+// ================= app =================
+const firebaseConfig={
+  apiKey:"AIzaSyAy7OuYhyVPF2ek7EUY3Uh8e4NfEO08jZs",
+  authDomain:"chess-zeravan.firebaseapp.com",
+  databaseURL:"https://chess-zeravan-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:"chess-zeravan",
+  appId:"1:269435267387:web:b9a20392e4d3d0f6826f1e"
+};
+const ADMIN_EMAIL="zeravan180@gmail.com";
+const $=id=>document.getElementById(id);
+let fdb=null,user=null,me=null,prof={},rooms={},online={},members={},myRoomId=null,joined={},tab="all",query="";
+let cur=null,msgQ=null,banRef=null,joinedAt=0,muted=false,lastSend=0,editing=null,pendingCover=undefined,pickPublic=true;
+const now=()=>firebase.database.ServerValue.TIMESTAMP;
+function toast(t){const el=$("toast");el.textContent=t;el.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>el.hidden=true,2600)}
+function show(v){for(const k of["loading","login","banned","list","room"])$(k).hidden=k!==v;
+  const nav=v==="list";$("bnav").hidden=!nav;document.body.classList.toggle("has-nav",nav);$("meChip").hidden=!user}
+const myName=()=>prof.name||(user&&user.displayName)||"یاریکەر";
+const myPhoto=()=>prof.photo||(user&&user.photoURL)||"";
+const smallPhoto=p=>p&&p.length<1500?p:"";
+const isAdmin=()=>!!(user&&user.email===ADMIN_EMAIL&&user.emailVerified);
+const newId=()=>{const a="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";let s="";for(let i=0;i<6;i++)s+=a[Math.floor(Math.random()*a.length)];return s};
+const short=n=>{n=Number(n)||0;return n>=1e6?(n/1e6).toFixed(n>=1e7?0:1).replace(/\.0$/,"")+"M":n>=1e5?Math.floor(n/1e3)+"K":n.toLocaleString("en-US")};
+const onlineIn=id=>Object.keys(online[id]||{}).length;
+const ownerOf=id=>rooms[id]&&rooms[id].owner;
+const canMod=id=>!!(user&&(ownerOf(id)===me||isAdmin()));
+
+// player photos: fetched once from the public profile (messages only keep the name)
+const avCache={};
+function avatar(uid,img,fallback){if(fallback)img.src=fallback;
+  const c=avCache[uid];if(c){if(c.photo)img.src=c.photo;return}
+  avCache[uid]={};fdb.ref("profiles/"+uid+"/public/photo").once("value").then(s=>{const p=s.val()||fallback||"";avCache[uid].photo=p;
+    document.querySelectorAll('img[data-uid="'+uid+'"]').forEach(i=>{if(p)i.src=p})}).catch(()=>{})}
+function avImg(uid,fallback){const i=document.createElement("img");i.alt="";i.dataset.uid=uid;avatar(uid,i,fallback);return i}
+
+async function signIn(){
+  const p=new firebase.auth.GoogleAuthProvider();
+  try{await firebase.auth().signInWithPopup(p)}
+  catch(e){if(e.code==="auth/popup-blocked"||e.code==="auth/operation-not-supported-in-this-environment")firebase.auth().signInWithRedirect(p);else if(e.code!=="auth/popup-closed-by-user")toast("چوونا ژوور سەرنەکەفت: "+(e&&e.code||e))}
+}
+function boot(){
+  firebase.initializeApp(firebaseConfig);fdb=firebase.database();
+  firebase.auth().getRedirectResult().catch(()=>{});
+  firebase.auth().onAuthStateChanged(u=>{
+    user=u;me=u?u.uid:null;if(!u){show("login");return}
+    $("meImg").src=myPhoto();
+    fdb.ref("profiles/"+me+"/public").on("value",s=>{prof=s.val()||{};$("meImg").src=myPhoto()});
+    fdb.ref("wallets/"+me+"/ag").on("value",s=>{myAg=Number(s.val())||0;$("agBal").textContent=short(s.val());if(!$("giftSheet").hidden)openGifts()});
+    fdb.ref("coins/"+me+"/c").on("value",s=>{$("coinBal").textContent=short(s.val())});
+    watchXp();
+    fdb.ref("banned/"+me).on("value",s=>{if(s.val()&&!isAdmin()){leaveRoom(true);show("banned")}});
+    fdb.ref("myRoom/"+me).on("value",s=>{myRoomId=s.val()||null;renderList()});
+    $("turnBtn").hidden=!isAdmin();
+    fdb.ref("userRooms/"+me).on("value",s=>{joined=s.val()||{};renderList();if(cur)renderHead()});
+    fdb.ref("rooms").on("value",s=>{rooms=s.val()||{};renderList();if(cur){if(!rooms[cur]){toast("ئەڤ غورفە هاتە ژێبرن.");leaveRoom()}else renderHead()}});
+    fdb.ref("roomOnline").on("value",s=>{online=s.val()||{};renderList();if(cur)renderPeople()});
+    fdb.ref(".info/connected").on("value",s=>{if(!s.val())return;const pr=fdb.ref("presence/"+me);
+      pr.onDisconnect().remove().then(()=>pr.set({name:myName(),photo:myPhoto().length<60000?myPhoto():"",state:"majlis",ts:now()})).catch(()=>{});
+      if(cur)goOnline(cur)});
+    const h=/^#r-([A-Z0-9]{6})$/i.exec(location.hash||"");
+    if(h)openRoom(h[1].toUpperCase());else show("list");
+  });
+}
+
+const RTHEMES={"rt_ocean": {"name": "دەریا", "price": 50, "fx": {"mode": "up", "chars": ["○", "◦", "•"], "n": 18, "dur": [6, 12], "size": [10, 22], "color": "rgba(190,240,255,.85)"}}, "rt_rose": {"name": "گولا سۆر", "price": 80, "fx": {"mode": "up", "chars": ["❤", "♥", "❀"], "n": 16, "dur": [7, 13], "size": [12, 22], "color": "#ff8fb8"}}, "rt_night": {"name": "شەڤا ستێران", "price": 100, "fx": {"mode": "tw", "chars": ["✦", "✧", "·", "★"], "n": 30, "dur": [2, 5], "size": [8, 16], "color": "#fff6c8"}}, "rt_snow": {"name": "بەفرا سپی", "price": 120, "fx": {"mode": "down", "chars": ["❄", "❅", "•"], "n": 26, "dur": [7, 14], "size": [10, 20], "color": "#ffffff"}}, "rt_fire": {"name": "ئاگرێ نەورۆزێ", "price": 150, "fx": {"mode": "up", "chars": ["•", "✦", "●"], "n": 28, "dur": [3, 6], "size": [4, 10], "color": "#ffb347"}}, "rt_galaxy": {"name": "گەلەستێرکا ڕەنگین", "price": 200, "fx": {"mode": "tw", "chars": ["✦", "✧", "✶", "·"], "n": 36, "dur": [1.5, 4], "size": [8, 18], "color": "#d8c8ff"}}, "rt_gold": {"name": "قەسرا زێڕین", "price": 250, "fx": {"mode": "down", "chars": ["✦", "✧", "◆"], "n": 24, "dur": [5, 10], "size": [8, 16], "color": "#ffd54f"}}, "rt_diamond": {"name": "ئەلماسا شاهانە", "price": 300, "fx": {"mode": "up", "chars": ["💎", "✦", "✧"], "n": 22, "dur": [6, 11], "size": [10, 22], "color": "#9ff3ff"}}};
+
+function fxFill(el,key){if(!el)return;el.textContent="";const t=RTHEMES[key];if(!t){el.className="fx";return}const f=t.fx;el.className="fx "+f.mode;
+  const r=(a,b)=>a+Math.random()*(b-a);
+  for(let i=0;i<f.n;i++){const s=document.createElement("i");s.textContent=f.chars[i%f.chars.length];const d=r(f.dur[0],f.dur[1]);
+    s.style.left=r(0,98)+"%";if(f.mode==="tw")s.style.top=r(2,96)+"%";s.style.fontSize=r(f.size[0],f.size[1]).toFixed(0)+"px";s.style.color=f.color;
+    s.style.animationDuration=d.toFixed(2)+"s";s.style.animationDelay=(-r(0,d)).toFixed(2)+"s";s.style.setProperty("--sx",r(-30,30).toFixed(0)+"px");el.append(s)}}
+const GIFTS={"g_rose": {"e": "🌹", "n": "گول", "p": 10}, "g_heart": {"e": "❤️", "n": "دل", "p": 20}, "g_choco": {"e": "🍫", "n": "چۆکلێت", "p": 50}, "g_cake": {"e": "🎂", "n": "کێک", "p": 100}, "g_teddy": {"e": "🧸", "n": "دبەکێ پەمبی", "p": 200}, "g_ring": {"e": "💍", "n": "ئەنگوستیلک", "p": 500}, "g_car": {"e": "🏎️", "n": "ترۆمبێلا سپۆرت", "p": 1000}, "g_castle": {"e": "🏰", "n": "قەلا", "p": 3000}, "g_rocket": {"e": "🚀", "n": "ڕۆکێت", "p": 5000}, "g_crown": {"e": "👑", "n": "تاجا پاشای", "p": 10000}};
+
+// ---------- room look ----------
+let roomTheme="";
+function applyTheme(key){const t=RTHEMES[key]?key:"";if(t===roomTheme)return;roomTheme=t;
+  const room=$("room");[...room.classList].filter(c=>c==="rt"||c.startsWith("rt-")).forEach(c=>room.classList.remove(c));
+  if(t){room.classList.add("rt","rt-"+t.slice(3))}fxFill($("fx"),t)}
+let pickTheme="",ownedMe={};
+async function renderThemePick(){const box=$("edThemes");if(!box)return;box.textContent="";
+  try{ownedMe=(await fdb.ref("owned/"+me).once("value")).val()||{}}catch(e){}
+  const keys=[""].concat(Object.keys(RTHEMES).filter(k=>ownedMe[k]||isAdmin()));
+  keys.forEach(k=>{const b=document.createElement("button");b.type="button";b.className=k===pickTheme?"on":"";
+    const pv=document.createElement("div");pv.className="rtp"+(k?" rt rt-"+k.slice(3):"");const fx=document.createElement("div");pv.append(fx);if(k)fxFill(fx,k);
+    const m=document.createElement("div");m.className="mini";for(let i=0;i<5;i++){const r=document.createElement("span");r.className="ring";r.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M6 11a6 6 0 0 0 12 0M12 17v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';m.append(r)}pv.append(m);
+    const n=document.createElement("span");n.textContent=k?RTHEMES[k].name:"کلاسیک";b.append(pv,n);b.onclick=()=>{pickTheme=k;renderThemePick()};box.append(b)})}
+
+// ---------- gifts ----------
+let myAg=0,gPick="g_rose",gQty=1,gTo=new Set(),giftQ=[],giftBusy=false,gOn={};
+function openGifts(){if(!cur)return;
+  const on={...(online[cur]||{})};Object.values(seats).forEach(x=>{if(x&&x.uid&&!on[x.uid])on[x.uid]={name:x.name,photo:x.photo}});
+  const sp=seated();const ids=Object.keys(on).filter(u=>u!==me).sort((a,b)=>(sp.has(b)-sp.has(a)));gOn=on;
+  for(const u of [...gTo])if(!on[u])gTo.delete(u);if(!gTo.size&&ids.length===1)gTo.add(ids[0]);
+  $("gHint").hidden=!!gTo.size||!ids.length;
+  const to=$("gTo");to.textContent="";
+  if(!ids.length){const m=document.createElement("span");m.className="muted";m.textContent="کەس ل غورفێ نینە بێ تو.";to.append(m)}
+  ids.forEach(u=>{const b=document.createElement("button");b.type="button";b.className=gTo.has(u)?"on":"";b.append(avImg(u,on[u].photo));
+    const n=document.createElement("span");n.textContent=on[u].name||"یاریکەر";b.append(n);
+    b.onclick=()=>{if(gTo.has(u))gTo.delete(u);else if(gTo.size<5)gTo.add(u);openGifts()};to.append(b)});
+  const g=$("gGrid");g.textContent="";
+  Object.entries(GIFTS).forEach(([k,v])=>{const b=document.createElement("button");b.type="button";b.className=k===gPick?"on":"";
+    const e=document.createElement("span");e.className="ge";e.textContent=v.e;const n=document.createElement("small");n.textContent=v.n;const pr=document.createElement("b");pr.textContent=short(v.p)+" AG";
+    b.append(e,n,pr);b.onclick=()=>{gPick=k;openGifts()};g.append(b)});
+  document.querySelectorAll("#gQty button").forEach(b=>{b.classList.toggle("on",+b.dataset.v===gQty);b.onclick=()=>{gQty=+b.dataset.v;openGifts()}});
+  const total=GIFTS[gPick].p*gQty*Math.max(1,gTo.size);
+  $("gBal").textContent=Number(myAg||0).toLocaleString("en-US");
+  $("gSend").textContent=gTo.size?"🎁 بهنێرە · "+Number(total).toLocaleString("en-US")+" AG":"👆 ئێکەم ل سەری کەسەکی هەلبژێرە";$("gSend").disabled=!gTo.size||giftBusy;
+  $("giftSheet").hidden=false}
+async function sendGift(){
+  const g=GIFTS[gPick];if(!g||!gTo.size||giftBusy)return;const price=g.p*gQty,total=price*gTo.size;
+  if((myAg||0)<total){toast("AG یا تە بەس ناکەت. ئێکەم AG بکڕە.");return}
+  giftBusy=true;openGifts();const inc=firebase.database.ServerValue.increment;const owner=ownerOf(cur);const on=gOn;let sent=0;
+  for(const u of [...gTo]){const gid=fdb.ref("giftLog").push().key;const toShare=price*4/10,ownerShare=(owner===me||owner===u)?0:price/10;
+    const up={["giftLog/"+gid]:{from:me,to:u,room:cur,owner,item:gPick,qty:gQty,price,toShare,ownerShare,ts:now()},
+      ["wallets/"+me+"/ag"]:inc(-price),["wallets/"+me+"/lastGift"]:gid,["wallets/"+u+"/ag"]:inc(toShare),["wallets/"+u+"/lastIn"]:gid,
+      ["roomMsgs/"+cur+"/"+gid]:{uid:me,name:myName(),photo:smallPhoto(myPhoto()),t:"g",gid,item:gPick,qty:gQty,to:u,toName:(on[u]&&on[u].name)||"یاریکەر",ts:now()}};
+    const rn=(rooms[cur]&&rooms[cur].name)||"";
+    up["income/"+u+"/"+gid]={from:me,fromName:myName(),item:gPick,qty:gQty,amt:toShare,kind:"gift",room:cur,roomName:rn,ts:now()};
+    if(ownerShare){up["wallets/"+owner+"/ag"]=inc(ownerShare);up["wallets/"+owner+"/lastOwn"]=gid;
+      up["income/"+owner+"/"+gid]={from:me,fromName:myName(),to:u,toName:(on[u]&&on[u].name)||"",item:gPick,qty:gQty,amt:ownerShare,kind:"room",room:cur,roomName:rn,ts:now()}}
+    try{await fdb.ref().update(up);sent++}catch(e){console.warn("gift",e);toast("دیاری نەهاتە هنارتن. "+(/permission/i.test(String(e&&e.message||e))?"(Rules نوو نەکرینە یان بها نەهاتینە تۆمارکرن)":""));break}}
+  giftBusy=false;if(sent){$("giftSheet").hidden=true;toast("🎁 دیاری هاتە هنارتن")}else openGifts()}
+function giftFx(m){giftQ.push(m);if(giftQ.length===1)nextGiftFx()}
+function nextGiftFx(){const m=giftQ[0];if(!m)return;const g=GIFTS[m.item];if(!g){giftQ.shift();nextGiftFx();return}
+  const o=document.createElement("div");o.className="gfx";if(g.p>=500){const r=document.createElement("div");r.className="rays";o.append(r)}
+  const b=document.createElement("div");b.className="big";b.textContent=g.e;o.append(b);
+  for(let i=0;i<(g.p>=1000?24:12);i++){const c=document.createElement("span");c.className="cf";c.textContent=["✨","🎉","💖","⭐"][i%4];const a=Math.random()*Math.PI*2,d=120+Math.random()*180;
+    c.style.setProperty("--dx",Math.cos(a)*d+"px");c.style.setProperty("--dy",Math.sin(a)*d+"px");c.style.animationDelay=(Math.random()*.4)+"s";o.append(c)}
+  const ban=document.createElement("div");ban.className="ban";ban.textContent=(m.name||"")+" ➜ "+(m.toName||"")+"  "+g.e+" ×"+(m.qty||1);o.append(ban);
+  document.body.append(o);setTimeout(()=>{o.remove();giftQ.shift();nextGiftFx()},3300)}
+
+
+// ---------- earnings: what came to me from gifts (only I can read it) ----------
+let erTab="me";
+const dayStart=()=>{const d=new Date();d.setHours(0,0,0,0);return d.getTime()};
+const monthStart=()=>{const d=new Date();d.setDate(1);d.setHours(0,0,0,0);return d.getTime()};
+const agf=n=>Number(n||0).toLocaleString("en-US");
+function earnTiles(rows,amt){const t=dayStart(),m=monthStart();const sum=f=>rows.filter(f).reduce((a,r)=>a+(amt(r)||0),0);
+  const box=document.createElement("div");box.className="earn-tot";
+  [["ئەڤڕۆ",sum(r=>(r.ts||0)>=t)],["ئەڤ هەیڤە",sum(r=>(r.ts||0)>=m)],["هەمی",sum(()=>true)]].forEach(([l,v])=>{const d=document.createElement("div");
+    const b=document.createElement("b");b.textContent=agf(v);const sp=document.createElement("span");sp.textContent=l+" · AG";d.append(b,sp);box.append(d)});
+  return box}
+function when(ts){const d=new Date(ts||0);return d.getDate()+"/"+(d.getMonth()+1)+" "+hhmm(ts)}
+async function openEarn(){
+  $("erTabs").hidden=!isAdmin();document.querySelectorAll("#erTabs button").forEach(b=>{b.classList.toggle("on",b.dataset.t===erTab);b.onclick=()=>{erTab=b.dataset.t;openEarn()}});
+  const body=$("erBody");body.textContent="…";$("earnSheet").hidden=false;
+  if(erTab==="app"&&isAdmin()){await renderAppEarn(body);return}
+  let rows=[];try{const s=await fdb.ref("income/"+me).limitToLast(300).once("value");rows=Object.values(s.val()||{}).sort((a,b)=>(b.ts||0)-(a.ts||0))}catch(e){}
+  body.textContent="";const wrap=document.createElement("div");wrap.style.cssText="display:flex;flex-direction:column;gap:10px";
+  const total=rows.reduce((a,r)=>a+(r.amt||0),0),fromGifts=rows.filter(r=>r.kind==="gift").reduce((a,r)=>a+(r.amt||0),0),fromRoom=total-fromGifts;
+  const big=document.createElement("div");big.className="earn-big";const bb=document.createElement("b");bb.textContent="+"+agf(total)+" AG";const bs=document.createElement("span");bs.className="muted";bs.textContent="هەمی ئەو AGیێن بۆ تە هاتین";big.append(bb,bs);
+  const split=document.createElement("div");split.className="earn-split";const s1=document.createElement("span");s1.textContent="🎁 ژ دیاریان: "+agf(fromGifts);const s2=document.createElement("span");s2.textContent="🏠 ژ غورفا تە: "+agf(fromRoom);split.append(s1,s2);
+  wrap.append(big,earnTiles(rows,r=>r.amt),split);
+  const ul=document.createElement("ul");ul.className="earn-list";
+  if(!rows.length){const li=document.createElement("li");li.className="muted";li.textContent="هێشتا چ دیاری بۆ تە نەهاتینە.";ul.append(li)}
+  rows.slice(0,100).forEach(r=>{const g=GIFTS[r.item]||{e:"🎁"};const li=document.createElement("li");const e=document.createElement("span");e.className="ge";e.textContent=g.e;
+    const t=document.createElement("span");t.className="t";const b=document.createElement("b");b.textContent=(r.fromName||"یاریکەر")+(r.kind==="room"?" ➜ "+(r.toName||""):"")+" ×"+(r.qty||1);
+    if(r.kind==="room"){const tg=document.createElement("span");tg.className="tag";tg.textContent="🏠 غورفا تە";b.append(tg)}
+    const sm=document.createElement("small");sm.textContent=(r.roomName?"🎙 "+r.roomName+" · ":"")+when(r.ts);t.append(b,sm);
+    const a=document.createElement("span");a.className="a";a.textContent="+"+agf(r.amt);li.append(e,t,a);ul.append(li)});
+  wrap.append(ul);body.append(wrap)}
+// admin: the part of every gift that stays with the app
+async function renderAppEarn(body){
+  let rows=[];try{const s=await fdb.ref("giftLog").once("value");rows=Object.values(s.val()||{}).sort((a,b)=>(b.ts||0)-(a.ts||0))}catch(e){body.textContent="نەهاتە خواندن.";return}
+  const house=r=>(r.price||0)-(r.toShare||0)-(r.ownerShare||0);
+  body.textContent="";const wrap=document.createElement("div");wrap.style.cssText="display:flex;flex-direction:column;gap:10px";
+  const total=rows.reduce((a,r)=>a+house(r),0),volume=rows.reduce((a,r)=>a+(r.price||0),0);
+  const big=document.createElement("div");big.className="earn-big";const bb=document.createElement("b");bb.textContent=agf(total)+" AG";
+  const bs=document.createElement("span");bs.className="muted";bs.textContent="داهاتێ ئەپێ (50%) · ≈ "+agf(total*10)+" د.ع.";big.append(bb,bs);
+  const split=document.createElement("div");split.className="earn-split";const s1=document.createElement("span");s1.textContent="🎁 "+agf(rows.length)+" دیاری";const s2=document.createElement("span");s2.textContent="💰 هەمی هنارتن: "+agf(volume)+" AG";split.append(s1,s2);
+  wrap.append(big,earnTiles(rows,house),split);
+  // who sends the most
+  const by={};rows.forEach(r=>{by[r.from]=(by[r.from]||0)+(r.price||0)});
+  const ul=document.createElement("ul");ul.className="earn-list";
+  rows.slice(0,60).forEach(r=>{const g=GIFTS[r.item]||{e:"🎁"};const li=document.createElement("li");const e=document.createElement("span");e.className="ge";e.textContent=g.e;
+    const t=document.createElement("span");t.className="t";const b=document.createElement("b");b.textContent="×"+(r.qty||1)+" · "+agf(r.price)+" AG";
+    const sm=document.createElement("small");sm.textContent="🎙 "+((rooms[r.room]&&rooms[r.room].name)||r.room||"")+" · "+when(r.ts);t.append(b,sm);
+    const a=document.createElement("span");a.className="a";a.textContent="+"+agf(house(r));li.append(e,t,a);ul.append(li)});
+  if(!rows.length){const li=document.createElement("li");li.className="muted";li.textContent="هێشتا چ دیاری نەهاتینە هنارتن.";ul.append(li)}
+  wrap.append(ul);body.append(wrap)}
+
+// ---------- room list ----------
+function roomCard(id,r){
+  const b=document.createElement("button");b.type="button";b.className="rcard";b.onclick=()=>openRoom(id);
+  const cv=document.createElement("span");cv.className="cv";
+  if(r.cover){const im=document.createElement("img");im.alt="";im.src=r.cover;cv.append(im)}else cv.textContent="🎙";
+  const on=document.createElement("span");on.className="on";const eq=document.createElement("span");eq.className="eqz";for(let k=0;k<3;k++)eq.append(document.createElement("i"));
+  on.append(String(onlineIn(id)),eq);cv.append(on);
+  if(!r.public){const lk=document.createElement("span");lk.className="lock";lk.textContent="🔗";cv.append(lk)}
+  const tx=document.createElement("span");tx.className="tx";const nm=document.createElement("b");nm.textContent=r.name||"";
+  const ow=document.createElement("small");ow.textContent="👑 "+(r.ownerName||"");
+  const ds=document.createElement("small");ds.className="ds";ds.textContent=r.desc||"";tx.append(nm,ow);if(r.desc)tx.append(ds);
+  b.append(cv,tx);return b}
+const ROOM_LV=5,ROOM_XP=260;// XP needed to reach level 5 (50+60+70+80)
+const canCreate=()=>isAdmin()||(Number(myXp)||0)>=ROOM_XP;
+function renderList(){
+  if(!user)return;const box=$("roomGrid");if(!box)return;box.textContent="";
+  document.querySelectorAll("#rtabs button").forEach(b=>b.classList.toggle("on",b.dataset.t===tab));
+  const hasRoom=myRoomId&&rooms[myRoomId];
+  $("qMine").querySelector(".ct").firstChild.nodeValue=hasRoom?"غورفا من":canCreate()?"غورفەکێ چێکە":"🔒 غورفەکێ چێکە";
+  const q=query.trim().toLowerCase();
+  let list=Object.entries(rooms).filter(([id,r])=>r&&r.name);
+  if(tab==="all")list=list.filter(([id,r])=>r.public||id===myRoomId||joined[id]);
+  else if(tab==="hot")list=list.filter(([id,r])=>r.public&&onlineIn(id)>0);
+  else list=list.filter(([id])=>id===myRoomId||joined[id]);
+  if(q)list=list.filter(([id,r])=>(r.name||"").toLowerCase().includes(q)||id.toLowerCase()===q||(r.ownerName||"").toLowerCase().includes(q));
+  list.sort((a,b)=>onlineIn(b[0])-onlineIn(a[0])||(b[1].createdAt||0)-(a[1].createdAt||0));
+  list.slice(0,60).forEach(([id,r])=>box.append(roomCard(id,r)));
+  $("roomEmpty").hidden=list.length>0;
+  $("roomEmpty").textContent=tab==="mine"?"تو هێشتا نەچوویە چ غورفان. غورفەکێ چێکە یان «⭐ بەشداربە» ل غورفەکێ بکە.":q?"چ غورف نەهاتنە دیتن.":"هێشتا چ غورف نینن. ئێکەم کەس بە و غورفەکێ چێکە!"}
+
+// ---------- create / edit ----------
+function shrinkCover(file){return new Promise((ok,bad)=>{const fr=new FileReader();fr.onerror=bad;fr.onload=()=>{const im=new Image();im.onerror=bad;im.onload=()=>{
+  const W=480,H=480,c=document.createElement("canvas");c.width=W;c.height=H;const x=c.getContext("2d");
+  const s=Math.max(W/im.width,H/im.height),w=im.width*s,h=im.height*s;x.drawImage(im,(W-w)/2,(H-h)/2,w,h);
+  let q=.72,d=c.toDataURL("image/jpeg",q);while(d.length>110000&&q>.3){q-=.1;d=c.toDataURL("image/jpeg",q)}ok(d)};im.src=fr.result};fr.readAsDataURL(file)})}
+function openEdit(id){
+  editing=id||null;const r=id?rooms[id]:null;pendingCover=undefined;pickPublic=r?!!r.public:true;
+  $("edTitle").textContent=id?"⚙ ڕێکخستنا غورفێ":"🎙 غورفەکا نوو";
+  $("edName").value=r?r.name:"";$("edDesc").value=r&&r.desc?r.desc:"";
+  $("edCover").src=r&&r.cover?r.cover:"";$("edCover").hidden=!(r&&r.cover);
+  $("edDelete").hidden=!id;$("edSave").textContent=id?"پاشەکەفت بکە":"غورفێ چێکە";
+  pickTheme=r&&r.theme||"";renderThemePick();segPub();renderBans();$("editSheet").hidden=false}
+function segPub(){document.querySelectorAll("#edPub button").forEach(b=>{b.classList.toggle("on",(b.dataset.v==="1")===pickPublic);b.onclick=()=>{pickPublic=b.dataset.v==="1";segPub()}})}
+async function renderBans(){const box=$("edBans");box.textContent="";if(!editing){box.hidden=true;return}
+  const s=await fdb.ref("roomBans/"+editing).once("value").catch(()=>null);const v=(s&&s.val())||{};const ids=Object.keys(v);
+  box.hidden=!ids.length;if(!ids.length)return;
+  const h=document.createElement("span");h.className="muted";h.textContent="یاریکەرێن دەرکری";box.append(h);
+  ids.forEach(uid=>{const row=document.createElement("div");row.className="ban-row";const nm=document.createElement("span");nm.textContent=(v[uid]&&v[uid].name)||"یاریکەر";
+    const b=document.createElement("button");b.className="ghost";b.type="button";b.textContent="ڤەگەڕینە";b.onclick=async()=>{await fdb.ref("roomBans/"+editing+"/"+uid).remove().catch(()=>{});renderBans()};
+    row.append(nm,b);box.append(row)})}
+async function saveRoom(){
+  const name=$("edName").value.trim().slice(0,40),desc=$("edDesc").value.trim().slice(0,200);
+  if(!name){toast("ناڤەکی بۆ غورفێ بنڤیسە.");return}
+  $("edSave").disabled=true;
+  try{
+    if(editing){const up={name,desc,public:pickPublic,theme:pickTheme||null};if(pendingCover!==undefined)up.cover=pendingCover||null;
+      await fdb.ref("rooms/"+editing).update(up);toast("پاشەکەفت بوو")}
+    else{if(myRoomId&&rooms[myRoomId]){toast("تە بەری نوکە غورفەک هەیە.");openRoom(myRoomId);return}
+      const id=newId(),r={name,desc,public:pickPublic,owner:me,ownerName:myName(),createdAt:now()};if(pickTheme)r.theme=pickTheme;if(pendingCover)r.cover=pendingCover;
+      await fdb.ref().update({["rooms/"+id]:r,["myRoom/"+me]:id,["roomMembers/"+id+"/"+me]:{name:myName(),at:now()},["userRooms/"+me+"/"+id]:true});
+      $("editSheet").hidden=true;openRoom(id);return}
+    $("editSheet").hidden=true;
+  }catch(e){toast("پاشەکەفت نەبوو. دووبارە بکە.")}
+  finally{$("edSave").disabled=false}
+}
+async function deleteRoom(id){
+  if(!confirmTwice($("edDelete")))return;
+  const owner=ownerOf(id);
+  try{await fdb.ref().update({["roomSeats/"+id]:null,["rtc/"+id]:null,["rooms/"+id]:null,["roomMsgs/"+id]:null,["roomOnline/"+id]:null,["roomMembers/"+id]:null,["roomBans/"+id]:null,...(owner===me?{["myRoom/"+me]:null}:{})});
+    if(owner!==me&&isAdmin())fdb.ref("myRoom/"+owner).remove().catch(()=>{});
+    $("editSheet").hidden=true;toast("غورف هاتە ژێبرن");leaveRoom()}catch(e){toast("نەهاتە ژێبرن.")}
+}
+function confirmTwice(btn){if(btn.dataset.sure==="1"){btn.dataset.sure="";return true}btn.dataset.sure="1";const t=btn.textContent;btn.textContent="پشتڕاستی؟ دیسا بکە";
+  setTimeout(()=>{btn.dataset.sure="";btn.textContent=t},3000);return false}
+
+// ---------- inside a room ----------
+function goOnline(id){const r=fdb.ref("roomOnline/"+id+"/"+me);r.onDisconnect().remove().then(()=>r.set({name:myName(),photo:smallPhoto(myPhoto()),ts:now()})).catch(()=>{})}
+async function openRoom(id){
+  if(!user){show("login");return}
+  if(cur&&cur!==id)leaveRoom(true);
+  const snap=await fdb.ref("rooms/"+id).once("value").catch(()=>null);
+  if(!snap||!snap.exists()){toast("ئەڤ غورفە نەهاتە دیتن.");show("list");try{history.replaceState(null,"",location.pathname)}catch(e){}return}
+  rooms[id]=snap.val();
+  const ban=await fdb.ref("roomBans/"+id+"/"+me).once("value").catch(()=>null);
+  if(ban&&ban.exists()&&!isAdmin()){toast("تو ژ ڤێ غورفێ هاتییە دەرکرن.");show("list");return}
+  cur=id;joinedAt=Date.now();try{history.replaceState(null,"","#r-"+id)}catch(e){}
+  $("chat").querySelectorAll(".msg").forEach(x=>x.remove());show("room");document.body.classList.add("inroom");renderHead();renderSeats();renderPeople();goOnline(id);startLive(id);
+  banRef=fdb.ref("roomBans/"+id+"/"+me);banRef.on("value",s=>{if(s.exists()&&!isAdmin()){toast("تو ژ ڤێ غورفێ هاتییە دەرکرن.");leaveRoom()}});
+  fdb.ref("roomMembers/"+id).on("value",s=>{members=s.val()||{};renderHead()});
+  msgQ=fdb.ref("roomMsgs/"+id).limitToLast(80);
+  msgQ.on("child_added",s=>addMsg(s.key,s.val()));
+  msgQ.on("child_removed",s=>{const el=document.getElementById("m-"+s.key);if(el)el.remove()});
+  // the owner keeps the room light: messages older than 3 days go
+  if(ownerOf(id)===me)fdb.ref("roomMsgs/"+id).orderByChild("ts").endAt(Date.now()-3*86400000).limitToFirst(100).once("value").then(o=>o.forEach(c=>{c.ref.remove()})).catch(()=>{});
+}
+function leaveRoom(silent){
+  if(cur){const id=cur;fdb.ref("roomOnline/"+id+"/"+me).onDisconnect().cancel();fdb.ref("roomOnline/"+id+"/"+me).remove().catch(()=>{});
+    fdb.ref("roomMembers/"+id).off();if(msgQ)msgQ.off();if(banRef)banRef.off();stopLive(id)}
+  cur=null;msgQ=null;banRef=null;stopRec(false);playQ.length=0;
+  try{history.replaceState(null,"",location.pathname)}catch(e){}
+  if(!silent)show("list")}
+function renderHead(){
+  const r=rooms[cur];if(!r)return;
+  document.body.style.setProperty("--roomBg",r.cover?"url("+JSON.stringify(r.cover)+")":"");
+  applyTheme(r.theme||"");
+  if(r.cover)$("rmThumb").src=r.cover;else $("rmThumb").removeAttribute("src");$("rmName").textContent=r.name;$("rmDesc").textContent=r.desc||"";
+  $("rmCode").textContent=cur;$("rmOwner").textContent="👑 "+(r.ownerName||"")+" · ⭐ "+Object.keys(members).length;
+  const mine=r.owner===me;$("rmEdit").hidden=!(mine||isAdmin());
+  $("rmJoin").hidden=mine;$("rmJoin").textContent=joined[cur]?"✓ بەشدارم":"⭐ بەشداربە";$("rmJoin").classList.toggle("primary",!joined[cur]);$("rmJoin").classList.toggle("ghost",!!joined[cur])}
+const talking={};
+function renderPeople(){
+  const box=$("people");box.textContent="";const on=online[cur]||{};const ids=Object.keys(on);
+  $("rmOnline").textContent=ids.length;
+  ids.sort((a,b)=>(b===ownerOf(cur))-(a===ownerOf(cur))||(on[a].ts||0)-(on[b].ts||0)).forEach(uid=>{const p=on[uid];
+    const d=document.createElement("button");d.type="button";d.className="rm-p"+(talking[uid]>Date.now()?" talk":"");
+    d.append(avImg(uid,p.photo));const n=document.createElement("span");n.textContent=(uid===ownerOf(cur)?"👑 ":"")+(p.name||"یاریکەر");d.append(n);
+    d.onclick=()=>personMenu(uid,p.name);box.append(d)});
+  syncPeers()}
+
+// ---------- seats and live voice (each phone talks straight to the others) ----------
+const SEATS=10;let seats={},seatRef=null,rtcRef=null,localStream=null,myMuted=false,pcs={},actx=null,levels={},meterOn=false;
+// relay servers: phones on mobile data usually cannot reach each other directly, so the voice goes through a TURN relay
+let ICE_SERVERS=null,iceLoading=null,warned=false;
+const ICE=()=>({iceServers:ICE_SERVERS||[{urls:["stun:stun.l.google.com:19302"]}]});
+async function hmacB64(key,msg){const k=await crypto.subtle.importKey("raw",new TextEncoder().encode(key),{name:"HMAC",hash:"SHA-1"},false,["sign"]);
+  const sig=new Uint8Array(await crypto.subtle.sign("HMAC",k,new TextEncoder().encode(msg)));let b="";sig.forEach(x=>b+=String.fromCharCode(x));return btoa(b)}
+function loadIce(){if(iceLoading)return iceLoading;iceLoading=(async()=>{
+  const list=[{urls:["stun:stun.l.google.com:19302","stun:stun1.l.google.com:19302"]}];
+  let t=null;try{t=(await fdb.ref("config/turn").once("value")).val()}catch(e){}
+  try{
+    if(t&&t.app&&t.key){const r=await fetch("https://"+encodeURIComponent(t.app)+".metered.live/api/v1/turn/credentials?apiKey="+encodeURIComponent(t.key));const a=await r.json();if(Array.isArray(a))list.push(...a)}
+    else if(t&&t.urls)list.push({urls:String(t.urls).split(",").map(x=>x.trim()).filter(Boolean),username:t.username||"",credential:t.credential||""});
+    else{// free public relay (Open Relay by Metered), time-limited credentials made here
+      const user=String(Math.floor(Date.now()/1000)+12*3600)+":ag";const cred=await hmacB64("openrelayprojectsecret",user);const h="staticauth.openrelay.metered.ca";
+      list.push({urls:["turn:"+h+":80","turn:"+h+":80?transport=tcp","turn:"+h+":443","turns:"+h+":443?transport=tcp"],username:user,credential:cred})}
+  }catch(e){}
+  ICE_SERVERS=list;syncPeers()})();return iceLoading}
+const mySeat=()=>{for(const n in seats)if(seats[n]&&seats[n].uid===me)return +n;return -1};
+const seated=()=>new Set(Object.values(seats).filter(Boolean).map(x=>x.uid));
+const pairKey=u=>me<u?me+"_"+u:u+"_"+me;
+const MIC='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M6 11a6 6 0 0 0 12 0M12 17v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+function renderSeats(){
+  const box=$("seats");box.textContent="";
+  for(let n=0;n<SEATS;n++){const st=seats[n];const b=document.createElement("button");b.type="button";b.className="seat-b";
+    const ring=document.createElement("span");ring.className="ring";
+    const nm=document.createElement("span");nm.className="nm";
+    if(st){b.classList.add("on");if(st.uid===me)b.classList.add("mine");if(levels[st.uid]>0.04&&!st.muted)b.classList.add("speak");
+      ring.append(avImg(st.uid,st.photo));if(st.muted){const m=document.createElement("span");m.className="mute";m.textContent="🔇";ring.append(m)}
+      if(st.uid===ownerOf(cur)){const o=document.createElement("span");o.className="own";o.textContent="👑";ring.append(o)}
+      if(st.uid!==me){const e=pcs[st.uid];const ok=e&&e.pc.connectionState==="connected";if(!ok){const w=document.createElement("span");w.className="link"+(e&&Date.now()-e.born<10000?" wait":"");w.textContent=e&&Date.now()-e.born<10000?"…":"⚠";ring.append(w)}}
+      nm.textContent=st.name||"یاریکەر"}
+    else{ring.innerHTML=MIC;nm.textContent=String(n+1)}
+    b.append(ring,nm);b.onclick=()=>seatTap(n);box.append(b)}
+  const mine=mySeat()>=0;$("liveBtn").hidden=!mine;$("micBtn").hidden=mine;$("liveBtn").classList.toggle("off",myMuted);
+  $("barHint").textContent=mine?(myMuted?"مایکا تە یا گرتییە · ل 🎙 بکە دا باخڤی":"تو ل سەر کورسیێ یی · هەمی کەس گوهـ ل تە دبن"):"ل کورسیەکا ڤالا بکە دا ڕاستەوخۆ باخڤی · یان 🎤 بگرە بۆ پەیاما دەنگی"}
+async function getMic(){if(localStream)return localStream;
+  localStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
+  meter(me,localStream);return localStream}
+async function seatTap(n){
+  const st=seats[n];
+  if(!st){
+    if(mySeat()>=0){const from=mySeat();const r=await fdb.ref("roomSeats/"+cur+"/"+n).transaction(v=>v?undefined:{...seats[from],ts:Date.now()}).catch(()=>null);
+      if(r&&r.committed){fdb.ref("roomSeats/"+cur+"/"+from).onDisconnect().cancel();await fdb.ref("roomSeats/"+cur+"/"+from).remove().catch(()=>{});fdb.ref("roomSeats/"+cur+"/"+n).onDisconnect().remove()}return}
+    takeSeat(n);return}
+  if(st.uid===me){sheetMenu(st.name||"",[[myMuted?"🎙 مایکێ ڤەکە":"🔇 مایکێ بگرە",toggleMute],["⬇ ژ کورسیێ دابەزە",leaveSeat]]);return}
+  const acts=[["🎁 دیاری بهنێرە",()=>giftTo(st.uid)]];if(canMod(cur)){acts.push(["⬇ ژ کورسیێ داخە",()=>fdb.ref("roomSeats/"+cur+"/"+n).remove().catch(()=>toast("نەهاتە کرن."))]);
+    if(st.uid!==ownerOf(cur))acts.push(["🚫 ژ غورفێ دەرکە",()=>kick(st.uid,st.name)])}
+  if(acts.length)sheetMenu(st.name||"",acts)}
+async function takeSeat(n){
+  unlockAudio();
+  try{await getMic()}catch(e){toast("ڕێ نەهاتە دان ب مایکێ. ل ڕێکخستنێن گەڕۆکێ ڕێ بدە.");return}
+  const ref=fdb.ref("roomSeats/"+cur+"/"+n);
+  const r=await ref.transaction(v=>v?undefined:{uid:me,name:myName(),photo:smallPhoto(myPhoto()),muted:false,ts:Date.now()}).catch(()=>null);
+  if(!r||!r.committed){toast("ئەڤ کورسیە یا گرتییە.");return}
+  ref.onDisconnect().remove();myMuted=false;localStream.getAudioTracks().forEach(t=>t.enabled=true)}
+function leaveSeat(){const n=mySeat();if(n<0)return;const ref=fdb.ref("roomSeats/"+cur+"/"+n);ref.onDisconnect().cancel();ref.remove().catch(()=>{});releaseMic()}
+function releaseMic(){if(localStream){localStream.getTracks().forEach(t=>t.stop());localStream=null}delete levels[me];delete meters[me];myMuted=false}
+function toggleMute(){const n=mySeat();if(n<0||!localStream)return;myMuted=!myMuted;localStream.getAudioTracks().forEach(t=>t.enabled=!myMuted);
+  fdb.ref("roomSeats/"+cur+"/"+n+"/muted").set(myMuted).catch(()=>{});renderSeats()}
+// who I should be connected to: I hear every speaker; if I speak, everyone hears me
+function syncPeers(){
+  if(!cur||!fdb)return;if(!ICE_SERVERS){loadIce();return}const sp=seated(),iS=sp.has(me);
+  const others=new Set(Object.keys(online[cur]||{}));sp.forEach(u=>others.add(u));others.delete(me);
+  const need={};others.forEach(u=>{if(iS||sp.has(u))need[u]=(iS?1:0)+""+(sp.has(u)?1:0)});
+  for(const u in pcs)if(!need[u]||pcs[u].sig!==need[u])closePeer(u);
+  for(const u in need)if(!pcs[u]){const uS=sp.has(u);const offer=iS&&!uS?true:!iS&&uS?false:me<u;
+    if(offer)startOffer(u,need[u]);else{const k=pairKey(u);if(pairData[k])onPair(k,pairData[k])}}}
+const pairData={};
+function newPC(u,sid,sig,offerer){
+  const pc=new RTCPeerConnection(ICE());const path="rtc/"+cur+"/"+pairKey(u);
+  const e={pc,sid,sig,offerer,path,seen:{},pending:[],remote:false};pcs[u]=e;
+  pc.onicecandidate=ev=>{if(ev.candidate)fdb.ref(path+"/c/"+me).push({sid,c:JSON.stringify(ev.candidate)}).catch(()=>{})};
+  pc.ontrack=ev=>{const st=ev.streams[0]||new MediaStream([ev.track]);let a=document.getElementById("au-"+u);
+    if(!a){a=document.createElement("audio");a.id="au-"+u;a.autoplay=true;a.setAttribute("playsinline","");$("audios").append(a)}
+    a.srcObject=st;a.muted=muted;a.play().catch(()=>{$("audioUnlock").hidden=false});meter(u,st)};
+  e.born=Date.now();
+  pc.onconnectionstatechange=()=>{if(!pcs[u]||pcs[u].pc!==pc)return;renderSeats();
+    if(pc.connectionState==="failed"){e.fails=(e.fails||0)+1;closePeer(u);if(!warned){warned=true;toast("⚠ دەنگ نەگەهشت. دبیت ئینتەرنێتا ئێکێ ژ وە ڕێ نەدەت · دیسا دهێتە تاقیکرن…")}setTimeout(syncPeers,3000)}};
+  if(localStream&&mySeat()>=0)localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));
+  else pc.addTransceiver("audio",{direction:"recvonly"});
+  return e}
+async function startOffer(u,sig){
+  const sid=Math.random().toString(36).slice(2,10);const e=newPC(u,sid,sig,true);
+  try{const o=await e.pc.createOffer();await e.pc.setLocalDescription(o);
+    await fdb.ref(e.path).set({sid,from:me,offer:{type:o.type,sdp:o.sdp},ts:now()})}catch(err){closePeer(u)}}
+async function onPair(key,v){
+  pairData[key]=v;if(!v||!cur||!ICE_SERVERS)return;const ids=key.split("_");if(!ids.includes(me))return;const u=ids[0]===me?ids[1]:ids[0];
+  let e=pcs[u];
+  if(v.from!==me&&v.offer&&(!e||e.sid!==v.sid)){
+    const sp=seated(),iS=sp.has(me);if(!(iS||sp.has(u)))return;
+    if(e)closePeer(u,true);e=newPC(u,v.sid,(iS?1:0)+""+(sp.has(u)?1:0),false);
+    try{await e.pc.setRemoteDescription(v.offer);e.remote=true;const an=await e.pc.createAnswer();await e.pc.setLocalDescription(an);
+      await fdb.ref(e.path+"/answer").set({type:an.type,sdp:an.sdp})}catch(err){closePeer(u,true);return}}
+  else if(e&&v.from===me&&e.sid===v.sid&&v.answer&&!e.remote){try{await e.pc.setRemoteDescription(v.answer);e.remote=true}catch(err){}}
+  if(!e||e.sid!==v.sid||!v.c||!v.c[u])return;
+  for(const k in v.c[u]){const c=v.c[u][k];if(e.seen[k]||c.sid!==e.sid)continue;e.seen[k]=1;e.pending.push(JSON.parse(c.c))}
+  if(e.remote){const list=e.pending.splice(0);for(const c of list)e.pc.addIceCandidate(c).catch(()=>{})}}
+function closePeer(u,keepSignal){const e=pcs[u];if(!e)return;try{e.pc.close()}catch(err){}delete pcs[u];delete levels[u];
+  const a=document.getElementById("au-"+u);if(a)a.remove();if(e.offerer&&!keepSignal)fdb.ref(e.path).remove().catch(()=>{})}
+// who is talking right now (yellow glow on the seat)
+const meters={};
+function meter(u,stream){try{actx=actx||new(window.AudioContext||window.webkitAudioContext)();
+  const src=actx.createMediaStreamSource(stream),an=actx.createAnalyser();an.fftSize=512;src.connect(an);meters[u]=an;
+  if(!meterOn){meterOn=true;tickMeters()}}catch(e){}}
+function tickMeters(){if(!cur){meterOn=false;return}const buf=new Uint8Array(512);let changed=false;
+  for(const u in meters){const an=meters[u];if(u!==me&&!pcs[u]){delete meters[u];continue}an.getByteTimeDomainData(buf);let sum=0;for(let i=0;i<buf.length;i++){const x=(buf[i]-128)/128;sum+=x*x}
+    const lv=Math.sqrt(sum/buf.length);const was=(levels[u]||0)>0.04;levels[u]=lv;if(was!==(lv>0.04))changed=true}
+  if(changed)renderSeats();setTimeout(tickMeters,180)}
+function unlockAudio(){try{actx=actx||new(window.AudioContext||window.webkitAudioContext)();actx.resume()}catch(e){}
+  document.querySelectorAll("#audios audio").forEach(a=>a.play().catch(()=>{}));$("audioUnlock").hidden=true}
+function startLive(id){
+  seatRef=fdb.ref("roomSeats/"+id);seatRef.on("value",s=>{seats=s.val()||{};
+    if(mySeat()<0&&localStream)releaseMic();renderSeats();syncPeers()});
+  rtcRef=fdb.ref("rtc/"+id);const h=s=>onPair(s.key,s.val());rtcRef.on("child_added",h);rtcRef.on("child_changed",h);
+  loadIce();clearInterval(healthTick);healthTick=setInterval(()=>{if(cur)renderSeats()},4000)}
+let healthTick=null;
+function stopLive(id){
+  clearInterval(healthTick);
+  if(mySeat()>=0){const ref=fdb.ref("roomSeats/"+id+"/"+mySeat());ref.onDisconnect().cancel();ref.remove().catch(()=>{})}
+  releaseMic();Object.keys(pcs).forEach(u=>closePeer(u));if(seatRef)seatRef.off();if(rtcRef)rtcRef.off();seatRef=rtcRef=null;seats={};
+  applyTheme("");for(const u in meters)delete meters[u];for(const k in pairData)delete pairData[k];document.body.classList.remove("inroom");document.body.style.removeProperty("--roomBg")}
+const hhmm=t=>{const d=new Date(t||Date.now());return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")};
+function addMsg(key,m){
+  if(!m||document.getElementById("m-"+key))return;const box=$("chat");
+  const row=document.createElement("div");row.id="m-"+key;row.className="msg"+(m.uid===me?" mine":"");
+  const img=avImg(m.uid,m.photo);
+  const bub=document.createElement("div");bub.className="bub";
+  const nm=document.createElement("div");nm.className="nm";nm.textContent=m.name||"یاریکەر";nm.append(lvlChip(m.uid));bub.append(nm);
+  if(m.uid!==me){nm.classList.add("tap");img.classList.add("tap");nm.onclick=img.onclick=()=>personMenu(m.uid,m.name)}
+  if(m.t==="g"){const g=GIFTS[m.item]||{e:"🎁",n:""};row.classList.add("gift");const gl=document.createElement("div");gl.className="gline";
+    const e=document.createElement("span");e.className="ge";e.textContent=g.e;const t=document.createElement("span");t.textContent="➜ "+(m.toName||"")+" ×"+(m.qty||1);gl.append(e,t);bub.append(gl);
+    if((m.ts||0)>joinedAt-2000)giftFx(m)}
+  else if(m.t==="v"){const vc=document.createElement("div");vc.className="vc";const pb=document.createElement("button");pb.type="button";pb.className="play";pb.textContent="▶";
+    const dur=document.createElement("span");dur.className="dur";dur.textContent="🎤 "+(m.dur||0).toFixed(1)+"s";
+    const bar=document.createElement("span");bar.className="wave";for(let k=0;k<14;k++){const i=document.createElement("i");i.style.height=(30+((k*37+key.charCodeAt(k%key.length))%70))+"%";bar.append(i)}
+    pb.onclick=()=>playClip(m,pb,true);vc.append(pb,bar,dur);bub.append(vc);
+    if(m.uid!==me&&(m.ts||0)>joinedAt-2000)playClip(m,pb,false)}
+  else{const tx=document.createElement("div");tx.className="tx";tx.textContent=m.text||"";bub.append(tx)}
+  const meta=document.createElement("div");meta.className="meta";meta.textContent=hhmm(m.ts);
+  if(m.uid===me||canMod(cur)){const x=document.createElement("button");x.type="button";x.className="more";x.textContent="⋯";x.onclick=()=>msgMenu(key,m);meta.append(x)}
+  bub.append(meta);row.append(img,bub);
+  const atBottom=box.scrollHeight-box.scrollTop-box.clientHeight<80;box.append(row);
+  while(box.children.length>121)box.children[1].remove();
+  if(atBottom||m.uid===me)box.scrollTop=box.scrollHeight}
+// voice clips play one after another
+const playQ=[];let playing=null;
+function playClip(m,btn,force){if(!force&&muted)return;playQ.push([m,btn,force]);if(!playing)nextClip()}
+function nextClip(){const it=playQ.shift();if(!it){playing=null;return}const[m,btn]=it;
+  try{const a=new Audio(m.data);playing=a;btn.textContent="⏸";talking[m.uid]=Date.now()+(m.dur||3)*1000+500;renderPeople();
+    a.onended=a.onerror=()=>{btn.textContent="▶";talking[m.uid]=0;renderPeople();nextClip()};
+    a.play().catch(()=>{btn.textContent="▶";playing=null;playQ.length=0;toast("🔊 پەیامەکا دەنگی هات · ل ▶ بکە دا گوهـ لێ ببی")})}
+  catch(e){nextClip()}}
+async function sendText(){
+  const inp=$("msgIn"),text=inp.value.trim().slice(0,500);if(!text||!cur)return;
+  if(Date.now()-lastSend<800){toast("هێدی هێدی…");return}lastSend=Date.now();
+  inp.value="";
+  try{await fdb.ref("roomMsgs/"+cur).push({uid:me,name:myName(),photo:smallPhoto(myPhoto()),t:"t",text,ts:now()})}catch(e){toast("پەیام نەهاتە هنارتن.");inp.value=text}
+}
+function msgMenu(key,m){
+  const acts=[["🗑 ژێ ببە",()=>fdb.ref("roomMsgs/"+cur+"/"+key).remove().catch(()=>toast("نەهاتە ژێبرن."))]];
+  if(canMod(cur)&&m.uid!==me&&m.uid!==ownerOf(cur))acts.push(["🚫 ژ غورفێ دەرکە",()=>kick(m.uid,m.name)]);
+  sheetMenu(m.name||"",acts)}
+function personMenu(uid,name){
+  const acts=[];if(uid!==me)acts.push(["🎁 دیاری بهنێرە",()=>giftTo(uid)]);
+  if(canMod(cur)&&uid!==me&&uid!==ownerOf(cur))acts.push(["🚫 ژ غورفێ دەرکە",()=>kick(uid,name)]);
+  if(!acts.length)return;sheetMenu(name||"",acts)}
+function giftTo(uid){if(!(online[cur]||{})[uid]){toast("ئەو نوکە ل غورفێ نینە.");return}gTo=new Set([uid]);openGifts()}
+async function kick(uid,name){
+  const sn=Object.keys(seats).find(n=>seats[n]&&seats[n].uid===uid);
+  try{await fdb.ref().update({["roomBans/"+cur+"/"+uid]:{name:name||"",at:now()},["roomOnline/"+cur+"/"+uid]:null,...(sn!=null?{["roomSeats/"+cur+"/"+sn]:null}:{})});
+    toast((name||"یاریکەر")+" هاتە دەرکرن")}catch(e){toast("نەهاتە کرن.")}}
+function sheetMenu(title,acts){const box=$("menuActs");box.textContent="";$("menuTitle").textContent=title;
+  acts.forEach(([t,f])=>{const b=document.createElement("button");b.type="button";b.className="ghost big";b.textContent=t;b.onclick=()=>{$("menuSheet").hidden=true;f()};box.append(b)});
+  $("menuSheet").hidden=false}
+async function toggleJoin(){
+  if(!cur)return;const id=cur;
+  try{if(joined[id])await fdb.ref().update({["roomMembers/"+id+"/"+me]:null,["userRooms/"+me+"/"+id]:null});
+    else{await fdb.ref().update({["roomMembers/"+id+"/"+me]:{name:myName(),at:now()},["userRooms/"+me+"/"+id]:true});toast("⭐ غورف کەفتە د لیستا تە دا")}}
+  catch(e){toast("نەهاتە کرن.")}}
+async function invite(){
+  const r=rooms[cur];if(!r)return;const url=location.origin+location.pathname+"#r-"+cur;
+  const text="🎙 وەرە غورفا «"+r.name+"» ل AG Chess and Domino";
+  try{if(navigator.share){await navigator.share({title:r.name,text,url});return}}catch(e){if(e&&e.name==="AbortError")return}
+  try{await navigator.clipboard.writeText(text+"\n"+url);toast("🔗 لینک هاتە کۆپیکرن · بۆ هەڤالێن خۆ بهنێرە")}catch(e){toast(url)}}
+
+// ---------- voice: hold the mic, talk, let go ----------
+let rec=null,recChunks=[],recStream=null,recStart=0,recTimer=null;const MAXV=30;
+async function startRec(e){
+  e&&e.preventDefault();if(rec||!cur)return;
+  try{recStream=recStream||await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}})}
+  catch(err){toast("ڕێ نەهاتە دان ب مایکێ. ل ڕێکخستنێن گەڕۆکێ ڕێ بدە.");return}
+  const types=["audio/webm;codecs=opus","audio/mp4","audio/webm","audio/ogg;codecs=opus"];const type=types.find(t=>window.MediaRecorder&&MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(t))||"";
+  try{rec=new MediaRecorder(recStream,type?{mimeType:type,audioBitsPerSecond:24000}:undefined)}catch(err){toast("ئەڤ مۆبایلە تۆمارکرنا دەنگی پشتگیری ناکەت.");return}
+  recChunks=[];rec.ondataavailable=ev=>{if(ev.data&&ev.data.size)recChunks.push(ev.data)};
+  rec.onstop=sendClip;rec.start();recStart=Date.now();$("micBtn").classList.add("rec");$("recInfo").hidden=false;
+  recTimer=setInterval(()=>{const sec=Math.floor((Date.now()-recStart)/1000);$("recInfo").textContent="⏺ "+sec+" / "+MAXV;if(sec>=MAXV)stopRec(true)},200);
+}
+function stopRec(send){
+  clearInterval(recTimer);recTimer=null;$("micBtn").classList.remove("rec");$("recInfo").hidden=true;
+  if(rec){if(send&&Date.now()-recStart<600){send=false;toast("دوگمێ بگرە و باخڤە، پاشان بهێلە")}rec._send=send;try{rec.stop()}catch(e){}rec=null}
+}
+async function sendClip(ev){
+  const r=ev.target,dur=(Date.now()-recStart)/1000;if(!r._send||!recChunks.length||!cur)return;
+  const blob=new Blob(recChunks,{type:r.mimeType||"audio/webm"});
+  if(blob.size>150000){toast("پەیام درێژە. کورتتر باخڤە.");return}
+  const data=await new Promise(ok=>{const fr=new FileReader();fr.onload=()=>ok(fr.result);fr.readAsDataURL(blob)});
+  try{const ref=fdb.ref("roomMsgs/"+cur);
+    await ref.push({uid:me,name:myName(),photo:smallPhoto(myPhoto()),t:"v",data,dur:Math.round(Math.min(dur,MAXV)*10)/10,ts:now()});
+    // voice is heavy: my own clips older than an hour are removed
+    const old=await ref.orderByChild("ts").endAt(Date.now()-3600000).limitToFirst(40).once("value");
+    old.forEach(c=>{const v=c.val();if(v&&v.uid===me&&v.t==="v")c.ref.remove()});
+  }catch(e){toast("پەیام نەهاتە هنارتن.")}
+}
+
+// ---------- wiring ----------
+$("googleBtn").onclick=signIn;
+document.querySelectorAll("#rtabs button").forEach(b=>b.onclick=()=>{tab=b.dataset.t;renderList()});
+$("roomSearch").oninput=e=>{query=e.target.value;renderList()};
+$("qMine").onclick=()=>{if(myRoomId&&rooms[myRoomId])openRoom(myRoomId);else if(!canCreate())toast("🔒 بۆ چێکرنا غورفێ دڤێت بگەهییە ئاستێ "+ROOM_LV+". ئاستێ تە نوکە "+lvInfo(myXp||0).l+" یە · یاری بکە دا ئاستێ تە بلند ببیت!");else openEdit(null)};
+$("qHot").onclick=()=>{tab="hot";renderList();$("roomGrid").scrollIntoView({behavior:"smooth",block:"start"})};
+$("qMy").onclick=()=>{tab="mine";renderList();$("roomGrid").scrollIntoView({behavior:"smooth",block:"start"})};
+$("qCode").onclick=()=>{$("roomSearch").focus()};
+$("edClose").onclick=()=>$("editSheet").hidden=true;$("editSheet").onclick=e=>{if(e.target.id==="editSheet")$("editSheet").hidden=true};
+$("menuClose").onclick=()=>$("menuSheet").hidden=true;$("menuSheet").onclick=e=>{if(e.target.id==="menuSheet")$("menuSheet").hidden=true};
+$("edFile").onchange=async e=>{const f=e.target.files&&e.target.files[0];e.target.value="";if(!f)return;
+  try{pendingCover=await shrinkCover(f);$("edCover").src=pendingCover;$("edCover").hidden=false}catch(err){toast("ئەڤ وێنە نەهاتە خواندن.")}};
+$("edNoCover").onclick=()=>{pendingCover=null;$("edCover").hidden=true};
+$("edSave").onclick=saveRoom;$("edDelete").onclick=()=>deleteRoom(editing);
+$("rmBack").onclick=()=>leaveRoom();
+$("liveBtn").onclick=toggleMute;$("audioUnlock").onclick=unlockAudio;$("seats").addEventListener("click",unlockAudio,{once:true});
+$("turnBtn").onclick=async()=>{const s=await fdb.ref("config/turn").once("value").catch(()=>null);const t=(s&&s.val())||{};$("tsUrls").value=t.urls||"";$("tsApp").value=t.app||"";$("tsKey").value=t.key||"";$("tsUser").value=t.username||"";$("tsPass").value=t.credential||"";$("turnSheet").hidden=false};
+$("tsClose").onclick=()=>$("turnSheet").hidden=true;
+$("tsSave").onclick=async()=>{try{await fdb.ref("config/turn").set({app:$("tsApp").value.trim(),key:$("tsKey").value.trim(),urls:$("tsUrls").value.trim(),username:$("tsUser").value.trim(),credential:$("tsPass").value.trim()});$("turnSheet").hidden=true;toast("پاشەکەفت بوو")}catch(e){toast("پاشەکەفت نەبوو")}};$("rmEdit").onclick=()=>openEdit(cur);$("rmJoin").onclick=toggleJoin;$("rmInvite").onclick=invite;
+$("rmMute").onclick=()=>{muted=!muted;$("rmMute").textContent=muted?"🔇":"🔊";document.querySelectorAll("#audios audio").forEach(a=>a.muted=muted);if(muted&&playing){playing.pause();playQ.length=0;playing=null}toast(muted?"دەنگ هاتە گرتن":"دەنگ ڤەبوو")};
+$("sendBtn").onclick=sendText;
+$("giftBtn").onclick=openGifts;
+$("earnBtn").onclick=$("rmEarn").onclick=()=>{erTab="me";openEarn()};$("erClose").onclick=()=>$("earnSheet").hidden=true;$("earnSheet").onclick=e=>{if(e.target.id==="earnSheet")$("earnSheet").hidden=true};$("gClose").onclick=()=>$("giftSheet").hidden=true;$("giftSheet").onclick=e=>{if(e.target.id==="giftSheet")$("giftSheet").hidden=true};$("gSend").onclick=sendGift;$("msgIn").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();sendText()}});
+const mic=$("micBtn");
+mic.addEventListener("pointerdown",e=>{mic.setPointerCapture&&mic.setPointerCapture(e.pointerId);startRec(e)});
+mic.addEventListener("pointerup",()=>stopRec(true));mic.addEventListener("pointercancel",()=>stopRec(false));
+mic.addEventListener("contextmenu",e=>e.preventDefault());
+window.addEventListener("pagehide",()=>{if(cur&&fdb)fdb.ref("roomOnline/"+cur+"/"+me).remove()});
+if(typeof firebase!=="undefined")boot();else{show("login");toast("بۆ مەجلیسێ ئینتەرنێت پێدڤییە.")}
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js",{scope:"./",updateViaCache:"none"}).catch(()=>{});
+</script>
+</body>
+</html>
