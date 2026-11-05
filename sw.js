@@ -1,6 +1,17 @@
 // Service worker for AG Classic Games.
 // Pages come fresh from the server; the last good copy is kept so the robot games open without internet.
 // It also shows the notifications the admin sends from Firebase Console > Messaging.
+// tapping a notification opens the game inside the app (registered before Firebase so its handler,
+// which would open the site root in a browser tab, does not run)
+self.addEventListener("notificationclick", e => {
+  e.stopImmediatePropagation();
+  e.notification.close();
+  const home = self.registration.scope; // https://zeravan180.github.io/chess/
+  e.waitUntil(clients.matchAll({ type: "window", includeUncontrolled: true }).then(list => {
+    for (const c of list) if (c.url.startsWith(home) && "focus" in c) return c.focus();
+    return clients.openWindow(home);
+  }));
+});
 try {
   importScripts("https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js", "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js");
   firebase.initializeApp({
@@ -13,16 +24,6 @@ try {
   });
   firebase.messaging(); // notification messages are shown by the SDK, even when the app is closed
 } catch (e) { /* no internet while the worker loads: the games still work */ }
-// tapping a notification opens the game (or brings it to the front)
-self.addEventListener("notificationclick", e => {
-  e.notification.close();
-  const d = e.notification.data || {}, f = d.FCM_MSG || {};
-  const link = (f.notification && f.notification.click_action) || (f.fcmOptions && f.fcmOptions.link) || d.link || "./";
-  e.waitUntil(clients.matchAll({ type: "window", includeUncontrolled: true }).then(list => {
-    for (const c of list) if ("focus" in c) { if (link !== "./" && "navigate" in c) c.navigate(link); return c.focus(); }
-    return clients.openWindow(link);
-  }));
-});
 const CACHE = "ag-v1"; // v2: scripts always fresh
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", e => e.waitUntil(self.clients.claim()));
