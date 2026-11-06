@@ -68,6 +68,7 @@ html.land #game.n4 #quitBtn{left:auto;right:8px;bottom:58px}html.land #game.n4 #
 html.land #quitConfirm{position:absolute!important;left:8px;bottom:60px;z-index:8;background:#3a0d10;border:1px solid rgba(255,215,120,.5);border-radius:12px;padding:8px;gap:6px;max-width:50%}
 html.land #overBox,html.land #kRound{position:absolute!important;z-index:7;left:50%;top:50%;transform:translate(-50%,-50%);width:min(440px,72%);max-height:92%;overflow:auto;box-shadow:0 10px 30px rgba(0,0,0,.6);margin:0!important;background:#16261f!important;border:1px solid rgba(255,215,120,.45)!important;border-radius:16px!important;opacity:1!important;backdrop-filter:none!important}
 html.land #overBox[hidden],html.land #kRound[hidden]{display:none!important}
+${KIND==="domino"?"html.land #table{margin:0!important;padding:8px 10px!important;gap:4px!important;display:flex!important;flex-direction:column}html.land #table .chain{flex:1 1 0;height:auto!important;min-height:0!important;max-width:none!important;width:100%}html.land #table .ends{font-size:12px}":""}
 ${KIND==="chess"?`html.land .board-wrap{width:min(100%,calc(var(--H) - 16px))!important;margin:0 auto;flex:none}
 html.land .board-wrap .board{width:100%}
 html.land #game>.panel.lb{display:none!important}
