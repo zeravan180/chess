@@ -66,7 +66,7 @@ html.land #quitBtn::before{content:"🚪";font-size:20px}
 html.land #game>.panel>.row:has(>#quitBtn){display:contents!important}
 html.land #game.n4 #quitBtn{left:auto;right:8px;bottom:58px}html.land #game.n4 #quitConfirm{left:auto;right:8px;bottom:108px}
 html.land #quitConfirm{position:absolute!important;left:8px;bottom:60px;z-index:8;background:#3a0d10;border:1px solid rgba(255,215,120,.5);border-radius:12px;padding:8px;gap:6px;max-width:50%}
-html.land #overBox,html.land #kRound{position:absolute!important;z-index:7;left:50%;top:50%;transform:translate(-50%,-50%);width:min(440px,72%);max-height:92%;overflow:auto;box-shadow:0 10px 30px rgba(0,0,0,.6);margin:0!important}
+html.land #overBox,html.land #kRound{position:absolute!important;z-index:7;left:50%;top:50%;transform:translate(-50%,-50%);width:min(440px,72%);max-height:92%;overflow:auto;box-shadow:0 10px 30px rgba(0,0,0,.6);margin:0!important;background:#16261f!important;border:1px solid rgba(255,215,120,.45)!important;border-radius:16px!important;opacity:1!important;backdrop-filter:none!important}
 html.land #overBox[hidden],html.land #kRound[hidden]{display:none!important}
 ${KIND==="chess"?`html.land .board-wrap{width:min(100%,calc(var(--H) - 16px))!important;margin:0 auto;flex:none}
 html.land .board-wrap .board{width:100%}
@@ -142,7 +142,7 @@ html.land #leaveBtn::before{content:"🚪";font-size:20px}`:""}
     if(inGame){if(!leaveHome)leaveHome=[l.parentNode,l.nextSibling];game.appendChild(l)}else if(leaveHome){leaveHome[0].insertBefore(l,leaveHome[1]);leaveHome=null}}
   function update(){const want=!game.hidden;if(want===on)return;on=want;ROOT.classList.toggle("land",on);
     if(KIND==="chess")moveLeave(on);
-    if(on){lock();size();dress();let k=0;tick=setInterval(()=>{ring();if(++k%4===0)fit()},250)}else{unlock();ROOT.classList.remove("rot");clearInterval(tick);const b=FIT&&document.querySelector(FIT);if(b){b.style.transform="";b.style.removeProperty("margin-bottom");b.style.flexShrink=""}}}
+    if(on){lock();size();dress();setTimeout(()=>{try{(0,eval)("typeof renderGame==='function'&&typeof G!=='undefined'&&G&&renderGame()")}catch(e){}},60);let k=0;tick=setInterval(()=>{ring();if(++k%4===0)fit()},250)}else{unlock();ROOT.classList.remove("rot");clearInterval(tick);const b=FIT&&document.querySelector(FIT);if(b){b.style.transform="";b.style.removeProperty("margin-bottom");b.style.flexShrink=""}}}
   new MutationObserver(update).observe(game,{attributes:true,attributeFilter:["hidden"]});
   addEventListener("resize",size);if(screen.orientation)screen.orientation.addEventListener("change",size);
   update();
