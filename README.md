@@ -31,3 +31,4 @@ const firebaseConfig = {
 `databaseURL` گەلەک گرنگە. ئەگەر د کۆپیێ دا نەبیت، ژ پەیجا Realtime Database وەربگرە.
 
 ئەڤ کلیلە نهێنی نینن. د هەمی پەیجێن Firebase دا ئاشکەرانە، و پاراستنا داتایان ب ڕێکا Rules دبیت.
+
