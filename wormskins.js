@@ -7,6 +7,7 @@
            hue      -> a rainbow running along the body
            flag     -> three bands along the body with a sun (the Kurdistan flag)
            photo    -> the player's own profile photo along the body
+           custom   -> colours the player picks himself (bought once, then edited in the game)
    ===================================================================== */
 (function(){
 var ITEMS={
@@ -22,6 +23,7 @@ var ITEMS={
   wm_night:{name:["شەڤ","شەو","ليل","Night"],price:60,rare:true,kind:"stripes",c:["#111827","#4b5563"],n:2,eye:"#ef4444"},
   wm_galaxy:{name:["گالاکسی","گەلەستێرە","مجرة","Galaxy"],price:80,rare:true,kind:"stripes",c:["#4c1d95","#7c3aed","#1e3a8a","#db2777"],n:1,deco:"✨"},
   wm_diamond:{name:["ئەلماس","ئەڵماس","ألماس","Diamond"],price:120,rare:true,kind:"stripes",c:["#67e8f9","#e0f7ff"],n:1,deco:"💎"},
+  wm_custom:{name:["مارێ خۆ دروست بکە","مارەکەی خۆت دروست بکە","اصنع ثعبانك","Make your own"],price:200,rare:true,kind:"custom",c:["#ef4444","#3b82f6","#22c55e","#facc15"],n:1,deco:"🎨"},
   wm_photo:{name:["وێنێ تە","وێنەی تۆ","صورتك","Your photo"],price:250,rare:true,kind:"photo",c:["#4c1d95","#7c3aed"]}
 };
 window.WORMSKINS=ITEMS;
@@ -35,11 +37,10 @@ function preview(k){var sk=ITEMS[k]||ITEMS.wm_orange,cv=document.createElement("
   cv.style.cssText="width:100%;max-width:240px;height:auto;display:block;margin:0 auto;border-radius:12px;background:radial-gradient(circle at 50% 50%,#1d3b4a,#0a1520)";
   var x=cv.getContext("2d"),n=16,r=13,p=[];for(var i=0;i<n;i++){var t=i/(n-1);p.push([200-t*160,55+Math.sin(t*Math.PI*1.6)*18])}
   if(sk.kind==="flag"){x.lineCap="round";x.lineJoin="round";
-    [["#e2231a",26],["#ffffff",17],["#278e43",0]].forEach(function(b,j){});
     // three bands: draw the whole width red, then white and green bands offset to one side
     var off=function(d){return p.map(function(q,i){var a=p[Math.max(0,i-1)],b=p[Math.min(n-1,i+1)],dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy)||1;return[q[0]-dy/L*d,q[1]+dx/L*d]})};
     var band=function(d1,d2,col){var A=off(d1),B=off(d2).reverse();x.fillStyle=col;x.beginPath();A.forEach(function(q,i){i?x.lineTo(q[0],q[1]):x.moveTo(q[0],q[1])});B.forEach(function(q){x.lineTo(q[0],q[1])});x.closePath();x.fill()};
-    band(-r,r,"#e2231a");band(-r/3,r,"#ffffff");band(r/3,r,"#278e43");
+    band(-r,r,"#e2231a");band(-r/3,r/3,"#ffffff");band(-r,-r/3,"#278e43");
     for(var s=3;s<n;s+=4)sun(x,p[s][0],p[s][1],r*.42);
   }else{for(var i2=n-1;i2>=0;i2--){var col=sk.kind==="photo"?sk.c[i2%2]:wormColor(sk,i2);ball(x,p[i2][0],p[i2][1],r,col)}
     if(sk.kind==="photo")for(var q=1;q<n;q+=4)face(x,p[q][0],p[q][1],r*.8)}
