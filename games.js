@@ -92,6 +92,54 @@ function fzWatchAll(){var tries=0;(function go(){try{if(!window.firebase||!fireb
   firebase.auth().onAuthStateChanged(function(u){if(!u)return;if(u.email==="zeravan180@gmail.com")return;
     firebase.database().ref("frozen/"+u.uid).on("value",function(s){fzShow(s.exists())},function(){})})}catch(e){}})()}
 
-function ready(){fillSwitch();dmBadge();fzWatchAll()}
+/* ---- the game picker on every lobby: big cards under the title that you swipe one by one (the old icon row is hidden) ---- */
+var THEME={chess:["#7c3aed","#2e1065","♟️"],domino:["#16a34a","#064e3b","🁣"],snakes:["#f97316","#7c2d12","🐍"],tawla:["#b45309","#451a03","🎲"],
+  dama:["#2563eb","#172554","⚫"],ludo:["#db2777","#500724","🎯"],zar:["#0d9488","#042f2e","🃏"],kon:["#dc2626","#450a0a","♠️"],
+  worms:["#0ea5e9","#082f49","🪱"],xo:["#4f46e5","#1e1b4b","❌"],dots:["#d97706","#451a03","▦"]};
+var PLAY=["▶ یاری بکە","▶ یاری بکە","▶ العب","▶ Play"],HERE=["✓ تو ل ڤێرێ یی","✓ تۆ لێرەی","✓ أنت هنا","✓ You are here"];
+function carCss(){if(document.getElementById("agCarCss"))return;var st=document.createElement("style");st.id="agCarCss";st.textContent=
+ "#lobby nav.gswitch{display:none!important}"+
+ ".agcar{position:relative;margin:6px -16px 4px;direction:ltr}"+
+ ".agcar .trk{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:10px calc(50% - 115px) 14px;scrollbar-width:none;-webkit-overflow-scrolling:touch}"+
+ ".agcar .trk::-webkit-scrollbar{display:none}"+
+ ".agcar .gc{flex:none;width:230px;height:150px;scroll-snap-align:center;position:relative;border-radius:20px;text-decoration:none;color:#fff;overflow:hidden;"+
+   "background:linear-gradient(150deg,var(--c1),var(--c2));border:3px solid #f5c542;box-shadow:0 8px 18px rgba(0,0,0,.45),inset 0 0 0 2px rgba(255,255,255,.15);"+
+   "transition:transform .18s,opacity .18s;transform:scale(var(--s,1));opacity:var(--o,1)}"+
+ ".agcar .gc:before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 38%,rgba(255,255,255,.35),transparent 60%),repeating-linear-gradient(135deg,rgba(255,255,255,.06) 0 10px,transparent 10px 20px)}"+
+ ".agcar .gc .em{position:absolute;right:-6px;bottom:-14px;font-size:84px;opacity:.22;transform:rotate(-12deg)}"+
+ ".agcar .gc .ic{position:absolute;left:50%;top:14px;transform:translateX(-50%);width:66px;height:66px;filter:drop-shadow(0 3px 0 rgba(0,0,0,.35)) drop-shadow(0 0 12px rgba(255,255,255,.45))}"+
+ ".agcar .gc .ic svg{width:100%;height:100%;color:#fff}"+
+ ".agcar .gc .nm{position:absolute;left:0;right:0;top:84px;text-align:center;font:900 20px/1.1 system-ui,'Noto Sans Arabic',sans-serif;text-shadow:0 2px 0 rgba(0,0,0,.45);padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}"+
+ ".agcar .gc .go{position:absolute;left:50%;bottom:9px;transform:translateX(-50%);background:linear-gradient(#5be38a,#1f9d55);border:2px solid #b7f5cf;border-radius:12px;padding:3px 14px;font:800 13px system-ui,sans-serif;white-space:nowrap;box-shadow:0 3px 0 #0f6b39}"+
+ ".agcar .gc.on{border-color:#fff3b0;box-shadow:0 0 0 3px rgba(255,214,90,.5),0 10px 22px rgba(0,0,0,.5)}"+
+ ".agcar .gc.on .go{background:linear-gradient(#ffe27a,#d6a21e);border-color:#fff3b0;color:#4a2c00;box-shadow:0 3px 0 #8a5a00}"+
+ ".agcar .ar{position:absolute;top:50%;transform:translateY(-60%);width:34px;height:34px;border-radius:50%;border:2px solid rgba(255,255,255,.5);background:rgba(0,0,0,.35);color:#fff;font:900 16px/28px system-ui;text-align:center;direction:ltr;unicode-bidi:isolate;cursor:pointer;z-index:2;padding:0}"+
+ ".agcar .ar.l{left:20px}.agcar .ar.r{right:20px}"+
+ ".agcar .dots{display:flex;justify-content:center;gap:5px;margin-top:-4px}.agcar .dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.3)}.agcar .dots i.on{background:#ffd24a;width:16px;border-radius:4px}";
+ document.head.appendChild(st)}
+function buildCarousel(){var lob=document.getElementById("lobby");if(!lob||lob.querySelector(".agcar"))return;
+  var at=lob.querySelector(".sl-title")||lob.querySelector(".logo")||lob.querySelector("h1");if(!at)return;carCss();
+  var l=lang(),h=here(),box=document.createElement("div");box.className="agcar no-tr";
+  var trk=document.createElement("div");trk.className="trk";var cur=0,cards=[];
+  GAMES.forEach(function(g,i){var t=THEME[g.id]||["#334155","#0f172a","🎮"],on=g.page===h;if(on)cur=i;
+    var a=document.createElement("a");a.className="gc"+(on?" on":"");a.href=on?"#":g.page;a.style.setProperty("--c1",t[0]);a.style.setProperty("--c2",t[1]);
+    a.innerHTML='<span class="em">'+t[2]+'</span><span class="ic">'+g.icon+'</span>';
+    var nm=document.createElement("span");nm.className="nm";nm.textContent=g.name[l]||g.name[0];
+    var go=document.createElement("span");go.className="go";go.textContent=(on?HERE:PLAY)[l]||(on?HERE:PLAY)[0];a.appendChild(nm);a.appendChild(go);
+    if(on)a.addEventListener("click",function(e){e.preventDefault()});
+    trk.appendChild(a);cards.push(a)});
+  var dots=document.createElement("div");dots.className="dots";cards.forEach(function(){dots.appendChild(document.createElement("i"))});
+  var L=document.createElement("button");L.type="button";L.className="ar l";L.textContent="❮";var Rb=document.createElement("button");Rb.type="button";Rb.className="ar r";Rb.textContent="❯";
+  box.appendChild(trk);box.appendChild(L);box.appendChild(Rb);box.appendChild(dots);
+  at.parentNode.insertBefore(box,at.nextSibling);
+  function center(i,sm){var c=cards[i];if(!c)return;trk.scrollTo({left:c.offsetLeft-(trk.clientWidth-c.offsetWidth)/2,behavior:sm?"smooth":"auto"})}
+  function near(){var mid=trk.scrollLeft+trk.clientWidth/2,best=0,bd=1e9;cards.forEach(function(c,i){var d=Math.abs(c.offsetLeft+c.offsetWidth/2-mid);if(d<bd){bd=d;best=i}});return best}
+  function paint(){var mid=trk.scrollLeft+trk.clientWidth/2;cards.forEach(function(c){var d=Math.min(1,Math.abs(c.offsetLeft+c.offsetWidth/2-mid)/(c.offsetWidth+12));c.style.setProperty("--s",(1-.16*d).toFixed(3));c.style.setProperty("--o",(1-.35*d).toFixed(3))});
+    var k=near();[].forEach.call(dots.children,function(d,i){d.className=i===k?"on":""})}
+  L.onclick=function(){center(Math.max(0,near()-1),true)};Rb.onclick=function(){center(Math.min(cards.length-1,near()+1),true)};
+  trk.addEventListener("scroll",function(){requestAnimationFrame(paint)},{passive:true});
+  var tries=0;(function go(){if(!trk.clientWidth&&++tries<60){setTimeout(go,150);return}center(cur,false);paint()})();
+  addEventListener("resize",function(){center(near(),false);paint()})}
+function ready(){fillSwitch();buildCarousel();dmBadge();fzWatchAll()}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",ready);else ready();
 })();
