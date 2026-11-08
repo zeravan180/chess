@@ -453,6 +453,7 @@ html[dir="rtl"] .ld-seats>*{direction:rtl}
 .bnav .bi{position:relative}.dm-nb{position:absolute;top:-4px;inset-inline-end:-6px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#ff3b4e;color:#fff;border:2px solid #fff;font:800 11px/16px var(--f-ui);font-style:normal;text-align:center;box-sizing:border-box;z-index:3}
 .gswitch{flex-wrap:wrap;max-width:calc(100% - 8px);border-radius:24px}.gswitch a{padding:3px 3px;font-size:12px}
 </style>
+<style id="no-move-icons">/* the lobby icons stay still on every phone */.card .art>svg,.art .vs,.art .beat,.bnav .on .bi{animation:none!important}</style>
 </head>
 <body>
 <script src="games.js"></script>
@@ -1458,7 +1459,9 @@ async function payStake(){
   if(busy||autoBusy){clearTimeout(window._stakeLater);window._stakeLater=setTimeout(()=>{const ms=G?mySeatIn(G):-1;if(G&&G.status==="playing"&&ms>=0&&!(G.staked&&G.staked[ms]))payStake()},900);return}if(stakeBusy)return;stakeBusy=true;const ms=mySeatIn(G),c=code,st=stakeOf(G);
   try{await fdb.ref().update({["coins/"+me+"/c"]:firebase.database.ServerValue.increment(-st),["dgames/"+c+"/staked/"+ms]:true})}catch(e){}
   stakeBusy=false}
-async function claimWinnings(){const g=G,ms=mySeatIn(g),r=g.result||{};if(claimBusy||ms<0||!(g.staked&&g.staked[ms])||(g.paid&&g.paid[ms]))return;
+async function claimWinnings(){
+  // a write to the table while my move is still being saved cancels that move ("set") - so the claim waits until the move is saved
+  if((typeof busy!=="undefined"&&busy)||(typeof autoBusy!=="undefined"&&autoBusy)){clearTimeout(window._claimLater);window._claimLater=setTimeout(()=>{if(G&&G.status==="over")claimWinnings()},900);return}const g=G,ms=mySeatIn(g),r=g.result||{};if(claimBusy||ms<0||!(g.staked&&g.staked[ms])||(g.paid&&g.paid[ms]))return;
   const amt=r.winSeats&&r.winSeats[ms]?stakeOf(g)*2:0;if(!amt)return;claimBusy=true;
   try{await fdb.ref().update({["coins/"+me+"/c"]:firebase.database.ServerValue.increment(amt),["coins/"+me+"/claim"]:code,["coins/"+me+"/claimSeat"]:String(ms),["dgames/"+code+"/paid/"+ms]:true})}catch(e){}
   claimBusy=false}

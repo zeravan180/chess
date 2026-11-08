@@ -469,6 +469,7 @@ button.zc:disabled{opacity:1;filter:none}
 .zact .primary:disabled{opacity:.5}
 @media (prefers-reduced-motion:reduce){.zc.pop,.zc.back{animation:none}}
 </style>
+<style id="no-move-icons">/* the lobby icons stay still on every phone */.card .art>svg,.art .vs,.art .beat,.bnav .on .bi{animation:none!important}</style>
 </head>
 <body>
 <script src="games.js"></script>
@@ -1544,6 +1545,8 @@ function winMap(){return{}}
 // each winner claims their own share; the server rules check the game result before allowing it
 let claimBusy=false;
 async function claimWinnings(){
+  // a write to the table while my move is still being saved cancels that move ("set") - so the claim waits until the move is saved
+  if((typeof busy!=="undefined"&&busy)||(typeof autoBusy!=="undefined"&&autoBusy)){clearTimeout(window._claimLater);window._claimLater=setTimeout(()=>{if(G&&G.status==="over")claimWinnings()},900);return}
   const g=G,ms=mySeatIn(g),r=g.result||{};if(claimBusy||ms<0||!(g.staked&&g.staked[ms])||(g.paid&&g.paid[ms]))return;
   const amt=r.draw?stakeOf(g):(r.winSeats&&r.winSeats[ms]?stakeOf(g)*2:0);if(!amt)return;
   claimBusy=true;
