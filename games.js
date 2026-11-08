@@ -143,14 +143,14 @@ function buildCarousel(){var lob=document.getElementById("lobby");if(!lob||lob.q
   var tries=0;(function go(){if(!trk.clientWidth&&++tries<60){setTimeout(go,150);return}center(cur,false);paint()})();
   addEventListener("resize",function(){center(near(),false);paint()})}
 /* ---- the play-time gift: 3 hours of play in a day = 1500 coins, 6 hours = 100 AG.
-   The clock only runs while the app is on screen and the player is touching it; leaving and coming back carries on from the same time; 24 hours after the day's clock started it starts again from 3:00:00.
+   The clock only runs while the app is on screen and the player is touching it; leaving and coming back carries on from the same time; at midnight (Baghdad) it starts again from 3:00:00.
    Every minute is saved in ptime/{uid} and the database rules check that a real minute has passed, so it can't be faked. ---- */
 var GT={gift:["دیاری","دیاری","هدية","Gift"],take:["وەرگرە!","وەریبگرە!","استلم!","Claim!"],
   pause:["ڕاوەستیایە","وەستاوە","متوقف","Paused"],tom:["سبەی","سبەی","غداً","Tomorrow"],
-  info:["🎁 دیاریەکا ڤەشارتی!\nیاری بکە هەتا دەمژمێر دگەهیتە 00:00:00، پاشان ڤەکە و ببینە کا چ تێدایە.\nدەم تنێ دەمێ تو ل ناڤ یاریێ دچیت، و دەمێ تو دەردکەڤی ڕادوەستیت. ئەگەر دەرکەڤی و بزڤڕی، ژ وی جهی بەردەوام دبیت. پشتی ٢٤ سەعەتان ژ نوو دەستپێدکەت.",
-        "🎁 دیارییەکی شاراوە!\nیاری بکە تا کاتژمێرەکە دەگاتە 00:00:00، پاشان بیکەرەوە و بزانە چی تێدایە.\nکات تەنها کاتێک دەڕوات کە لە ناو یارییەکەیت. ئەگەر دەرچیت و بگەڕێیتەوە، لە هەمان شوێن بەردەوام دەبێت. دوای ٢٤ کاتژمێر لە سەرەتاوە دەست پێدەکاتەوە.",
-        "🎁 هدية مخفية!\nالعب حتى يصل العداد إلى 00:00:00، ثم افتحها واكتشف ما بداخلها.\nالوقت يُحسب فقط وأنت داخل اللعبة، ويتوقف عند خروجك. إذا خرجت ورجعت يكمل من حيث توقف. بعد ٢٤ ساعة يبدأ من جديد.",
-        "🎁 A mystery gift!\nPlay until the timer reaches 00:00:00, then open it to see what's inside.\nThe clock only runs while you are in the game and stops when you leave. Leave and come back and it carries on where it stopped. After 24 hours it starts again."],
+  info:["🎁 دیاریەکا ڤەشارتی!\nیاری بکە هەتا دەمژمێر دگەهیتە 00:00:00، پاشان ڤەکە و ببینە کا چ تێدایە.\nدەم تنێ دەمێ تو ل ناڤ یاریێ دچیت، و دەمێ تو دەردکەڤی ڕادوەستیت. ئەگەر دەرکەڤی و بزڤڕی، ژ وی جهی بەردەوام دبیت. هەر شەڤ ل نیڤا شەڤێ ژ نوو دەستپێدکەت.",
+        "🎁 دیارییەکی شاراوە!\nیاری بکە تا کاتژمێرەکە دەگاتە 00:00:00، پاشان بیکەرەوە و بزانە چی تێدایە.\nکات تەنها کاتێک دەڕوات کە لە ناو یارییەکەیت. ئەگەر دەرچیت و بگەڕێیتەوە، لە هەمان شوێن بەردەوام دەبێت. هەموو شەوێک لە نیوەشەو لە سەرەتاوە دەست پێدەکاتەوە.",
+        "🎁 هدية مخفية!\nالعب حتى يصل العداد إلى 00:00:00، ثم افتحها واكتشف ما بداخلها.\nالوقت يُحسب فقط وأنت داخل اللعبة، ويتوقف عند خروجك. إذا خرجت ورجعت يكمل من حيث توقف. يبدأ من جديد كل ليلة عند منتصف الليل.",
+        "🎁 A mystery gift!\nPlay until the timer reaches 00:00:00, then open it to see what's inside.\nThe clock only runs while you are in the game and stops when you leave. Leave and come back and it carries on where it stopped. It starts again every night at midnight."],
   got1:["🎉 تە 1500 کۆین وەرگرتن!","🎉 1500 کۆینت وەرگرت!","🎉 حصلت على 1500 عملة!","🎉 You got 1500 coins!"],
   got2:["🎉 تە 100 AG وەرگرتن!","🎉 100 AG ت وەرگرت!","🎉 حصلت على 100 AG!","🎉 You got 100 AG!"],
   next:["🎁 دیاریەکا دی یا ڤەشارتی ل هیڤیا تە یە!","🎁 دیارییەکی تری شاراوە چاوەڕێتە!","🎁 هدية مخفية أخرى بانتظارك!","🎁 Another mystery gift is waiting for you!"],
@@ -159,10 +159,12 @@ var PT={uid:null,S:null,acc:0,act:0,off:0,busy:false,el:null};
 function gtx(k){var a=GT[k];return a[lang()]||a[0]}
 function ptNow(){return Date.now()+PT.off}
 var DAYMS=86400000;
-function ptOld(S){return!S||typeof S.s!=="number"||ptNow()-S.s>=DAYMS}
+// the day (Baghdad time) - the gift starts again at midnight
+function ptDay(){return Math.floor((ptNow()+10800000)/DAYMS)}
+function ptOld(S){return!S||S.d!==ptDay()}
 // the seconds of the minute not yet saved are kept on the phone, so leaving and coming back loses nothing
-function accSave(){try{if(PT.uid&&PT.S&&PT.S.s)localStorage.setItem("ag.ptacc",JSON.stringify({u:PT.uid,s:PT.S.s,m:PT.S.m,a:PT.acc}))}catch(e){}}
-function accLoad(){try{var o=JSON.parse(localStorage.getItem("ag.ptacc")||"null");if(o&&o.u===PT.uid&&PT.S&&o.s===PT.S.s&&o.m===PT.S.m)PT.acc=Math.max(PT.acc,Math.min(90,o.a||0))}catch(e){}}
+function accSave(){try{if(PT.uid&&PT.S&&PT.S.d)localStorage.setItem("ag.ptacc",JSON.stringify({u:PT.uid,d:PT.S.d,m:PT.S.m,a:PT.acc}))}catch(e){}}
+function accLoad(){try{var o=JSON.parse(localStorage.getItem("ag.ptacc")||"null");if(o&&o.u===PT.uid&&PT.S&&o.d===PT.S.d&&o.m===PT.S.m)PT.acc=Math.max(PT.acc,Math.min(90,o.a||0))}catch(e){}}
 function hms(sec){sec=Math.max(0,Math.ceil(sec));var h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),x=sec%60;return(h<10?"0":"")+h+":"+(m<10?"0":"")+m+":"+(x<10?"0":"")+x}
 function gCss(){if(document.getElementById("agGiftCss"))return;var st=document.createElement("style");st.id="agGiftCss";st.textContent=
  ".aggift{position:fixed;z-index:9000;display:flex;flex-direction:column;align-items:center;cursor:grab;-webkit-tap-highlight-color:transparent;direction:ltr;width:max-content;touch-action:none;user-select:none;-webkit-user-select:none}"+
@@ -192,14 +194,14 @@ function ptPaint(){var el=PT.el;if(!el)return;var st=ptState(),tm=el.querySelect
   el.className="aggift"+(st.k==="rd"?" rd":st.k==="dn"?" dn":act?"":" ps");
   if(!PT.ld){tm.textContent="--:--:--";return}
   if(st.k==="rd"){tm.textContent=gtx("take");return}
-  if(st.k==="dn"){var left=(PT.S.s+DAYMS-ptNow())/1000;tm.textContent=hms(left);return}
+  if(st.k==="dn"){var left=((ptDay()+1)*DAYMS-10800000-ptNow())/1000;tm.textContent=hms(left);return}
   tm.innerHTML="";var bb=document.createElement("b");bb.textContent="⏱";tm.appendChild(bb);
   tm.appendChild(document.createTextNode(hms((st.goal-st.m)*60-PT.acc)))}
 function ptSave(){if(!PT.uid||!PT.ld||PT.busy)return;var db=firebase.database(),r=db.ref("ptime/"+PT.uid),S=PT.S,TS=firebase.database.ServerValue.TIMESTAMP;
-  if(ptOld(S)){PT.busy=true;PT.acc=0;r.set({s:TS,m:0,t:TS}).then(function(){PT.busy=false;PT.err=""},function(e){PT.busy=false;PT.err=(e&&e.code)||"err"});return}
+  if(ptOld(S)){PT.busy=true;PT.acc=0;r.set({d:ptDay(),m:0,t:TS}).then(function(){PT.busy=false;PT.err=""},function(e){PT.busy=false;PT.err=(e&&e.code)||"err"});return}
   if(S.m>=360||PT.acc<60||ptNow()-S.t<57000)return;
-  PT.busy=true;r.set({s:S.s,m:S.m+1,t:TS,g1:S.g1||null,g2:S.g2||null}).then(function(){PT.acc=Math.max(0,PT.acc-60);PT.busy=false;PT.err=""},function(e){PT.busy=false;PT.err=(e&&e.code)||"err"})}
-function ptDiag(){var S=PT.S;return"\n\n[v3 · "+(PT.uid?"✓":"✗")+" · m="+(S&&S.m!=null?S.m:"-")+" · "+(S&&S.s?Math.round((ptNow()-S.s)/60000)+"min":"-")+" · "+Math.floor(PT.acc)+"s"+(PT.err?" · ⚠ "+PT.err:"")+"]"}
+  PT.busy=true;r.set({d:S.d,m:S.m+1,t:TS,g1:S.g1||null,g2:S.g2||null}).then(function(){PT.acc=Math.max(0,PT.acc-60);PT.busy=false;PT.err=""},function(e){PT.busy=false;PT.err=(e&&e.code)||"err"})}
+function ptDiag(){var S=PT.S;return"\n\n[v4 · "+(PT.uid?"✓":"✗")+" · m="+(S&&S.m!=null?S.m:"-")+" · "+(S&&S.d?"d"+S.d:"-")+" · "+Math.floor(PT.acc)+"s"+(PT.err?" · ⚠ "+PT.err:"")+"]"}
 function ptClaim(){var st=ptState();if(st.k!=="rd"){gPop(gtx("info")+ptDiag(),"🎁");return}if(PT.busy)return;PT.busy=true;
   var db=firebase.database(),u=PT.uid,S=PT.S,TS=firebase.database.ServerValue.TIMESTAMP,up={};
   up["ptime/"+u+"/t"]=TS;
