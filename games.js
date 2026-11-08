@@ -192,10 +192,11 @@ function ptPaint(){var el=PT.el;if(!el)return;var st=ptState(),tm=el.querySelect
   tm.innerHTML="";var bb=document.createElement("b");bb.textContent=st.goal===180?"🪙":"💎";tm.appendChild(bb);
   tm.appendChild(document.createTextNode(hms((st.goal-st.m)*60-PT.acc)))}
 function ptSave(){if(!PT.uid||PT.busy)return;var db=firebase.database(),r=db.ref("ptime/"+PT.uid),S=PT.S,TS=firebase.database.ServerValue.TIMESTAMP;
-  if(ptOld(S)){PT.busy=true;PT.acc=0;r.set({s:TS,m:0,t:TS}).then(function(){PT.busy=false},function(){PT.busy=false});return}
+  if(ptOld(S)){PT.busy=true;PT.acc=0;r.set({s:TS,m:0,t:TS}).then(function(){PT.busy=false;PT.err=""},function(e){PT.busy=false;PT.err=(e&&e.code)||"err"});return}
   if(S.m>=360||PT.acc<60||ptNow()-S.t<57000)return;
-  PT.busy=true;r.set({s:S.s,m:S.m+1,t:TS,g1:S.g1||null,g2:S.g2||null}).then(function(){PT.acc=Math.max(0,PT.acc-60);PT.busy=false},function(){PT.busy=false})}
-function ptClaim(){var st=ptState();if(st.k!=="rd"){gPop(gtx("info"),"🎁");return}if(PT.busy)return;PT.busy=true;
+  PT.busy=true;r.set({s:S.s,m:S.m+1,t:TS,g1:S.g1||null,g2:S.g2||null}).then(function(){PT.acc=Math.max(0,PT.acc-60);PT.busy=false;PT.err=""},function(e){PT.busy=false;PT.err=(e&&e.code)||"err"})}
+function ptDiag(){var S=PT.S;return"\n\n[v2 · "+(PT.uid?"✓":"✗")+" · m="+(S&&S.m!=null?S.m:"-")+" · "+(S&&S.s?Math.round((ptNow()-S.s)/60000)+"min":"-")+" · "+Math.floor(PT.acc)+"s"+(PT.err?" · ⚠ "+PT.err:"")+"]"}
+function ptClaim(){var st=ptState();if(st.k!=="rd"){gPop(gtx("info")+ptDiag(),"🎁");return}if(PT.busy)return;PT.busy=true;
   var db=firebase.database(),u=PT.uid,S=PT.S,TS=firebase.database.ServerValue.TIMESTAMP,up={};
   up["ptime/"+u+"/t"]=TS;
   if(st.g===1){up["ptime/"+u+"/g1"]=true;up["coins/"+u+"/c"]=firebase.database.ServerValue.increment(1500)}
@@ -230,7 +231,7 @@ function playTimer(){var tries=0;
     firebase.auth().onAuthStateChanged(function(u){if(ref){ref.off();ref=null}PT.uid=u?u.uid:null;PT.S=null;PT.acc=0;
       giftShow();if(!u)return;
       ref=firebase.database().ref("ptime/"+u.uid);
-      ref.on("value",function(s){PT.S=s.val();accLoad();ptSave();ptPaint()},function(){})})}catch(e){}})();
+      ref.on("value",function(s){PT.S=s.val();accLoad();ptSave();ptPaint()},function(e){PT.err="read "+((e&&e.code)||"")})})}catch(e){}})();
   PT.act=Date.now();["pointerdown","touchstart","keydown","wheel"].forEach(function(e){addEventListener(e,function(){PT.act=Date.now()},{passive:true,capture:true})});
   setInterval(function(){
     if(PT.uid&&document.visibilityState==="visible"&&Date.now()-PT.act<180000){var st=ptState();if(st.k==="run")PT.acc=Math.min(PT.acc+1,90);ptSave();accSave()}
