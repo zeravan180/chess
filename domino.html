@@ -1329,7 +1329,11 @@ function finishRound(hands,emptied,blocked,ptsNow){
 async function nextRound(){
   const g=G;if(g.status!=="roundover")return;
   const r=g.result||{};const starter=r.win>=0?r.win:null;
-  try{await gRef.transaction(cur=>{if(!cur)return cur;if(cur.status!=="roundover")return;return{...cur,...startRound(cur,starter,(cur.round||1)+1),pts:cur.pts}})}catch(e){toast("دەورا پاشی دەست پێ نەکر ("+((e&&(e.code||e.message))||e)+")")}
+  // while the new round is being saved, nothing else may write to the table (the "online" mark, the stake):
+  // such a write cancels the save ("set"), and the round never started. The "online" marks are also kept now.
+  if(busy)return;busy=true;
+  try{await gRef.transaction(cur=>{if(!cur)return cur;if(cur.status!=="roundover")return;return{...cur,...startRound(cur,starter,(cur.round||1)+1),pts:cur.pts,conn:cur.conn||null}})}catch(e){toast("دەورا پاشی دەست پێ نەکر ("+((e&&(e.code||e.message))||e)+")")}
+  busy=false;if(G)renderGame()
 }
 // same leaderboard as chess: win 3, draw 1
 let stakeBusy=false;
