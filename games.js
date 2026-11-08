@@ -141,14 +141,14 @@ function buildCarousel(){var lob=document.getElementById("lobby");if(!lob||lob.q
   var tries=0;(function go(){if(!trk.clientWidth&&++tries<60){setTimeout(go,150);return}center(cur,false);paint()})();
   addEventListener("resize",function(){center(near(),false);paint()})}
 /* ---- the play-time gift: 3 hours of play in a day = 1500 coins, 6 hours = 100 AG.
-   The clock only runs while the app is on screen and the player is touching it; it starts again at midnight (Baghdad).
+   The clock only runs while the app is on screen and the player is touching it; leaving and coming back carries on from the same time; 24 hours after the day's clock started it starts again from 3:00:00.
    Every minute is saved in ptime/{uid} and the database rules check that a real minute has passed, so it can't be faked. ---- */
 var GT={gift:["دیاری","دیاری","هدية","Gift"],take:["وەرگرە!","وەریبگرە!","استلم!","Claim!"],
   pause:["ڕاوەستیایە","وەستاوە","متوقف","Paused"],tom:["سبەی","سبەی","غداً","Tomorrow"],
-  info:["هەر ڕۆژ: ٣ سەعەتان یاری بکە ← 🪙 1500 کۆین\n٦ سەعەتان یاری بکە ← 💎 100 AG\nدەم تنێ دەمێ تو ل ناڤ یاریێ دچیت، و دەمێ تو دەردکەڤی ڕادوەستیت. هەر شەڤ ل نیڤا شەڤێ ژ نوو دەستپێدکەت.",
-        "هەموو ڕۆژێک: ٣ کاتژمێر یاری بکە ← 🪙 1500 کۆین\n٦ کاتژمێر یاری بکە ← 💎 100 AG\nکات تەنها کاتێک دەڕوات کە لە ناو یارییەکەیت. هەموو شەوێک لە نیوەشەو دەست پێدەکاتەوە.",
-        "كل يوم: العب ٣ ساعات ← 🪙 1500 عملة\nالعب ٦ ساعات ← 💎 100 AG\nالوقت يُحسب فقط وأنت داخل اللعبة، ويتوقف عند خروجك. يبدأ من جديد كل ليلة عند منتصف الليل.",
-        "Every day: play 3 hours → 🪙 1500 coins\nplay 6 hours → 💎 100 AG\nThe clock only runs while you are in the game and stops when you leave. It restarts every night at midnight."],
+  info:["هەر ڕۆژ: ٣ سەعەتان یاری بکە ← 🪙 1500 کۆین\n٦ سەعەتان یاری بکە ← 💎 100 AG\nدەم تنێ دەمێ تو ل ناڤ یاریێ دچیت، و دەمێ تو دەردکەڤی ڕادوەستیت. ئەگەر دەرکەڤی و بزڤڕی، ژ وی جهی بەردەوام دبیت. پشتی ٢٤ سەعەتان ژ نوو دەستپێدکەت.",
+        "هەموو ڕۆژێک: ٣ کاتژمێر یاری بکە ← 🪙 1500 کۆین\n٦ کاتژمێر یاری بکە ← 💎 100 AG\nکات تەنها کاتێک دەڕوات کە لە ناو یارییەکەیت. ئەگەر دەرچیت و بگەڕێیتەوە، لە هەمان شوێن بەردەوام دەبێت. دوای ٢٤ کاتژمێر لە سەرەتاوە دەست پێدەکاتەوە.",
+        "كل يوم: العب ٣ ساعات ← 🪙 1500 عملة\nالعب ٦ ساعات ← 💎 100 AG\nالوقت يُحسب فقط وأنت داخل اللعبة، ويتوقف عند خروجك. إذا خرجت ورجعت يكمل من حيث توقف. بعد ٢٤ ساعة يبدأ من جديد.",
+        "Every day: play 3 hours → 🪙 1500 coins\nplay 6 hours → 💎 100 AG\nThe clock only runs while you are in the game and stops when you leave. Leave and come back and it carries on where it stopped. After 24 hours it starts again."],
   got1:["🎉 تە 1500 کۆین وەرگرتن!","🎉 1500 کۆینت وەرگرت!","🎉 حصلت على 1500 عملة!","🎉 You got 1500 coins!"],
   got2:["🎉 تە 100 AG وەرگرتن!","🎉 100 AG ت وەرگرت!","🎉 حصلت على 100 AG!","🎉 You got 100 AG!"],
   next:["٣ سەعەتێن دی ← 100 AG","٣ کاتژمێری تر ← 100 AG","٣ ساعات أخرى ← 100 AG","3 more hours → 100 AG"],
@@ -156,7 +156,11 @@ var GT={gift:["دیاری","دیاری","هدية","Gift"],take:["وەرگرە!"
 var PT={uid:null,S:null,acc:0,act:0,off:0,busy:false,el:null};
 function gtx(k){var a=GT[k];return a[lang()]||a[0]}
 function ptNow(){return Date.now()+PT.off}
-function ptDay(){return Math.floor((ptNow()+10800000)/86400000)}
+var DAYMS=86400000;
+function ptOld(S){return!S||typeof S.s!=="number"||ptNow()-S.s>=DAYMS}
+// the seconds of the minute not yet saved are kept on the phone, so leaving and coming back loses nothing
+function accSave(){try{if(PT.uid&&PT.S&&PT.S.s)localStorage.setItem("ag.ptacc",JSON.stringify({u:PT.uid,s:PT.S.s,m:PT.S.m,a:PT.acc}))}catch(e){}}
+function accLoad(){try{var o=JSON.parse(localStorage.getItem("ag.ptacc")||"null");if(o&&o.u===PT.uid&&PT.S&&o.s===PT.S.s&&o.m===PT.S.m)PT.acc=Math.max(PT.acc,Math.min(90,o.a||0))}catch(e){}}
 function hms(sec){sec=Math.max(0,Math.ceil(sec));var h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),x=sec%60;return(h<10?"0":"")+h+":"+(m<10?"0":"")+m+":"+(x<10?"0":"")+x}
 function gCss(){if(document.getElementById("agGiftCss"))return;var st=document.createElement("style");st.id="agGiftCss";st.textContent=
  ".aggift{position:fixed;z-index:9000;display:flex;flex-direction:column;align-items:center;cursor:grab;-webkit-tap-highlight-color:transparent;direction:ltr;width:max-content;touch-action:none;user-select:none;-webkit-user-select:none}"+
@@ -178,19 +182,19 @@ function gPop(msg,big){gCss();var o=document.createElement("div");o.className="a
   var b=document.createElement("div");b.className="big";b.textContent=big||"🎁";var t=document.createElement("div");t.textContent=msg;
   var k=document.createElement("button");k.type="button";k.textContent="OK";c.appendChild(b);c.appendChild(t);c.appendChild(k);o.appendChild(c);
   o.onclick=function(e){if(e.target===o||e.target===k)o.remove()};document.body.appendChild(o)}
-function ptState(){var S=PT.S,today=ptDay();if(!S||S.d!==today)return{k:"run",goal:180,m:0};
+function ptState(){var S=PT.S;if(ptOld(S))return{k:"run",goal:180,m:0};
   if(S.m>=180&&!S.g1)return{k:"rd",g:1};if(S.m>=360&&S.g1&&!S.g2)return{k:"rd",g:2};if(S.g2)return{k:"dn"};
   return{k:"run",goal:S.m<180?180:360,m:S.m}}
 function ptPaint(){var el=PT.el;if(!el)return;var st=ptState(),tm=el.querySelector(".tm"),act=document.visibilityState==="visible"&&Date.now()-PT.act<180000;
   el.className="aggift"+(st.k==="rd"?" rd":st.k==="dn"?" dn":act?"":" ps");
   if(st.k==="rd"){tm.textContent=gtx("take");return}
-  if(st.k==="dn"){var left=(ptDay()*86400000+75600000-ptNow())/1000;tm.textContent=hms(left);return}
+  if(st.k==="dn"){var left=(PT.S.s+DAYMS-ptNow())/1000;tm.textContent=hms(left);return}
   tm.innerHTML="";var bb=document.createElement("b");bb.textContent=st.goal===180?"🪙":"💎";tm.appendChild(bb);
   tm.appendChild(document.createTextNode(hms((st.goal-st.m)*60-PT.acc)))}
-function ptSave(){if(!PT.uid||PT.busy)return;var db=firebase.database(),r=db.ref("ptime/"+PT.uid),S=PT.S,today=ptDay(),TS=firebase.database.ServerValue.TIMESTAMP;
-  if(!S||S.d<today){PT.busy=true;r.set({d:today,m:0,t:TS}).then(function(){PT.busy=false},function(){PT.busy=false});return}
-  if(S.d!==today||S.m>=360||PT.acc<60||ptNow()-S.t<57000)return;
-  PT.busy=true;r.set({d:S.d,m:S.m+1,t:TS,g1:S.g1||null,g2:S.g2||null}).then(function(){PT.acc=Math.max(0,PT.acc-60);PT.busy=false},function(){PT.busy=false})}
+function ptSave(){if(!PT.uid||PT.busy)return;var db=firebase.database(),r=db.ref("ptime/"+PT.uid),S=PT.S,TS=firebase.database.ServerValue.TIMESTAMP;
+  if(ptOld(S)){PT.busy=true;PT.acc=0;r.set({s:TS,m:0,t:TS}).then(function(){PT.busy=false},function(){PT.busy=false});return}
+  if(S.m>=360||PT.acc<60||ptNow()-S.t<57000)return;
+  PT.busy=true;r.set({s:S.s,m:S.m+1,t:TS,g1:S.g1||null,g2:S.g2||null}).then(function(){PT.acc=Math.max(0,PT.acc-60);PT.busy=false},function(){PT.busy=false})}
 function ptClaim(){var st=ptState();if(st.k!=="rd"){gPop(gtx("info"),"🎁");return}if(PT.busy)return;PT.busy=true;
   var db=firebase.database(),u=PT.uid,S=PT.S,TS=firebase.database.ServerValue.TIMESTAMP,up={};
   up["ptime/"+u+"/t"]=TS;
@@ -226,10 +230,10 @@ function playTimer(){var tries=0;
     firebase.auth().onAuthStateChanged(function(u){if(ref){ref.off();ref=null}PT.uid=u?u.uid:null;PT.S=null;PT.acc=0;
       giftShow();if(!u)return;
       ref=firebase.database().ref("ptime/"+u.uid);
-      ref.on("value",function(s){PT.S=s.val();ptSave();ptPaint()},function(){})})}catch(e){}})();
+      ref.on("value",function(s){PT.S=s.val();accLoad();ptSave();ptPaint()},function(){})})}catch(e){}})();
   PT.act=Date.now();["pointerdown","touchstart","keydown","wheel"].forEach(function(e){addEventListener(e,function(){PT.act=Date.now()},{passive:true,capture:true})});
   setInterval(function(){
-    if(PT.uid&&document.visibilityState==="visible"&&Date.now()-PT.act<180000){var st=ptState();if(st.k==="run")PT.acc=Math.min(PT.acc+1,90);ptSave()}
+    if(PT.uid&&document.visibilityState==="visible"&&Date.now()-PT.act<180000){var st=ptState();if(st.k==="run")PT.acc=Math.min(PT.acc+1,90);ptSave();accSave()}
     giftShow();ptPaint()},1000)}
 function ready(){fillSwitch();buildCarousel();buildGift();playTimer();dmBadge();fzWatchAll()}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",ready);else ready();
