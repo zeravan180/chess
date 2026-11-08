@@ -159,7 +159,8 @@ function ptNow(){return Date.now()+PT.off}
 function ptDay(){return Math.floor((ptNow()+10800000)/86400000)}
 function hms(sec){sec=Math.max(0,Math.ceil(sec));var h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),x=sec%60;return(h<10?"0":"")+h+":"+(m<10?"0":"")+m+":"+(x<10?"0":"")+x}
 function gCss(){if(document.getElementById("agGiftCss"))return;var st=document.createElement("style");st.id="agGiftCss";st.textContent=
- ".aggift{display:flex;flex-direction:column;align-items:center;margin:4px auto -2px;cursor:pointer;-webkit-tap-highlight-color:transparent;direction:ltr;width:max-content}"+
+ ".aggift{position:fixed;z-index:9000;display:flex;flex-direction:column;align-items:center;cursor:grab;-webkit-tap-highlight-color:transparent;direction:ltr;width:max-content;touch-action:none;user-select:none;-webkit-user-select:none}"+
+ ".aggift.drag{cursor:grabbing;opacity:.85}.aggift.drag .bx{transform:scale(1.1)}"+
  ".aggift .bx{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-size:32px;background:radial-gradient(circle at 50% 35%,#2b4ea8,#0c1b45);border:3px solid #f5c542;box-shadow:0 0 0 2px #7a5200,0 6px 14px rgba(0,0,0,.5);position:relative}"+
  ".aggift .bx:after{content:'🪙';position:absolute;right:-4px;bottom:-2px;font-size:18px}"+
  ".aggift .tm{margin-top:-8px;position:relative;background:linear-gradient(#1b2235,#0b1020);border:2px solid #f5c542;border-radius:10px;padding:2px 9px;font:800 14px/1.2 ui-monospace,Menlo,monospace;color:#fff;white-space:nowrap;unicode-bidi:plaintext}"+
@@ -198,23 +199,38 @@ function ptClaim(){var st=ptState();if(st.k!=="rd"){gPop(gtx("info"),"🎁");ret
   db.ref().update(up).then(function(){PT.busy=false;try{navigator.vibrate&&navigator.vibrate([60,40,120])}catch(e){}
       gPop(st.g===1?gtx("got1")+"\n\n"+gtx("next"):gtx("got2"),st.g===1?"🪙":"💎")},
     function(){PT.busy=false;gPop(gtx("err"),"⚠️")})}
-function buildGift(){var lob=document.getElementById("lobby");if(!lob||lob.querySelector(".aggift"))return;
-  var at=lob.querySelector(".agcar");if(!at)return;gCss();
+function buildGift(){var lob=document.getElementById("lobby");if(!lob||document.querySelector(".aggift"))return;gCss();
   var el=document.createElement("div");el.className="aggift no-tr";el.title=gtx("gift");
-  el.innerHTML='<div class="bx">🎁</div><div class="tm">--:--:--</div>';el.onclick=ptClaim;
-  at.parentNode.insertBefore(el,at);PT.el=el;ptPaint()}
+  el.innerHTML='<div class="bx">🎁</div><div class="tm">--:--:--</div>';document.body.appendChild(el);PT.el=el;
+  // where the player left it last time (as a share of the screen), first time: top right under the coins bar
+  var pos=null;try{pos=JSON.parse(localStorage.getItem("ag.giftPos")||"null")}catch(e){}
+  function place(){var w=el.offsetWidth||80,h=el.offsetHeight||80,x=pos?pos.x*innerWidth:innerWidth-w-10,y=pos?pos.y*innerHeight:150;
+    x=Math.max(4,Math.min(innerWidth-w-4,x));y=Math.max(4,Math.min(innerHeight-h-4,y));el.style.left=x+"px";el.style.top=y+"px"}
+  // drag with a finger anywhere; a short tap (no movement) opens / claims the gift
+  var st=null;
+  el.addEventListener("pointerdown",function(e){st={id:e.pointerId,sx:e.clientX,sy:e.clientY,ox:el.offsetLeft,oy:el.offsetTop,mv:false};try{el.setPointerCapture(e.pointerId)}catch(_){}});
+  el.addEventListener("pointermove",function(e){if(!st||e.pointerId!==st.id)return;var dx=e.clientX-st.sx,dy=e.clientY-st.sy;
+    if(!st.mv&&Math.abs(dx)+Math.abs(dy)<8)return;st.mv=true;el.classList.add("drag");
+    var w=el.offsetWidth,h=el.offsetHeight;el.style.left=Math.max(4,Math.min(innerWidth-w-4,st.ox+dx))+"px";el.style.top=Math.max(4,Math.min(innerHeight-h-4,st.oy+dy))+"px"});
+  function end(e){if(!st||e.pointerId!==st.id)return;var moved=st.mv;st=null;el.classList.remove("drag");
+    if(moved){pos={x:el.offsetLeft/innerWidth,y:el.offsetTop/innerHeight};try{localStorage.setItem("ag.giftPos",JSON.stringify(pos))}catch(_){}}
+    else if(e.type==="pointerup")ptClaim()}
+  el.addEventListener("pointerup",end);el.addEventListener("pointercancel",end);
+  addEventListener("resize",place);place();setTimeout(place,300);ptPaint()}
+function giftShow(){var el=PT.el;if(!el)return;var lob=document.getElementById("lobby");
+  var on=!!PT.uid&&!!lob&&lob.getClientRects().length>0&&getComputedStyle(lob).visibility!=="hidden";el.style.display=on?"":"none"}
 function playTimer(){var tries=0;
   (function go(){try{if(!window.firebase||!firebase.apps||!firebase.apps.length){if(++tries<40)setTimeout(go,700);return}
     firebase.database().ref(".info/serverTimeOffset").on("value",function(s){PT.off=s.val()||0});
     var ref=null;
     firebase.auth().onAuthStateChanged(function(u){if(ref){ref.off();ref=null}PT.uid=u?u.uid:null;PT.S=null;PT.acc=0;
-      if(PT.el)PT.el.style.display=u?"":"none";if(!u)return;
+      giftShow();if(!u)return;
       ref=firebase.database().ref("ptime/"+u.uid);
       ref.on("value",function(s){PT.S=s.val();ptSave();ptPaint()},function(){})})}catch(e){}})();
   PT.act=Date.now();["pointerdown","touchstart","keydown","wheel"].forEach(function(e){addEventListener(e,function(){PT.act=Date.now()},{passive:true,capture:true})});
   setInterval(function(){
     if(PT.uid&&document.visibilityState==="visible"&&Date.now()-PT.act<180000){var st=ptState();if(st.k==="run")PT.acc=Math.min(PT.acc+1,90);ptSave()}
-    ptPaint()},1000)}
+    giftShow();ptPaint()},1000)}
 function ready(){fillSwitch();buildCarousel();buildGift();playTimer();dmBadge();fzWatchAll()}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",ready);else ready();
 })();
