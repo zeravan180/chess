@@ -145,13 +145,13 @@ function buildCarousel(){var lob=document.getElementById("lobby");if(!lob||lob.q
    Every minute is saved in ptime/{uid} and the database rules check that a real minute has passed, so it can't be faked. ---- */
 var GT={gift:["دیاری","دیاری","هدية","Gift"],take:["وەرگرە!","وەریبگرە!","استلم!","Claim!"],
   pause:["ڕاوەستیایە","وەستاوە","متوقف","Paused"],tom:["سبەی","سبەی","غداً","Tomorrow"],
-  info:["هەر ڕۆژ: ٣ سەعەتان یاری بکە ← 🪙 1500 کۆین\n٦ سەعەتان یاری بکە ← 💎 100 AG\nدەم تنێ دەمێ تو ل ناڤ یاریێ دچیت، و دەمێ تو دەردکەڤی ڕادوەستیت. ئەگەر دەرکەڤی و بزڤڕی، ژ وی جهی بەردەوام دبیت. پشتی ٢٤ سەعەتان ژ نوو دەستپێدکەت.",
-        "هەموو ڕۆژێک: ٣ کاتژمێر یاری بکە ← 🪙 1500 کۆین\n٦ کاتژمێر یاری بکە ← 💎 100 AG\nکات تەنها کاتێک دەڕوات کە لە ناو یارییەکەیت. ئەگەر دەرچیت و بگەڕێیتەوە، لە هەمان شوێن بەردەوام دەبێت. دوای ٢٤ کاتژمێر لە سەرەتاوە دەست پێدەکاتەوە.",
-        "كل يوم: العب ٣ ساعات ← 🪙 1500 عملة\nالعب ٦ ساعات ← 💎 100 AG\nالوقت يُحسب فقط وأنت داخل اللعبة، ويتوقف عند خروجك. إذا خرجت ورجعت يكمل من حيث توقف. بعد ٢٤ ساعة يبدأ من جديد.",
-        "Every day: play 3 hours → 🪙 1500 coins\nplay 6 hours → 💎 100 AG\nThe clock only runs while you are in the game and stops when you leave. Leave and come back and it carries on where it stopped. After 24 hours it starts again."],
+  info:["🎁 دیاریەکا ڤەشارتی!\nیاری بکە هەتا دەمژمێر دگەهیتە 00:00:00، پاشان ڤەکە و ببینە کا چ تێدایە.\nدەم تنێ دەمێ تو ل ناڤ یاریێ دچیت، و دەمێ تو دەردکەڤی ڕادوەستیت. ئەگەر دەرکەڤی و بزڤڕی، ژ وی جهی بەردەوام دبیت. پشتی ٢٤ سەعەتان ژ نوو دەستپێدکەت.",
+        "🎁 دیارییەکی شاراوە!\nیاری بکە تا کاتژمێرەکە دەگاتە 00:00:00، پاشان بیکەرەوە و بزانە چی تێدایە.\nکات تەنها کاتێک دەڕوات کە لە ناو یارییەکەیت. ئەگەر دەرچیت و بگەڕێیتەوە، لە هەمان شوێن بەردەوام دەبێت. دوای ٢٤ کاتژمێر لە سەرەتاوە دەست پێدەکاتەوە.",
+        "🎁 هدية مخفية!\nالعب حتى يصل العداد إلى 00:00:00، ثم افتحها واكتشف ما بداخلها.\nالوقت يُحسب فقط وأنت داخل اللعبة، ويتوقف عند خروجك. إذا خرجت ورجعت يكمل من حيث توقف. بعد ٢٤ ساعة يبدأ من جديد.",
+        "🎁 A mystery gift!\nPlay until the timer reaches 00:00:00, then open it to see what's inside.\nThe clock only runs while you are in the game and stops when you leave. Leave and come back and it carries on where it stopped. After 24 hours it starts again."],
   got1:["🎉 تە 1500 کۆین وەرگرتن!","🎉 1500 کۆینت وەرگرت!","🎉 حصلت على 1500 عملة!","🎉 You got 1500 coins!"],
   got2:["🎉 تە 100 AG وەرگرتن!","🎉 100 AG ت وەرگرت!","🎉 حصلت على 100 AG!","🎉 You got 100 AG!"],
-  next:["٣ سەعەتێن دی ← 100 AG","٣ کاتژمێری تر ← 100 AG","٣ ساعات أخرى ← 100 AG","3 more hours → 100 AG"],
+  next:["🎁 دیاریەکا دی یا ڤەشارتی ل هیڤیا تە یە!","🎁 دیارییەکی تری شاراوە چاوەڕێتە!","🎁 هدية مخفية أخرى بانتظارك!","🎁 Another mystery gift is waiting for you!"],
   err:["نەهاتە وەرگرتن، دووبارە بکە","وەرنەگیرا، دووبارە بکەرەوە","تعذر الاستلام، أعد المحاولة","Could not claim, try again"]};
 var PT={uid:null,S:null,acc:0,act:0,off:0,busy:false,el:null};
 function gtx(k){var a=GT[k];return a[lang()]||a[0]}
@@ -166,7 +166,7 @@ function gCss(){if(document.getElementById("agGiftCss"))return;var st=document.c
  ".aggift{position:fixed;z-index:9000;display:flex;flex-direction:column;align-items:center;cursor:grab;-webkit-tap-highlight-color:transparent;direction:ltr;width:max-content;touch-action:none;user-select:none;-webkit-user-select:none}"+
  ".aggift.drag{cursor:grabbing;opacity:.85}.aggift.drag .bx{transform:scale(1.1)}"+
  ".aggift .bx{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-size:32px;background:radial-gradient(circle at 50% 35%,#2b4ea8,#0c1b45);border:3px solid #f5c542;box-shadow:0 0 0 2px #7a5200,0 6px 14px rgba(0,0,0,.5);position:relative}"+
- ".aggift .bx:after{content:'🪙';position:absolute;right:-4px;bottom:-2px;font-size:18px}"+
+ ".aggift .bx:after{content:'?';position:absolute;right:-5px;bottom:-3px;width:20px;height:20px;border-radius:50%;background:#f5c542;color:#4a2c00;font:900 14px/20px system-ui,sans-serif;text-align:center;box-shadow:0 1px 0 #7a5200}"+
  ".aggift .tm{margin-top:-8px;position:relative;background:linear-gradient(#1b2235,#0b1020);border:2px solid #f5c542;border-radius:10px;padding:2px 9px;font:800 14px/1.2 ui-monospace,Menlo,monospace;color:#fff;white-space:nowrap;unicode-bidi:plaintext}"+
  ".aggift .tm b{color:#ffd24a;margin-right:4px;font-weight:900}"+
  ".aggift.ps .tm{color:#aab}.aggift.ps .bx{filter:saturate(.7)}"+
@@ -176,10 +176,11 @@ function gCss(){if(document.getElementById("agGiftCss"))return;var st=document.c
  ".agpop{position:fixed;inset:0;z-index:99990;display:grid;place-items:center;background:rgba(0,0,0,.6)}"+
  ".agpop .cd{max-width:320px;margin:16px;padding:22px 18px 16px;border-radius:20px;background:linear-gradient(160deg,#25407e,#101a3a);border:3px solid #f5c542;color:#fff;text-align:center;font:600 15px/1.7 system-ui,'Noto Sans Arabic',sans-serif;white-space:pre-line;box-shadow:0 12px 30px rgba(0,0,0,.6)}"+
  ".agpop .cd .big{font-size:54px;line-height:1.1;margin-bottom:6px}"+
+ ".agcoin{display:inline-grid;place-items:center;width:64px;height:64px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffe9a0,#f2b632 45%,#c98a12 80%);border:3px solid #8a5a00;box-shadow:inset 0 0 0 4px #f5c542,inset 0 0 0 6px #b07a10,0 4px 10px rgba(0,0,0,.45);font:900 24px/1 Arial Black,Arial,sans-serif;color:#3b2a14;text-shadow:0 1px 0 rgba(255,255,255,.5);outline:2px dashed rgba(90,60,0,.55);outline-offset:-12px}"+
  ".agpop .cd button{margin-top:14px;background:linear-gradient(#ffe27a,#d6a21e);border:2px solid #fff3b0;color:#4a2c00;border-radius:12px;padding:6px 26px;font:800 15px system-ui,sans-serif}";
  document.head.appendChild(st)}
 function gPop(msg,big){gCss();var o=document.createElement("div");o.className="agpop";var c=document.createElement("div");c.className="cd";
-  var b=document.createElement("div");b.className="big";b.textContent=big||"🎁";var t=document.createElement("div");t.textContent=msg;
+  var b=document.createElement("div");b.className="big";if(big==="AG"){var cn=document.createElement("span");cn.className="agcoin";cn.textContent="AG";b.appendChild(cn)}else b.textContent=big||"🎁";var t=document.createElement("div");t.textContent=msg;
   var k=document.createElement("button");k.type="button";k.textContent="OK";c.appendChild(b);c.appendChild(t);c.appendChild(k);o.appendChild(c);
   o.onclick=function(e){if(e.target===o||e.target===k)o.remove()};document.body.appendChild(o)}
 function ptState(){var S=PT.S;if(ptOld(S))return{k:"run",goal:180,m:0};
@@ -190,7 +191,7 @@ function ptPaint(){var el=PT.el;if(!el)return;var st=ptState(),tm=el.querySelect
   if(!PT.ld){tm.textContent="--:--:--";return}
   if(st.k==="rd"){tm.textContent=gtx("take");return}
   if(st.k==="dn"){var left=(PT.S.s+DAYMS-ptNow())/1000;tm.textContent=hms(left);return}
-  tm.innerHTML="";var bb=document.createElement("b");bb.textContent=st.goal===180?"🪙":"💎";tm.appendChild(bb);
+  tm.innerHTML="";var bb=document.createElement("b");bb.textContent="⏱";tm.appendChild(bb);
   tm.appendChild(document.createTextNode(hms((st.goal-st.m)*60-PT.acc)))}
 function ptSave(){if(!PT.uid||!PT.ld||PT.busy)return;var db=firebase.database(),r=db.ref("ptime/"+PT.uid),S=PT.S,TS=firebase.database.ServerValue.TIMESTAMP;
   if(ptOld(S)){PT.busy=true;PT.acc=0;r.set({s:TS,m:0,t:TS}).then(function(){PT.busy=false;PT.err=""},function(e){PT.busy=false;PT.err=(e&&e.code)||"err"});return}
@@ -203,7 +204,7 @@ function ptClaim(){var st=ptState();if(st.k!=="rd"){gPop(gtx("info")+ptDiag(),"�
   if(st.g===1){up["ptime/"+u+"/g1"]=true;up["coins/"+u+"/c"]=firebase.database.ServerValue.increment(1500)}
   else{up["ptime/"+u+"/g2"]=true;up["wallets/"+u+"/ag"]=firebase.database.ServerValue.increment(100)}
   db.ref().update(up).then(function(){PT.busy=false;try{navigator.vibrate&&navigator.vibrate([60,40,120])}catch(e){}
-      gPop(st.g===1?gtx("got1")+"\n\n"+gtx("next"):gtx("got2"),st.g===1?"🪙":"💎")},
+      gPop(st.g===1?gtx("got1")+"\n\n"+gtx("next"):gtx("got2"),st.g===1?"🪙":"AG")},
     function(){PT.busy=false;gPop(gtx("err"),"⚠️")})}
 function buildGift(){var lob=document.getElementById("lobby");if(!lob||document.querySelector(".aggift"))return;gCss();
   var el=document.createElement("div");el.className="aggift no-tr";el.title=gtx("gift");
@@ -224,7 +225,9 @@ function buildGift(){var lob=document.getElementById("lobby");if(!lob||document.
   el.addEventListener("pointerup",end);el.addEventListener("pointercancel",end);
   addEventListener("resize",place);place();setTimeout(place,300);ptPaint()}
 function giftShow(){var el=PT.el;if(!el)return;var lob=document.getElementById("lobby");
-  var on=!!PT.uid&&!!lob&&lob.getClientRects().length>0&&getComputedStyle(lob).visibility!=="hidden";el.style.display=on?"":"none"}
+  var on=!!PT.uid&&!!lob&&lob.getClientRects().length>0&&getComputedStyle(lob).visibility!=="hidden";el.style.display=on?"":"none";
+  // keep it fully on the screen (its width changes with the text)
+  if(on&&!el.classList.contains("drag")){var r=el.getBoundingClientRect();if(r.right>innerWidth-4)el.style.left=Math.max(4,innerWidth-r.width-4)+"px";if(r.bottom>innerHeight-4)el.style.top=Math.max(4,innerHeight-r.height-4)+"px"}}
 function playTimer(){var tries=0;
   (function go(){try{if(!window.firebase||!firebase.apps||!firebase.apps.length){if(++tries<40)setTimeout(go,700);return}
     firebase.database().ref(".info/serverTimeOffset").on("value",function(s){PT.off=s.val()||0});
