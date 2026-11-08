@@ -28,6 +28,8 @@ var GAMES=[
    icon:"<svg viewBox=\"0 0 40 40\" aria-hidden=\"true\"><path d=\"M14 4v32M26 4v32M4 14h32M4 26h32\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\" opacity=\".55\"/><path d=\"M5.5 5.5l5 5M10.5 5.5l-5 5M29.5 29.5l5 5M34.5 29.5l-5 5\" stroke=\"currentColor\" stroke-width=\"2.6\" stroke-linecap=\"round\"/><circle cx=\"20\" cy=\"20\" r=\"3.6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\"/></svg>"},
   {id:"dots", page:"boxes.html", name:["خال و چارگۆشە", "خاڵ و چوارگۆشە", "النقاط والمربعات", "Dots and Boxes"], skins:"dotskins.js",
    icon:"<svg viewBox=\"0 0 40 40\" aria-hidden=\"true\"><g fill=\"currentColor\"><circle cx=\"7\" cy=\"7\" r=\"2.6\"/><circle cx=\"20\" cy=\"7\" r=\"2.6\"/><circle cx=\"33\" cy=\"7\" r=\"2.6\"/><circle cx=\"7\" cy=\"20\" r=\"2.6\"/><circle cx=\"20\" cy=\"20\" r=\"2.6\"/><circle cx=\"33\" cy=\"20\" r=\"2.6\"/><circle cx=\"7\" cy=\"33\" r=\"2.6\"/><circle cx=\"20\" cy=\"33\" r=\"2.6\"/><circle cx=\"33\" cy=\"33\" r=\"2.6\"/></g><rect x=\"7\" y=\"7\" width=\"13\" height=\"13\" fill=\"currentColor\" opacity=\".35\"/><path d=\"M7 7h13v13H7zM20 20h13\" stroke=\"currentColor\" stroke-width=\"2.6\" fill=\"none\" stroke-linecap=\"round\"/></svg>"},
+  {id:"kustirk", page:"kustirk.html", name:["کوستیرک", "ئەنگوستیلە", "محيبس", "Mheibes (Ring)"],
+   icon:"<svg viewBox=\"0 0 40 40\" aria-hidden=\"true\"><ellipse cx=\"20\" cy=\"26\" rx=\"12\" ry=\"9\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3.4\"/><path d=\"M14 10h12l3.5 4.5L20 24l-9.5-9.5z\" fill=\"currentColor\"/><path d=\"M14 10l6 14M26 10l-6 14M10.5 14.5h19\" stroke=\"#000\" stroke-opacity=\".35\" stroke-width=\"1\" fill=\"none\"/></svg>"},
 ];
 var LI={kmr:0,ckb:1,ar:2,en:3};
 function lang(){try{var v=LI[localStorage.getItem("lang")];return v==null?0:v}catch(e){return 0}}
@@ -95,7 +97,7 @@ function fzWatchAll(){var tries=0;(function go(){try{if(!window.firebase||!fireb
 /* ---- the game picker on every lobby: big cards under the title that you swipe one by one (the old icon row is hidden) ---- */
 var THEME={chess:["#7c3aed","#2e1065","♟️"],domino:["#16a34a","#064e3b","🁣"],snakes:["#f97316","#7c2d12","🐍"],tawla:["#b45309","#451a03","🎲"],
   dama:["#2563eb","#172554","⚫"],ludo:["#db2777","#500724","🎯"],zar:["#0d9488","#042f2e","🃏"],kon:["#dc2626","#450a0a","♠️"],
-  worms:["#0ea5e9","#082f49","🪱"],xo:["#4f46e5","#1e1b4b","❌"],dots:["#d97706","#451a03","▦"]};
+  worms:["#0ea5e9","#082f49","🪱"],xo:["#4f46e5","#1e1b4b","❌"],dots:["#d97706","#451a03","▦"],kustirk:["#be185d","#4a0420","💍"]};
 var PLAY=["▶ یاری بکە","▶ یاری بکە","▶ العب","▶ Play"],HERE=["✓ تو ل ڤێرێ یی","✓ تۆ لێرەی","✓ أنت هنا","✓ You are here"];
 function carCss(){if(document.getElementById("agCarCss"))return;var st=document.createElement("style");st.id="agCarCss";st.textContent=
  "#lobby nav.gswitch{display:none!important}"+
