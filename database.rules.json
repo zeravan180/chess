@@ -87,7 +87,7 @@
     "wallets": {
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
-        ".write": "auth != null && auth.uid === $uid && data.exists() && newData.child('ag').isNumber() && newData.child('ag').val() >= 0 && newData.child('ag').val() < data.child('ag').val() && newData.child('lastBuy').isString() && newData.parent().parent().child('owned/' + $uid + '/' + newData.child('lastBuy').val()).val() === true && !root.child('owned/' + $uid + '/' + newData.child('lastBuy').val()).exists()"
+        ".write": "(auth != null && auth.uid === $uid && data.exists() && newData.child('ag').isNumber() && newData.child('ag').val() >= 0 && newData.child('ag').val() < data.child('ag').val() && ((newData.child('lastBuy').isString() && newData.child('lastBuy').val() !== data.child('lastBuy').val() && newData.parent().parent().child('owned/' + $uid + '/' + newData.child('lastBuy').val()).val() === true && !root.child('owned/' + $uid + '/' + newData.child('lastBuy').val()).exists()) || (root.child('coins/' + $uid + '/c').isNumber() && newData.parent().parent().child('coins/' + $uid + '/c').val() - root.child('coins/' + $uid + '/c').val() === data.child('ag').val() - newData.child('ag').val()))) || (auth != null && auth.uid === $uid && data.exists() && newData.child('ag').isNumber() && newData.child('ag').val() >= 0 && newData.child('lastGift').isString() && newData.child('lastGift').val() !== data.child('lastGift').val() && !root.child('giftLog/' + newData.child('lastGift').val()).exists() && newData.parent().parent().child('giftLog/' + newData.child('lastGift').val() + '/from').val() === auth.uid && data.child('ag').val() - newData.child('ag').val() === newData.parent().parent().child('giftLog/' + newData.child('lastGift').val() + '/price').val() && newData.child('lastBuy').val() === data.child('lastBuy').val() && newData.child('lastIn').val() === data.child('lastIn').val() && newData.child('lastOwn').val() === data.child('lastOwn').val()) || (auth != null && auth.uid !== $uid && newData.child('ag').isNumber() && newData.child('lastIn').isString() && newData.child('lastIn').val() !== data.child('lastIn').val() && !root.child('giftLog/' + newData.child('lastIn').val()).exists() && newData.parent().parent().child('giftLog/' + newData.child('lastIn').val() + '/from').val() === auth.uid && newData.parent().parent().child('giftLog/' + newData.child('lastIn').val() + '/to').val() === $uid && ((!data.child('ag').exists() && newData.child('ag').val() === newData.parent().parent().child('giftLog/' + newData.child('lastIn').val() + '/toShare').val()) || (data.child('ag').exists() && newData.child('ag').val() - data.child('ag').val() === newData.parent().parent().child('giftLog/' + newData.child('lastIn').val() + '/toShare').val())) && newData.child('lastBuy').val() === data.child('lastBuy').val() && newData.child('lastGift').val() === data.child('lastGift').val() && newData.child('lastOwn').val() === data.child('lastOwn').val()) || (auth != null && auth.uid !== $uid && newData.child('ag').isNumber() && newData.child('lastOwn').isString() && newData.child('lastOwn').val() !== data.child('lastOwn').val() && !root.child('giftLog/' + newData.child('lastOwn').val()).exists() && newData.parent().parent().child('giftLog/' + newData.child('lastOwn').val() + '/from').val() === auth.uid && newData.parent().parent().child('giftLog/' + newData.child('lastOwn').val() + '/owner').val() === $uid && ((!data.child('ag').exists() && newData.child('ag').val() === newData.parent().parent().child('giftLog/' + newData.child('lastOwn').val() + '/ownerShare').val()) || (data.child('ag').exists() && newData.child('ag').val() - data.child('ag').val() === newData.parent().parent().child('giftLog/' + newData.child('lastOwn').val() + '/ownerShare').val())) && newData.child('lastBuy').val() === data.child('lastBuy').val() && newData.child('lastGift').val() === data.child('lastGift').val() && newData.child('lastIn').val() === data.child('lastIn').val())"
       }
     },
     "owned": {
@@ -113,6 +113,136 @@
       ],
       "$code": {
         ".write": "auth != null && !root.child('banned/' + auth.uid).exists() && ((!data.exists() && newData.child('seats/0/uid').val() === auth.uid) || (data.exists() && (data.child('status').val() === 'waiting' || data.child('seats/0/uid').val() === auth.uid || data.child('seats/1/uid').val() === auth.uid || data.child('seats/2/uid').val() === auth.uid || data.child('seats/3/uid').val() === auth.uid)))"
+      }
+    },
+    "dvoice": {
+      "$code": {
+        ".read": "auth != null && (root.child('dgames/' + $code + '/seats/0/uid').val() === auth.uid || root.child('dgames/' + $code + '/seats/1/uid').val() === auth.uid || root.child('dgames/' + $code + '/seats/2/uid').val() === auth.uid || root.child('dgames/' + $code + '/seats/3/uid').val() === auth.uid)",
+        ".write": "auth != null && (root.child('dgames/' + $code + '/seats/0/uid').val() === auth.uid || root.child('dgames/' + $code + '/seats/1/uid').val() === auth.uid || root.child('dgames/' + $code + '/seats/2/uid').val() === auth.uid || root.child('dgames/' + $code + '/seats/3/uid').val() === auth.uid)"
+      }
+    },
+    "coins": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "c": {
+          ".write": "auth != null && auth.uid === $uid && !root.child('banned/' + auth.uid).exists() && ((!data.exists() && newData.val() === 150) || (data.exists() && newData.val() < data.val()) || (data.exists() && newData.val() > data.val() && newData.val() - data.val() === root.child('wallets/' + $uid + '/ag').val() - newData.parent().parent().parent().child('wallets/' + $uid + '/ag').val()) || (data.exists() && data.val() < 25 && newData.val() === data.val() + 50 && newData.parent().child('daily').val() !== root.child('coins/' + $uid + '/daily').val()) || (data.exists() && root.child('dgames/' + newData.parent().child('claim').val() + '/status').val() === 'over' && root.child('dgames/' + newData.parent().child('claim').val() + '/seats/' + newData.parent().child('claimSeat').val() + '/uid').val() === auth.uid && root.child('dgames/' + newData.parent().child('claim').val() + '/staked/' + newData.parent().child('claimSeat').val()).val() === true && !root.child('dgames/' + newData.parent().child('claim').val() + '/paid/' + newData.parent().child('claimSeat').val()).exists() && newData.parent().parent().parent().child('dgames/' + newData.parent().child('claim').val() + '/paid/' + newData.parent().child('claimSeat').val()).val() === true && ((root.child('dgames/' + newData.parent().child('claim').val() + '/result/winSeats/' + newData.parent().child('claimSeat').val()).val() === true && newData.val() === data.val() + 50) || (root.child('dgames/' + newData.parent().child('claim').val() + '/result/draw').val() === true && newData.val() === data.val() + 25))))",
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000000"
+        },
+        "since": {
+          ".write": "auth != null && auth.uid === $uid"
+        },
+        "daily": {
+          ".write": "auth != null && auth.uid === $uid"
+        },
+        "claim": {
+          ".write": "auth != null && auth.uid === $uid"
+        },
+        "claimSeat": {
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      }
+    },
+    "xp": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid && !root.child('banned/' + auth.uid).exists() && newData.child('t').val() === now && newData.child('x').isNumber() && newData.child('g').isString() && ((!data.exists() && newData.child('x').val() > 0 && newData.child('x').val() <= 30) || (data.exists() && newData.child('x').val() > data.child('x').val() && newData.child('x').val() <= data.child('x').val() + 30 && (newData.child('g').val() !== data.child('g').val() || newData.child('k').val() !== data.child('k').val()) && now - data.child('t').val() >= 8000)) && ((newData.child('k').val() === 'b' && newData.child('g').val().matches(/^bot-[a-z0-9]{4,20}$/) && ((!data.exists() && newData.child('x').val() <= 20) || (data.exists() && newData.child('x').val() <= data.child('x').val() + 20 && now - data.child('t').val() >= 60000))) || (newData.child('k').val() === 'c' && root.child('games/' + newData.child('g').val() + '/status').val().matches(/^(checkmate|stalemate|resign|abandon)$/) && (root.child('games/' + newData.child('g').val() + '/white/uid').val() === auth.uid || root.child('games/' + newData.child('g').val() + '/black/uid').val() === auth.uid)) || (newData.child('k').val() === 'd' && root.child('dgames/' + newData.child('g').val() + '/status').val() === 'over' && (root.child('dgames/' + newData.child('g').val() + '/seats/0/uid').val() === auth.uid || root.child('dgames/' + newData.child('g').val() + '/seats/1/uid').val() === auth.uid || root.child('dgames/' + newData.child('g').val() + '/seats/2/uid').val() === auth.uid || root.child('dgames/' + newData.child('g').val() + '/seats/3/uid').val() === auth.uid)))",
+        ".validate": "newData.hasChildren(['x','g','k','t'])"
+      }
+    },
+    "rooms": {
+      ".read": "auth != null",
+      ".indexOn": [
+        "createdAt"
+      ],
+      "$id": {
+        ".write": "auth != null && !root.child('banned/' + auth.uid).exists() && ((!data.exists() && newData.child('owner').val() === auth.uid && !root.child('myRoom/' + auth.uid).exists() && root.child('xp/' + auth.uid + '/x').val() >= 260) || (data.exists() && data.child('owner').val() === auth.uid && (!newData.exists() || newData.child('owner').val() === auth.uid)))",
+        ".validate": "newData.hasChildren(['name','owner']) && newData.child('name').isString() && newData.child('name').val().length > 0 && newData.child('name').val().length <= 40 && (!newData.child('desc').exists() || (newData.child('desc').isString() && newData.child('desc').val().length <= 200)) && (!newData.child('cover').exists() || (newData.child('cover').isString() && newData.child('cover').val().length < 120000)) && (!newData.child('ownerName').exists() || newData.child('ownerName').val().length <= 40) && (!newData.child('theme').exists() || root.child('owned/' + newData.child('owner').val() + '/' + newData.child('theme').val()).val() === true)"
+      }
+    },
+    "myRoom": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "userRooms": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "roomMembers": {
+      "$id": {
+        ".read": "auth != null",
+        ".write": "auth != null && !newData.exists() && root.child('rooms/' + $id + '/owner').val() === auth.uid",
+        "$uid": {
+          ".write": "auth != null && ((auth.uid === $uid && (!newData.exists() || !root.child('roomBans/' + $id + '/' + auth.uid).exists())) || (!newData.exists() && root.child('rooms/' + $id + '/owner').val() === auth.uid))"
+        }
+      }
+    },
+    "roomBans": {
+      "$id": {
+        ".read": "auth != null",
+        ".write": "auth != null && !newData.exists() && root.child('rooms/' + $id + '/owner').val() === auth.uid",
+        "$uid": {
+          ".write": "auth != null && root.child('rooms/' + $id + '/owner').val() === auth.uid && $uid !== auth.uid"
+        }
+      }
+    },
+    "roomOnline": {
+      ".read": "auth != null",
+      "$id": {
+        ".write": "auth != null && !newData.exists() && root.child('rooms/' + $id + '/owner').val() === auth.uid",
+        "$uid": {
+          ".write": "auth != null && ((auth.uid === $uid && (!newData.exists() || (!root.child('roomBans/' + $id + '/' + auth.uid).exists() && !root.child('banned/' + auth.uid).exists()))) || (!newData.exists() && root.child('rooms/' + $id + '/owner').val() === auth.uid))"
+        }
+      }
+    },
+    "roomMsgs": {
+      "$id": {
+        ".read": "auth != null && !root.child('roomBans/' + $id + '/' + auth.uid).exists()",
+        ".indexOn": [
+          "ts"
+        ],
+        ".write": "auth != null && !newData.exists() && root.child('rooms/' + $id + '/owner').val() === auth.uid",
+        "$m": {
+          ".write": "auth != null && ((!data.exists() && newData.child('uid').val() === auth.uid && newData.child('ts').val() === now && root.child('rooms/' + $id).exists() && !root.child('roomBans/' + $id + '/' + auth.uid).exists() && !root.child('banned/' + auth.uid).exists()) || (data.exists() && !newData.exists() && (data.child('uid').val() === auth.uid || root.child('rooms/' + $id + '/owner').val() === auth.uid)))",
+          ".validate": "newData.hasChildren(['uid','t','ts']) && (!newData.child('name').exists() || newData.child('name').val().length <= 40) && (!newData.child('photo').exists() || newData.child('photo').val().length < 1500) && ((newData.child('t').val() === 't' && newData.child('text').isString() && newData.child('text').val().length > 0 && newData.child('text').val().length <= 500) || (newData.child('t').val() === 'v' && newData.child('data').isString() && newData.child('data').val().length < 210000 && newData.child('dur').isNumber()) || (newData.child('t').val() === 'g' && newData.child('gid').isString() && newData.child('gid').val() === $m && newData.parent().parent().parent().child('giftLog/' + $m + '/from').val() === auth.uid && newData.child('toName').val().length <= 40))"
+        }
+      }
+    },
+    "roomSeats": {
+      "$id": {
+        ".read": "auth != null",
+        ".write": "auth != null && !newData.exists() && root.child('rooms/' + $id + '/owner').val() === auth.uid",
+        "$n": {
+          ".write": "auth != null && $n.matches(/^[0-9]$/) && ((!data.exists() && newData.child('uid').val() === auth.uid && root.child('rooms/' + $id).exists() && !root.child('roomBans/' + $id + '/' + auth.uid).exists() && !root.child('banned/' + auth.uid).exists()) || (data.exists() && data.child('uid').val() === auth.uid && (!newData.exists() || newData.child('uid').val() === auth.uid)) || (data.exists() && !newData.exists() && root.child('rooms/' + $id + '/owner').val() === auth.uid))",
+          ".validate": "newData.hasChildren(['uid']) && (!newData.child('name').exists() || newData.child('name').val().length <= 40) && (!newData.child('photo').exists() || newData.child('photo').val().length < 1500)"
+        }
+      }
+    },
+    "rtc": {
+      "$id": {
+        ".read": "auth != null && !root.child('roomBans/' + $id + '/' + auth.uid).exists()",
+        ".write": "auth != null && !newData.exists() && root.child('rooms/' + $id + '/owner').val() === auth.uid",
+        "$pair": {
+          ".write": "auth != null && ($pair.beginsWith(auth.uid + '_') || $pair.endsWith('_' + auth.uid))"
+        }
+      }
+    },
+    "giftLog": {
+      "$gid": {
+        ".write": "auth != null && !data.exists() && newData.child('from').val() === auth.uid && !root.child('banned/' + auth.uid).exists()",
+        ".validate": "newData.hasChildren(['from','to','room','owner','item','qty','price','toShare','ownerShare','ts']) && newData.child('ts').val() === now && newData.child('to').isString() && newData.child('to').val() !== auth.uid && newData.child('item').isString() && newData.child('item').val().beginsWith('g_') && newData.child('qty').isNumber() && newData.child('qty').val() >= 1 && newData.child('qty').val() <= 99 && root.child('shop/' + newData.child('item').val() + '/price').isNumber() && newData.child('price').val() === root.child('shop/' + newData.child('item').val() + '/price').val() * newData.child('qty').val() && newData.child('toShare').val() * 10 === newData.child('price').val() * 4 && newData.child('owner').val() === root.child('rooms/' + newData.child('room').val() + '/owner').val() && (((newData.child('owner').val() === auth.uid || newData.child('owner').val() === newData.child('to').val()) && newData.child('ownerShare').val() === 0) || (newData.child('owner').val() !== auth.uid && newData.child('owner').val() !== newData.child('to').val() && newData.child('ownerShare').val() * 10 === newData.child('price').val()))"
+      }
+    },
+    "income": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$gid": {
+          ".write": "auth != null && !data.exists() && !root.child('giftLog/' + $gid).exists() && newData.parent().parent().parent().child('giftLog/' + $gid + '/from').val() === auth.uid",
+          ".validate": "newData.hasChildren(['amt','kind','ts']) && newData.child('ts').val() === now && newData.child('amt').isNumber() && ((newData.child('kind').val() === 'gift' && newData.parent().parent().parent().child('giftLog/' + $gid + '/to').val() === $uid && newData.child('amt').val() === newData.parent().parent().parent().child('giftLog/' + $gid + '/toShare').val()) || (newData.child('kind').val() === 'room' && newData.parent().parent().parent().child('giftLog/' + $gid + '/owner').val() === $uid && newData.child('amt').val() === newData.parent().parent().parent().child('giftLog/' + $gid + '/ownerShare').val()))"
+        }
       }
     }
   }

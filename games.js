@@ -140,6 +140,81 @@ function buildCarousel(){var lob=document.getElementById("lobby");if(!lob||lob.q
   trk.addEventListener("scroll",function(){requestAnimationFrame(paint)},{passive:true});
   var tries=0;(function go(){if(!trk.clientWidth&&++tries<60){setTimeout(go,150);return}center(cur,false);paint()})();
   addEventListener("resize",function(){center(near(),false);paint()})}
-function ready(){fillSwitch();buildCarousel();dmBadge();fzWatchAll()}
+/* ---- the play-time gift: 3 hours of play in a day = 1500 coins, 6 hours = 100 AG.
+   The clock only runs while the app is on screen and the player is touching it; it starts again at midnight (Baghdad).
+   Every minute is saved in ptime/{uid} and the database rules check that a real minute has passed, so it can't be faked. ---- */
+var GT={gift:["دیاری","دیاری","هدية","Gift"],take:["وەرگرە!","وەریبگرە!","استلم!","Claim!"],
+  pause:["ڕاوەستیایە","وەستاوە","متوقف","Paused"],tom:["سبەی","سبەی","غداً","Tomorrow"],
+  info:["هەر ڕۆژ: ٣ سەعەتان یاری بکە ← 🪙 1500 کۆین\n٦ سەعەتان یاری بکە ← 💎 100 AG\nدەم تنێ دەمێ تو ل ناڤ یاریێ دچیت، و دەمێ تو دەردکەڤی ڕادوەستیت. هەر شەڤ ل نیڤا شەڤێ ژ نوو دەستپێدکەت.",
+        "هەموو ڕۆژێک: ٣ کاتژمێر یاری بکە ← 🪙 1500 کۆین\n٦ کاتژمێر یاری بکە ← 💎 100 AG\nکات تەنها کاتێک دەڕوات کە لە ناو یارییەکەیت. هەموو شەوێک لە نیوەشەو دەست پێدەکاتەوە.",
+        "كل يوم: العب ٣ ساعات ← 🪙 1500 عملة\nالعب ٦ ساعات ← 💎 100 AG\nالوقت يُحسب فقط وأنت داخل اللعبة، ويتوقف عند خروجك. يبدأ من جديد كل ليلة عند منتصف الليل.",
+        "Every day: play 3 hours → 🪙 1500 coins\nplay 6 hours → 💎 100 AG\nThe clock only runs while you are in the game and stops when you leave. It restarts every night at midnight."],
+  got1:["🎉 تە 1500 کۆین وەرگرتن!","🎉 1500 کۆینت وەرگرت!","🎉 حصلت على 1500 عملة!","🎉 You got 1500 coins!"],
+  got2:["🎉 تە 100 AG وەرگرتن!","🎉 100 AG ت وەرگرت!","🎉 حصلت على 100 AG!","🎉 You got 100 AG!"],
+  next:["٣ سەعەتێن دی ← 100 AG","٣ کاتژمێری تر ← 100 AG","٣ ساعات أخرى ← 100 AG","3 more hours → 100 AG"],
+  err:["نەهاتە وەرگرتن، دووبارە بکە","وەرنەگیرا، دووبارە بکەرەوە","تعذر الاستلام، أعد المحاولة","Could not claim, try again"]};
+var PT={uid:null,S:null,acc:0,act:0,off:0,busy:false,el:null};
+function gtx(k){var a=GT[k];return a[lang()]||a[0]}
+function ptNow(){return Date.now()+PT.off}
+function ptDay(){return Math.floor((ptNow()+10800000)/86400000)}
+function hms(sec){sec=Math.max(0,Math.ceil(sec));var h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),x=sec%60;return(h<10?"0":"")+h+":"+(m<10?"0":"")+m+":"+(x<10?"0":"")+x}
+function gCss(){if(document.getElementById("agGiftCss"))return;var st=document.createElement("style");st.id="agGiftCss";st.textContent=
+ ".aggift{display:flex;flex-direction:column;align-items:center;margin:4px auto -2px;cursor:pointer;-webkit-tap-highlight-color:transparent;direction:ltr;width:max-content}"+
+ ".aggift .bx{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-size:32px;background:radial-gradient(circle at 50% 35%,#2b4ea8,#0c1b45);border:3px solid #f5c542;box-shadow:0 0 0 2px #7a5200,0 6px 14px rgba(0,0,0,.5);position:relative}"+
+ ".aggift .bx:after{content:'🪙';position:absolute;right:-4px;bottom:-2px;font-size:18px}"+
+ ".aggift .tm{margin-top:-8px;position:relative;background:linear-gradient(#1b2235,#0b1020);border:2px solid #f5c542;border-radius:10px;padding:2px 9px;font:800 14px/1.2 ui-monospace,Menlo,monospace;color:#fff;white-space:nowrap;unicode-bidi:plaintext}"+
+ ".aggift .tm b{color:#ffd24a;margin-right:4px;font-weight:900}"+
+ ".aggift.ps .tm{color:#aab}.aggift.ps .bx{filter:saturate(.7)}"+
+ ".aggift.rd .bx{animation:agGB 1s ease-in-out infinite}.aggift.rd .tm{background:linear-gradient(#5be38a,#1f9d55);border-color:#b7f5cf;font-family:system-ui,sans-serif}"+
+ ".aggift.dn .bx{filter:grayscale(.8);opacity:.75}"+
+ "@keyframes agGB{0%,100%{transform:scale(1) rotate(0)}25%{transform:scale(1.12) rotate(-8deg)}75%{transform:scale(1.12) rotate(8deg)}}"+
+ ".agpop{position:fixed;inset:0;z-index:99990;display:grid;place-items:center;background:rgba(0,0,0,.6)}"+
+ ".agpop .cd{max-width:320px;margin:16px;padding:22px 18px 16px;border-radius:20px;background:linear-gradient(160deg,#25407e,#101a3a);border:3px solid #f5c542;color:#fff;text-align:center;font:600 15px/1.7 system-ui,'Noto Sans Arabic',sans-serif;white-space:pre-line;box-shadow:0 12px 30px rgba(0,0,0,.6)}"+
+ ".agpop .cd .big{font-size:54px;line-height:1.1;margin-bottom:6px}"+
+ ".agpop .cd button{margin-top:14px;background:linear-gradient(#ffe27a,#d6a21e);border:2px solid #fff3b0;color:#4a2c00;border-radius:12px;padding:6px 26px;font:800 15px system-ui,sans-serif}";
+ document.head.appendChild(st)}
+function gPop(msg,big){gCss();var o=document.createElement("div");o.className="agpop";var c=document.createElement("div");c.className="cd";
+  var b=document.createElement("div");b.className="big";b.textContent=big||"🎁";var t=document.createElement("div");t.textContent=msg;
+  var k=document.createElement("button");k.type="button";k.textContent="OK";c.appendChild(b);c.appendChild(t);c.appendChild(k);o.appendChild(c);
+  o.onclick=function(e){if(e.target===o||e.target===k)o.remove()};document.body.appendChild(o)}
+function ptState(){var S=PT.S,today=ptDay();if(!S||S.d!==today)return{k:"run",goal:180,m:0};
+  if(S.m>=180&&!S.g1)return{k:"rd",g:1};if(S.m>=360&&S.g1&&!S.g2)return{k:"rd",g:2};if(S.g2)return{k:"dn"};
+  return{k:"run",goal:S.m<180?180:360,m:S.m}}
+function ptPaint(){var el=PT.el;if(!el)return;var st=ptState(),tm=el.querySelector(".tm"),act=document.visibilityState==="visible"&&Date.now()-PT.act<180000;
+  el.className="aggift"+(st.k==="rd"?" rd":st.k==="dn"?" dn":act?"":" ps");
+  if(st.k==="rd"){tm.textContent=gtx("take");return}
+  if(st.k==="dn"){var left=(ptDay()*86400000+75600000-ptNow())/1000;tm.textContent=hms(left);return}
+  tm.innerHTML="";var bb=document.createElement("b");bb.textContent=st.goal===180?"🪙":"💎";tm.appendChild(bb);
+  tm.appendChild(document.createTextNode(hms((st.goal-st.m)*60-PT.acc)))}
+function ptSave(){if(!PT.uid||PT.busy)return;var db=firebase.database(),r=db.ref("ptime/"+PT.uid),S=PT.S,today=ptDay(),TS=firebase.database.ServerValue.TIMESTAMP;
+  if(!S||S.d<today){PT.busy=true;r.set({d:today,m:0,t:TS}).then(function(){PT.busy=false},function(){PT.busy=false});return}
+  if(S.d!==today||S.m>=360||PT.acc<60||ptNow()-S.t<57000)return;
+  PT.busy=true;r.set({d:S.d,m:S.m+1,t:TS,g1:S.g1||null,g2:S.g2||null}).then(function(){PT.acc=Math.max(0,PT.acc-60);PT.busy=false},function(){PT.busy=false})}
+function ptClaim(){var st=ptState();if(st.k!=="rd"){gPop(gtx("info"),"🎁");return}if(PT.busy)return;PT.busy=true;
+  var db=firebase.database(),u=PT.uid,S=PT.S,TS=firebase.database.ServerValue.TIMESTAMP,up={};
+  up["ptime/"+u+"/t"]=TS;
+  if(st.g===1){up["ptime/"+u+"/g1"]=true;up["coins/"+u+"/c"]=firebase.database.ServerValue.increment(1500)}
+  else{up["ptime/"+u+"/g2"]=true;up["wallets/"+u+"/ag"]=firebase.database.ServerValue.increment(100)}
+  db.ref().update(up).then(function(){PT.busy=false;try{navigator.vibrate&&navigator.vibrate([60,40,120])}catch(e){}
+      gPop(st.g===1?gtx("got1")+"\n\n"+gtx("next"):gtx("got2"),st.g===1?"🪙":"💎")},
+    function(){PT.busy=false;gPop(gtx("err"),"⚠️")})}
+function buildGift(){var lob=document.getElementById("lobby");if(!lob||lob.querySelector(".aggift"))return;
+  var at=lob.querySelector(".agcar");if(!at)return;gCss();
+  var el=document.createElement("div");el.className="aggift no-tr";el.title=gtx("gift");
+  el.innerHTML='<div class="bx">🎁</div><div class="tm">--:--:--</div>';el.onclick=ptClaim;
+  at.parentNode.insertBefore(el,at);PT.el=el;ptPaint()}
+function playTimer(){var tries=0;
+  (function go(){try{if(!window.firebase||!firebase.apps||!firebase.apps.length){if(++tries<40)setTimeout(go,700);return}
+    firebase.database().ref(".info/serverTimeOffset").on("value",function(s){PT.off=s.val()||0});
+    var ref=null;
+    firebase.auth().onAuthStateChanged(function(u){if(ref){ref.off();ref=null}PT.uid=u?u.uid:null;PT.S=null;PT.acc=0;
+      if(PT.el)PT.el.style.display=u?"":"none";if(!u)return;
+      ref=firebase.database().ref("ptime/"+u.uid);
+      ref.on("value",function(s){PT.S=s.val();ptSave();ptPaint()},function(){})})}catch(e){}})();
+  PT.act=Date.now();["pointerdown","touchstart","keydown","wheel"].forEach(function(e){addEventListener(e,function(){PT.act=Date.now()},{passive:true,capture:true})});
+  setInterval(function(){
+    if(PT.uid&&document.visibilityState==="visible"&&Date.now()-PT.act<180000){var st=ptState();if(st.k==="run")PT.acc=Math.min(PT.acc+1,90);ptSave()}
+    ptPaint()},1000)}
+function ready(){fillSwitch();buildCarousel();buildGift();playTimer();dmBadge();fzWatchAll()}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",ready);else ready();
 })();
