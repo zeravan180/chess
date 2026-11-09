@@ -672,6 +672,7 @@ html,body{touch-action:pan-y;overscroll-behavior-x:none;-webkit-text-size-adjust
 .rich-hist .ln{display:flex;justify-content:space-between;gap:8px}.rich-hist .ln b{direction:ltr;font-family:var(--f-mono,monospace)}
 .rich-hist .warn{color:#ffb15c;font-weight:800}.rich-hist .okk{color:#2fd27a;font-weight:800}
 </style>
+<style id="no-move-icons">/* the lobby icons stay still on every phone */.card .art>svg,.art .vs,.art .beat,.bnav .on .bi{animation:none!important}</style>
 </head>
 <body>
 <script src="games.js"></script>
@@ -853,9 +854,9 @@ html,body{touch-action:pan-y;overscroll-behavior-x:none;-webkit-text-size-adjust
       <div class="row" style="justify-content:space-between"><h2 style="margin:0">🛒 دکان</h2><button id="shopBack" class="ghost">پاشڤە</button></div>
       <div class="balance"><span class="muted">باڵانسێ تە</span><b>💰 <span id="shopBal">0</span> AG</b></div>
       <div class="tabs" role="tablist">
-        <button class="tab on" data-tab="buyag" role="tab" id="tabBuyAg">کڕینا AG</button>
+        <button class="tab" data-tab="buyag" role="tab" id="tabBuyAg" hidden>کڕینا AG</button>
         <button class="tab" data-tab="coins" role="tab">🪙 کۆین</button>
-        <button class="tab" data-tab="items" role="tab">تشت</button>
+        <button class="tab on" data-tab="items" role="tab">تشت</button>
         <button class="tab" data-tab="mine" role="tab" id="tabMine">📄 داخوازێن من</button>
       </div>
     </div>
@@ -1467,7 +1468,7 @@ function boot(){
     if(code)openGame(code,true);else show("lobby");
     if(location.hash==="#shop")setTimeout(()=>openShop(),300);
     if(location.hash==="#coins")setTimeout(()=>openShop("coins"),300);
-    if(location.hash==="#sell")setTimeout(()=>openShop("buyag"),300);
+    if(location.hash==="#sell")setTimeout(()=>openShop("items"),300);
     if(/^#pack_/.test(location.hash))setTimeout(()=>{openShop("items");setTimeout(()=>{const h=document.getElementById(location.hash.slice(1));if(h)h.scrollIntoView({behavior:"smooth",block:"start"})},400)},300);
     if(location.hash==="#zar")setTimeout(()=>{openShop("items");setTimeout(()=>{const h=$("zarHead");if(h)h.scrollIntoView({behavior:"smooth",block:"start"})},300)},300);
     if(location.hash==="#dama")setTimeout(()=>{openShop("items");setTimeout(()=>{const h=$("damaHead");if(h)h.scrollIntoView({behavior:"smooth",block:"start"})},300)},300);
@@ -2259,10 +2260,11 @@ const AG_PER_1000=100;
 // AGPACKS
 
 // ---------- where the app runs: the Google Play app (TWA) never shows AG purchases; the website sells AG with Iraqi payments ----------
+const NO_BUY=true;// AG purchases hidden: no Play merchant account for Iraq yet
 const IS_PLAY=(()=>{try{
   if(/^android-app:\/\/io\.github\.zeravan180\.twa/.test(document.referrer)||/[?&]src=play\b/.test(location.search))sessionStorage.setItem("ag.play","1");
   return sessionStorage.getItem("ag.play")==="1"}catch(e){return/^android-app:/.test(document.referrer)}})();
-function applyStoreMode(){const pr=!!playSvc&&Object.keys(playPrices).length>0;const a=$("tabBuyAg"),m=$("tabMine");if(a)a.hidden=false;if(m)m.hidden=true;const pn=$("playNote");if(pn)pn.hidden=!pr;const bd=$("buyDesc");if(bd)bd.textContent=pr?"پاکێتەکێ هەلبژێرە. پارەدان ب Google Play e و AG ب خۆ دچنە هەژمارا تە.":"کڕینا AG تنێ ب ڕێکا Google Play دبیت، د ئەپا AG Classic Games دا. زوو دێ بهێت."}
+function applyStoreMode(){const pr=!!playSvc&&Object.keys(playPrices).length>0;const a=$("tabBuyAg"),m=$("tabMine");if(a)a.hidden=NO_BUY;if(m)m.hidden=true;const pn=$("playNote");if(pn)pn.hidden=!pr;const bd=$("buyDesc");if(bd)bd.textContent=pr?"پاکێتەکێ هەلبژێرە. پارەدان ب Google Play e و AG ب خۆ دچنە هەژمارا تە.":"کڕینا AG تنێ ب ڕێکا Google Play دبیت، د ئەپا AG Classic Games دا. زوو دێ بهێت."}
 const PACKS=[{base:100,bonus:0},{base:500,bonus:40},{base:1000,bonus:100},{base:2500,bonus:500},{base:5000,bonus:1400},{base:10000,bonus:3500}];
 const packIQD=p=>p.base/AG_PER_1000*1000,packAG=p=>p.base+p.bonus;
 const arDigits=n=>String(n).replace(/\d/g,d=>"٠١٢٣٤٥٦٧٨٩"[d]);
@@ -2657,8 +2659,8 @@ function applyBoardTheme(el){
   if(t){el.style.setProperty("--sq-light",t.l);el.style.setProperty("--sq-dark",t.d)}
   else{el.style.removeProperty("--sq-light");el.style.removeProperty("--sq-dark")}
 }
-function openShop(tab){show("shop");setTab(tab||"buyag");renderPacks();renderPayTo();renderItems();renderMyTopups()}
-function setTab(t){if(t==="mine"||t==="sell")t="buyag";if(t==="sell")setTimeout(renderSell,0);applyStoreMode();document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.tab===t));
+function openShop(tab){show("shop");setTab(tab||"items");renderPacks();renderPayTo();renderItems();renderMyTopups()}
+function setTab(t){if(t==="mine"||t==="sell")t="buyag";if(NO_BUY&&t==="buyag")t="items";if(t==="sell")setTimeout(renderSell,0);applyStoreMode();document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.tab===t));
   document.querySelectorAll(".tabp").forEach(p=>p.hidden=p.id!=="tab-"+t)}
 function renderPacks(){const box=$("packs");box.textContent="";
   const last=Object.values(myTopupsData).sort((a,b)=>(b.ts||0)-(a.ts||0))[0];
@@ -2759,7 +2761,7 @@ function renderCoinPacks(){const box=$("coinPacks");if(!box)return;box.textConte
   COIN_PACKS.forEach(n=>{const cost=n/COIN_RATE;const b=document.createElement("button");b.type="button";b.className="cpack";
     const x=document.createElement("b");x.textContent="🪙 "+fmt(n);const y=document.createElement("span");y.textContent=fmt(cost)+" AG";b.append(x,y);
     b.onclick=async()=>{
-      if((wallet.ag||0)<cost){toast("AG یا تە بەس ناکەت.");if(!IS_PLAY)setTab("buyag");return}
+      if((wallet.ag||0)<cost){toast("AG یا تە بەس ناکەت.");return}
       if(b.dataset.sure!=="1"){b.dataset.sure="1";y.textContent="بکڕە؟ دیسا بکە";return}
       b.disabled=true;
       try{const cur=await cCoins();
@@ -2851,7 +2853,7 @@ function renderItems(){renderPieceStyles();renderCoinPacks();renderSkinPacks();
 }
 async function buy(k,btn){
   const it=CATALOG[k];if(!it)return;
-  if((wallet.ag||0)<it.price){toast("AG یا تە بەس ناکەت.");if(!IS_PLAY)setTab("buyag");return}
+  if((wallet.ag||0)<it.price){toast("AG یا تە بەس ناکەت.");return}
   if(btn.dataset.sure!=="1"){btn.dataset.sure="1";btn.textContent="بکڕە ب "+fmt(it.price)+" AG؟";return}
   btn.disabled=true;
   try{
