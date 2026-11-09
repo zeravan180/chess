@@ -423,7 +423,7 @@ html,body{touch-action:pan-y;overscroll-behavior-x:none;-webkit-text-size-adjust
 .plsvg{cursor:crosshair;user-select:none;-webkit-user-select:none}
 .bgwrap:has(.plsvg){max-width:min(980px,calc((100dvh - 230px)*1.8))}
 .plctl{display:flex;align-items:center;justify-content:center;gap:10px}
-.plpow{position:relative;width:30px;height:clamp(84px,calc(var(--H,600px)*.34),150px);border-radius:16px;background:#081310;border:2px solid #e9b949;overflow:hidden;touch-action:none;cursor:ns-resize;flex:none}
+.plpow{position:relative;width:30px;height:clamp(60px,calc(var(--H,600px) - var(--actTop,170px) - 150px),150px);border-radius:16px;background:#081310;border:2px solid #e9b949;overflow:hidden;touch-action:none;cursor:ns-resize;flex:none}
 .plpow>i{position:absolute;left:0;right:0;top:0;height:0;background:linear-gradient(#2fd37a,#ffcf3a 55%,#ff4d4d)}
 .plpow>b{position:absolute;left:0;right:0;bottom:3px;text-align:center;font-size:12px;color:#fffa;pointer-events:none}
 .plpow.off{opacity:.45;cursor:default}
@@ -443,9 +443,12 @@ html,body{touch-action:pan-y;overscroll-behavior-x:none;-webkit-text-size-adjust
 .plrow svg{width:16px;height:16px}.plrow svg.gone{opacity:.22;filter:grayscale(1)}
 #game{position:relative}
 .plfloat{position:absolute!important;z-index:6;transform:translate(-50%,-50%);margin:0!important}
+#plPow.plfloat{height:clamp(90px,calc(var(--H,600px)*.45),180px)}
 .pledit .plmv{outline:2px dashed #ffe066;outline-offset:4px;cursor:move;animation:plWig .6s ease-in-out infinite alternate}
 @keyframes plWig{from{filter:brightness(1)}to{filter:brightness(1.35)}}
-.pledbtn,html.land .tw-bar .pledbtn{font-size:12px!important;padding:6px 8px!important;min-height:0!important;border-radius:10px!important;background:rgba(0,0,0,.35)!important;border:1px solid rgba(255,215,120,.45)!important;color:#fff}
+#plEdit{position:absolute;top:6px;left:calc(var(--sideW,96px) + 24px);z-index:7;width:36px!important;height:36px!important;min-height:0!important;padding:0!important;border-radius:50%!important;font-size:19px!important;line-height:1;
+  background:linear-gradient(#2b5a48,#163a2d)!important;border:1px solid rgba(255,215,120,.6)!important;color:#fff;box-shadow:0 3px 6px rgba(0,0,0,.45)}
+#game:not(:has(.plsvg)) #plEdit{display:none}
 #plEditBar{position:absolute;top:40px;left:50%;transform:translateX(-50%);z-index:12;display:flex;gap:8px;align-items:center;background:#16261f;border:1px solid rgba(255,215,120,.55);border-radius:12px;padding:6px 10px;color:#fff;font-size:13px;white-space:nowrap}
 #plEditBar[hidden]{display:none}
 #plEditBar button{width:auto!important;padding:6px 10px!important;font-size:13px!important;min-height:0!important}
@@ -552,10 +555,10 @@ html.land .lseat .nm span.plrow{max-width:var(--sideW)}
       <div class="plctl"><button id="plSpin" class="plspin" type="button" aria-label="Spin"><i></i></button><div id="plPow" class="plpow" role="slider" aria-label="Power"><i></i><b>⬇</b></div></div>
       <div class="plfine" id="plFine"><button id="plL" type="button" aria-label="↺">↺</button><button id="plR" type="button" aria-label="↻">↻</button></div>
       <div class="plcue" id="plCueBox"><b id="plCueNm"></b><small id="plCueSt"></small></div>
-      <button id="plEdit" class="pledbtn" type="button" aria-label="⚙">⚙ جهێ دوگمان</button>
       <span class="hint" id="twHint"></span>
     </div>
     <div class="panel" id="overBox" hidden></div>
+    <button id="plEdit" class="pledbtn" type="button" aria-label="⚙ جهێ دوگمان" title="⚙ جهێ دوگمان">⚙</button>
     <div id="plEditBar" hidden><span>✋ دوگمان ڕاکێشە بۆ جهێ تە دڤێت</span><button id="plEditReset" class="ghost" type="button">↺ وەکی بەرێ</button><button id="plEditOk" class="primary" type="button">✔ باشە</button></div>
     <div id="plSpinPop" hidden><div class="plsp"><b>🌀 زڤڕینا تۆپا سپی</b>
       <svg id="plSpinSvg" viewBox="-90 -90 180 180" aria-hidden="true"><defs><radialGradient id="spg" cx="38%" cy="32%" r="70%"><stop offset="0" stop-color="#fff"/><stop offset=".6" stop-color="#e6e6e0"/><stop offset="1" stop-color="#9a9a94"/></radialGradient></defs>
@@ -1367,7 +1370,7 @@ function endMove(cur,seat,m){if(!m||typeof m!=="object"||!cur.b)return;m=PL.clea
 let popSeen=null,winSeen=null,sel=null,steps=[],animating=false,animT=[],shown=null,seenN=null,viewFor=null,prevB=null,lastMove=null;
 function resetView(){animT.forEach(clearTimeout);animT=[];animating=false;animQ=[];place=null;pow=0;spin={x:0,y:0};myAnimN=-1;sel=null;steps=[];shown=null;seenN=null;viewFor=null;prevB=null;lastMove=null}
 // ---------- the pool table on screen: drawing, aiming, power, spin and the moving balls ----------
-let grab=null,aimFor=-1,animQ=[],aim={dx:1,dy:0},pow=0,spin={x:0,y:0},drag=null,place=null,myAnimN=-1,prevSt=null,ballEl=[],aimRAF=0,shotInfo=null;
+let powOn=false,grab=null,aimFor=-1,animQ=[],aim={dx:1,dy:0},pow=0,spin={x:0,y:0},drag=null,place=null,myAnimN=-1,prevSt=null,ballEl=[],aimRAF=0,shotInfo=null;
 const cueStats=k=>{const c=XM()[k]||{};return{pw:c.pw||3,aim:c.aim||3,spin:c.spin||2,magic:!!c.magic}};
 const myCue=()=>dpKey()||"pc_basic";
 const vmaxOf=s=>26+s.pw*1.6;
@@ -1386,14 +1389,18 @@ function buildBoard(){const k=dbKey();if(builtDb===k||!window.POOL)return;builtD
     '<g id="plAim"></g><g id="plHand"></g><g id="plBalls">'+balls+'</g><g id="plCue"></g></svg>';
   ballEl=[];for(let i=0;i<PL.N;i++)ballEl.push($("pb"+i));
   const svg=box.firstChild;svg.style.touchAction="none";
-  svg.addEventListener("pointerdown",e=>{if(!canAct())return;e.preventDefault();const q=svgPt(svg,e);if(!q)return;try{svg.setPointerCapture(e.pointerId)}catch(_){}
+  svg.addEventListener("pointerdown",e=>{if(!canAct()||powOn)return;e.preventDefault();const q=svgPt(svg,e);if(!q)return;try{svg.setPointerCapture(e.pointerId)}catch(_){}
     const c=cueXY();if(G.bih&&c&&Math.hypot(q[0]-c[0],q[1]-c[1])<PL.R*4){drag="place";return}
     // grab the cue anywhere and turn it round the white ball; it does not jump to the finger
-    drag="aim";grab=c?{a0:Math.atan2(q[1]-c[1],q[0]-c[0]),b0:Math.atan2(aim.dy,aim.dx)}:null});
+    drag="aim";grab=c?{a0:Math.atan2(q[1]-c[1],q[0]-c[0]),b0:Math.atan2(aim.dy,aim.dx),x:e.clientX,y:e.clientY,go:false}:null});
   svg.addEventListener("pointermove",e=>{if(!drag||!canAct())return;const q=svgPt(svg,e);if(!q)return;
     if(drag==="place"){let x=Math.max(PL.R,Math.min(PL.W-PL.R,q[0])),y=Math.max(PL.R,Math.min(PL.H-PL.R,q[1]));if(G.bih===2)x=Math.min(x,PL.HEAD);
       if(PL.canPlace(stOfG(G),x,y)){place=[x,y];drawAim()}}
-    else if(grab){const c=cueXY();if(!c||Math.hypot(q[0]-c[0],q[1]-c[1])<PL.R*1.6)return;const a=grab.b0+Math.atan2(q[1]-c[1],q[0]-c[0])-grab.a0;aim={dx:Math.cos(a),dy:Math.sin(a)};drawAimSoon()}});
+    else if(grab&&!powOn){const c=cueXY();if(!c)return;const dq=Math.hypot(q[0]-c[0],q[1]-c[1]);if(dq<PL.R*1.6)return;
+      if(!grab.go){if(Math.hypot(e.clientX-grab.x,e.clientY-grab.y)<6)return;grab.go=true;grab.a0=Math.atan2(q[1]-c[1],q[0]-c[0]);grab.b0=Math.atan2(aim.dy,aim.dx)}
+      let d=Math.atan2(q[1]-c[1],q[0]-c[0])-grab.a0;if(d>Math.PI)d-=2*Math.PI;if(d<-Math.PI)d+=2*Math.PI;
+      // near the white ball the cue turns more slowly, so a small move does not swing it far
+      const k=Math.max(.3,Math.min(1,dq/260)),a=grab.b0+d*k;aim={dx:Math.cos(a),dy:Math.sin(a)};drawAimSoon()}});
   const up=()=>{drag=null;grab=null};svg.addEventListener("pointerup",up);svg.addEventListener("pointercancel",up);
   if(G)renderBoard()}
 function svgPt(svg,e){const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;const m=svg.getScreenCTM();if(!m)return null;const q=p.matrixTransform(m.inverse());return[q.x,q.y]}
@@ -1462,10 +1469,12 @@ const AGnm=it=>{const n=it&&it.name;if(!n)return"";const i={kmr:0,ckb:1,ar:2,en:
 function powFrac(e){const el=$("plPow"),r=el.getBoundingClientRect(),rot=document.documentElement.classList.contains("rot");
   const f=rot?(e.clientX-r.left)/r.width:(e.clientY-r.top)/r.height;return Math.max(0,Math.min(1,f))}
 (function wirePow(){const el=$("plPow");if(!el)return;let on=false;
-  el.addEventListener("pointerdown",e=>{if(!canAct())return;e.preventDefault();on=true;try{el.setPointerCapture(e.pointerId)}catch(_){}pow=powFrac(e);paintCtl();drawAimSoon()});
+  // while the power bar is held the cue does not turn, even if another finger is on the table
+  const hold=v=>{powOn=v;if(v){drag=null;grab=null}};
+  el.addEventListener("pointerdown",e=>{if(!canAct())return;e.preventDefault();on=true;hold(true);try{el.setPointerCapture(e.pointerId)}catch(_){}pow=powFrac(e);paintCtl();drawAimSoon()});
   el.addEventListener("pointermove",e=>{if(!on)return;pow=powFrac(e);paintCtl();drawAimSoon()});
-  const end=()=>{if(!on)return;on=false;if(pow>.04&&canAct())shoot();else{pow=0;paintCtl();drawAimSoon()}};
-  el.addEventListener("pointerup",end);el.addEventListener("pointercancel",()=>{on=false;pow=0;paintCtl();drawAimSoon()})})();
+  const end=()=>{if(!on)return;on=false;hold(false);if(pow>.04&&canAct())shoot();else{pow=0;paintCtl();drawAimSoon()}};
+  el.addEventListener("pointerup",end);el.addEventListener("pointercancel",()=>{on=false;hold(false);pow=0;paintCtl();drawAimSoon()})})();
 // fine aiming: each tap turns the aim a little; holding the button keeps turning
 (function wireFine(){[["plL",-1],["plR",1]].forEach(([id,sg])=>{const b=$(id);if(!b)return;let t=null,n=0;
   const turn=()=>{const a=.0035*sg*(n>8?3:1),c=Math.cos(a),s2=Math.sin(a);aim={dx:aim.dx*c-aim.dy*s2,dy:aim.dx*s2+aim.dy*c};n++;drawAimSoon()};
