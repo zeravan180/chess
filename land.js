@@ -9,7 +9,7 @@
   const KIND=document.documentElement.dataset.land||"";
   // ar: board width/height when the board keeps its shape; act: my buttons, shown under my seat
   const CFG={chess:{ar:1,act:""},tawla:{ar:1.375,act:".tw-bar"},dama:{ar:1,act:".tw-bar"},dots:{ar:1.446,act:".tw-bar"},ludo:{ar:1,act:".drow"},snakes:{ar:1,act:".drow"},
-    zar:{ar:0,act:".drow",fit:"#board"},kon:{ar:0,act:".drow",grow:1,fit:"#kHand"},domino:{ar:0,act:".actions",board:"#table",grow:1},kustirk:{ar:0,act:".actions",board:"#table",grow:1}}[KIND]||{ar:1,act:""};
+    zar:{ar:0,act:".drow",fit:"#board"},kon:{ar:0,act:".drow",grow:1,fit:"#kHand"},domino:{ar:0,act:".actions",board:"#table",grow:1},kustirk:{ar:0,act:".actions",board:"#table",grow:1},pool:{ar:1.8,act:".tw-bar"}}[KIND]||{ar:1,act:""};
   const B=CFG.board||"#board",FIT=CFG.fit||"";
   const A=CFG.act;
   const css=`
