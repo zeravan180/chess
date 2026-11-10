@@ -35,7 +35,10 @@ var CUES={
   pc_galaxy:{name:["دارێ گەلاکسی","داری گەلاکسی","عصا المجرة","Galaxy cue"],price:800,pw:8,aim:9,spin:8,
     s:["#e8f6ff","#5fe1ff","#3a2a9a","#07051c"],rings:[[.5,"#fff"],[.92,"#5fe1ff"]],stars:1,glow:"#5fe1ff"},
   pc_magic:{name:["دارێ سیحری","داری سیحراوی","العصا السحرية","Magic cue"],price:1000,pw:10,aim:10,spin:10,magic:1,
-    s:["#ffffff","#ff7af6","#7b2cff","#12002e"],rings:[[.48,"#ffe66b"],[.54,"#5fe1ff"],[.6,"#ffe66b"],[.95,"#ffe66b"]],stars:1,glow:"#d36bff"}
+    s:["#ffffff","#ff7af6","#7b2cff","#12002e"],rings:[[.48,"#ffe66b"],[.54,"#5fe1ff"],[.6,"#ffe66b"],[.95,"#ffe66b"]],stars:1,glow:"#d36bff"},
+  // the strongest cue: twice the hitting power of the magic cue, more spin, and the longest path of the balls
+  pc_cobra:{name:["دارێ مارێ کۆبرا","داری ماری کۆبرا","عصا الكوبرا","Cobra cue"],price:2000,pw:20,aim:10,spin:15,magic:1,far:1,
+    s:["#f6ffd8","#9be15d","#1f6b2a","#041a08"],rings:[[.47,"#ffd23f"],[.53,"#111"],[.59,"#ffd23f"],[.96,"#ffd23f"]],scales:1,cobra:1,glow:"#7dff5a"}
 };
 var n=0;
 function id(p){return p+"_"+(++n)}
@@ -92,6 +95,8 @@ function cue(k,L){var c=CUES[k]||CUES.pc_basic,u=id("pc"),h="",i,s=c.s;L=L||560;
   if(c.flame)for(i=0;i<5;i++){var fx=L*.66+i*L*.055;h+='<path d="M'+fx+' 6.5Q'+(fx+10)+' 0 '+(fx+3)+' -6.5Q'+(fx+20)+' -1 '+(fx+24)+' 6.5Z" fill="#ffb02e" opacity=".85"/>'}
   if(c.stars)for(i=0;i<7;i++)h+=star(L*.64+i*L*.05,(i%2?-2:2),3.2,"#fff",.9);
   if(c.sun)h+=sun(L*.8,0,6,"#ffd400");
+  if(c.scales)for(i=0;i<16;i++){var sx=L*.61+i*L*.023,w=3.6+(7.5-3.6)*(sx/L);h+='<path d="M'+sx.toFixed(1)+' 0L'+(sx+L*.0115).toFixed(1)+' '+(-w*.8).toFixed(1)+'L'+(sx+L*.023).toFixed(1)+' 0L'+(sx+L*.0115).toFixed(1)+' '+(w*.8).toFixed(1)+'Z" fill="'+(i%2?"#0b3d12":"#ffd23f")+'" opacity=".85"/>'}
+  if(c.cobra){var hx=L*.985;h+='<path d="M'+(hx-14)+' -7.5Q'+(hx+2)+' -15 '+(hx+8)+' -6Q'+(hx+12)+' 0 '+(hx+8)+' 6Q'+(hx+2)+' 15 '+(hx-14)+' 7.5Z" fill="#1f6b2a" stroke="#ffd23f" stroke-width="1.4"/><circle cx="'+(hx+1)+'" cy="-4" r="1.8" fill="#ff3b3b"/><circle cx="'+(hx+1)+'" cy="4" r="1.8" fill="#ff3b3b"/>'}
   h+='<path d="'+shape+'" fill="url(#'+u+'v)"/>';
   h+='<rect x="-2" y="-3.4" width="7" height="6.8" rx="1.5" fill="#2f6fd0"/><rect x="5" y="-3.3" width="7" height="6.6" fill="#f7f3e8"/>';
   return h}
@@ -109,12 +114,13 @@ function mini(tk,ck){var g=id("sh"),h='<defs>'+shineDefs(g)+'</defs>'+table(tk),
   bs.forEach(function(b){h+=ball(b[0],b[1],b[2],18)+shine(b[1],b[2],18,g)});
   if(ck)h+='<g transform="translate(278 262) rotate(160)">'+cue(ck,520)+'</g>';
   return'<svg viewBox="-62 -62 1124 624" aria-hidden="true">'+h+'</svg>'}
-function stat(lbl,v,c){return'<div style="display:flex;align-items:center;gap:6px;font:700 11px system-ui;color:#fff"><span style="width:58px;text-align:start">'+lbl+'</span><span style="flex:1;height:7px;border-radius:4px;background:rgba(255,255,255,.18);overflow:hidden"><i style="display:block;height:100%;width:'+(v*10)+'%;background:'+c+'"></i></span><b style="width:16px">'+v+'</b></div>'}
-var LB={pw:["هێز","هێز","القوة","Force"],aim:["نیشان","نیشان","التصويب","Aim"],spin:["زڤڕین","سوڕان","الدوران","Spin"],magic:["✨ ڕێکا تۆپان هەمی دیار دبیت","✨ ڕێگای تۆپەکان هەمووی دیار دەبێت","✨ يظهر مسار الكرات كاملاً","✨ Shows the full path of the balls"]};
+function stat(lbl,v,c){return'<div style="display:flex;align-items:center;gap:6px;font:700 11px system-ui;color:#fff"><span style="width:58px;text-align:start">'+lbl+'</span><span style="flex:1;height:7px;border-radius:4px;background:rgba(255,255,255,.18);overflow:hidden"><i style="display:block;height:100%;width:'+Math.min(100,v*10)+'%;background:'+(v>10?"linear-gradient(90deg,#7dff5a,#ffd23f,#ff3b3b)":c)+'"></i></span><b style="width:18px">'+v+'</b></div>'}
+var LB={pw:["هێز","هێز","القوة","Force"],aim:["نیشان","نیشان","التصويب","Aim"],spin:["زڤڕین","سوڕان","الدوران","Spin"],magic:["✨ ڕێکا تۆپان هەمی دیار دبیت","✨ ڕێگای تۆپەکان هەمووی دیار دەبێت","✨ يظهر مسار الكرات كاملاً","✨ Shows the full path of the balls"],
+  cobra:["🐍 دوو جاران هێزا دارێ سیحری · درێژترین ڕێک","🐍 دوو هێندەی هێزی داری سیحراوی · درێژترین ڕێگا","🐍 ضعف قوة العصا السحرية · أطول مسار","🐍 Twice the power of the magic cue · the longest path"]};
 function lang(){try{return({kmr:0,ckb:1,ar:2,en:3})[localStorage.getItem("lang")]||0}catch(e){return 0}}
 function cuePreview(k){var c=CUES[k]||CUES.pc_basic,l=lang(),d=document.createElement("div");
   d.style.cssText="width:100%;max-width:260px;margin:0 auto;display:flex;flex-direction:column;gap:5px;padding:6px 8px;border-radius:12px;background:radial-gradient(circle at 50% 30%,#1f6f5a,#0b2a22)";
-  d.innerHTML='<svg viewBox="-20 -62 620 124" style="width:100%;height:auto;display:block" aria-hidden="true"><g transform="rotate(-8 290 0) scale(1 1.9)">'+cue(k,560)+'</g></svg>'+stat(LB.pw[l],c.pw,"linear-gradient(90deg,#ffcf3a,#ff4d4d)")+stat(LB.aim[l],c.aim,"linear-gradient(90deg,#7fe0ff,#2f8cff)")+stat(LB.spin[l],c.spin,"linear-gradient(90deg,#c8ff6b,#22c55e)")+(c.magic?'<div style="font:800 11px system-ui;color:#ffe66b;text-align:center">'+LB.magic[l]+'</div>':"");
+  d.innerHTML='<svg viewBox="-20 -62 620 124" style="width:100%;height:auto;display:block" aria-hidden="true"><g transform="rotate(-8 290 0) scale(1 1.9)">'+cue(k,560)+'</g></svg>'+stat(LB.pw[l],c.pw,"linear-gradient(90deg,#ffcf3a,#ff4d4d)")+stat(LB.aim[l],c.aim,"linear-gradient(90deg,#7fe0ff,#2f8cff)")+stat(LB.spin[l],c.spin,"linear-gradient(90deg,#c8ff6b,#22c55e)")+(c.magic?'<div style="font:800 11px system-ui;color:#ffe66b;text-align:center">'+(c.far?LB.cobra[l]:LB.magic[l])+'</div>':"");
   return d}
 function el(html){var d=document.createElement("div");d.innerHTML=html;var s=d.firstChild;s.style.cssText="width:100%;max-width:260px;height:auto;display:block;margin:0 auto;border-radius:12px";return s}
 window.POOL={tables:TABLES,cues:CUES,table:table,cue:cue,ball:ball,ballColor:ballColor,shine:shine,shineDefs:shineDefs,mini:mini,sun:sun,star:star};
