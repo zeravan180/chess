@@ -34,6 +34,8 @@ var GAMES=[
    icon:"<svg viewBox=\"0 0 40 40\" aria-hidden=\"true\"><circle cx=\"20\" cy=\"20\" r=\"16\" fill=\"currentColor\"/><circle cx=\"20\" cy=\"17\" r=\"7.5\" fill=\"#fff\"/><text x=\"20\" y=\"21.5\" text-anchor=\"middle\" font-size=\"11\" font-weight=\"900\" font-family=\"system-ui\" fill=\"#111\">8</text></svg>"},
   {id:"quiz", page:"quiz.html", name:["پرسیار", "پرسیار", "أسئلة", "Quiz"],
    icon:"<svg viewBox=\"0 0 40 40\" aria-hidden=\"true\"><path d=\"M8 9h24a3 3 0 013 3v13a3 3 0 01-3 3H19l-7 6v-6H8a3 3 0 01-3-3V12a3 3 0 013-3z\" fill=\"currentColor\"/><text x=\"20\" y=\"24\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"900\" font-family=\"system-ui\" fill=\"#7c3aed\">?</text></svg>"},
+  {id:"spy", page:"spy.html", name:["کێ سیخۆڕە؟", "کێ سیخوڕە؟", "من الجاسوس؟", "Who is the spy?"],
+   icon:"<svg viewBox=\"0 0 40 40\" aria-hidden=\"true\"><path d=\"M6 17h28l-3-2-3-9-8 2-8-2-3 9z\" fill=\"currentColor\"/><circle cx=\"14\" cy=\"26\" r=\"5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\"/><circle cx=\"26\" cy=\"26\" r=\"5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\"/><path d=\"M19 26h2\" stroke=\"currentColor\" stroke-width=\"2.6\"/></svg>"},
 ];
 var LI={kmr:0,ckb:1,ar:2,en:3};
 function lang(){try{var v=LI[localStorage.getItem("lang")];return v==null?0:v}catch(e){return 0}}
@@ -101,7 +103,7 @@ function fzWatchAll(){var tries=0;(function go(){try{if(!window.firebase||!fireb
 /* ---- the game picker on every lobby: big cards under the title that you swipe one by one (the old icon row is hidden) ---- */
 var THEME={chess:["#7c3aed","#2e1065","♟️"],domino:["#16a34a","#064e3b","🁣"],snakes:["#f97316","#7c2d12","🐍"],tawla:["#b45309","#451a03","🎲"],
   dama:["#2563eb","#172554","⚫"],ludo:["#db2777","#500724","🎯"],zar:["#0d9488","#042f2e","🃏"],kon:["#dc2626","#450a0a","♠️"],
-  worms:["#0ea5e9","#082f49","🪱"],xo:["#4f46e5","#1e1b4b","❌"],dots:["#d97706","#451a03","▦"],kustirk:["#be185d","#4a0420","💍"],pool:["#0f766e","#042f2e","🎱"],quiz:["#7c3aed","#2e1065","🧠"]};
+  worms:["#0ea5e9","#082f49","🪱"],xo:["#4f46e5","#1e1b4b","❌"],dots:["#d97706","#451a03","▦"],kustirk:["#be185d","#4a0420","💍"],pool:["#0f766e","#042f2e","🎱"],quiz:["#7c3aed","#2e1065","🧠"],spy:["#dc2626","#1e1b4b","🕵️"]};
 var PLAY=["▶ یاری بکە","▶ یاری بکە","▶ العب","▶ Play"],HERE=["✓ تو ل ڤێرێ یی","✓ تۆ لێرەی","✓ أنت هنا","✓ You are here"];
 function carCss(){if(document.getElementById("agCarCss"))return;var st=document.createElement("style");st.id="agCarCss";st.textContent=
  "#lobby nav.gswitch{display:none!important}"+
