@@ -48,7 +48,7 @@ h1{margin:4px 0 0;text-align:center;font-size:30px}
 .flip .e{font-size:100px;line-height:1}.flip b{font-size:32px}.flip span{font-size:15px;opacity:.92;line-height:1.6}
 .flip small{background:rgba(0,0,0,.25);border-radius:10px;padding:4px 10px;font-size:13px}
 @keyframes pop{from{transform:scale(.6) rotateY(80deg);opacity:0}to{transform:none;opacity:1}}
-.timer{font-size:64px;font-weight:900;color:var(--gold);font-variant-numeric:tabular-nums;margin-top:8px}.timer.warn{color:#f87171}
+.timer{direction:ltr;unicode-bidi:isolate;font-size:64px;font-weight:900;color:var(--gold);font-variant-numeric:tabular-nums;margin-top:8px}.timer.warn{color:#f87171}
 .tip{background:rgba(255,255,255,.07);border-radius:16px;padding:12px 14px;font-size:15px;line-height:1.8;align-self:stretch}
 .tip b{color:var(--gold)}
 .list{display:flex;flex-direction:column;gap:8px;align-self:stretch}
@@ -65,10 +65,24 @@ h1{margin:4px 0 0;text-align:center;font-size:30px}
 #ov{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:16px;z-index:30}
 #ov .card{background:#1e1b4b;max-width:440px;max-height:90vh;overflow:auto}
 .gswitch{display:none}
+.join{display:flex;gap:8px;align-self:stretch}.join input{flex:1;min-width:0;padding:12px;border-radius:12px;border:1px solid var(--line);background:rgba(0,0,0,.35);color:#fff;font-size:16px}
+#oCode{text-transform:uppercase;letter-spacing:4px;text-align:center;font-family:ui-monospace,monospace}
+.codebox{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px;border-radius:18px;background:linear-gradient(#5b21b6,#2e1065);align-self:stretch}
+.codebox b{font-size:40px;letter-spacing:6px;font-family:ui-monospace,monospace}.codebox small{color:#ddd6fe}
+.chat{align-self:stretch;display:flex;flex-direction:column;gap:8px;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:16px;padding:10px}
+.msgs{max-height:150px;overflow-y:auto;display:flex;flex-direction:column;gap:5px;text-align:start}.chat.big .msgs{max-height:260px;min-height:120px}
+.msg{background:rgba(255,255,255,.08);border-radius:12px;padding:6px 10px;font-size:14px;line-height:1.5;align-self:flex-start;max-width:90%}
+.msg b{color:#a5b4fc;font-size:12px;display:block}.msg.mine{align-self:flex-end;background:rgba(124,58,237,.4)}
+button.flip{color:#fff;cursor:pointer}.play:disabled{opacity:.5}
+#toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(30px);background:#111827;color:#fff;border:1px solid var(--line);padding:10px 16px;border-radius:14px;opacity:0;transition:.25s;z-index:40;pointer-events:none;max-width:90vw;text-align:center}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
 <script src="games.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
 <main id="lobby">
   <div class="top"><a href="./" id="tBack">↩ AG</a><div class="langs" id="langs"></div></div>
@@ -93,7 +107,8 @@ h1{margin:4px 0 0;text-align:center;font-size:30px}
     <label class="tog"><span data-t="hint"></span><input type="checkbox" id="hintOn" checked></label>
   </section>
 
-  <button class="play" type="button" id="go">▶ <span data-t="start"></span></button>
+  <button class="play" type="button" id="go">▶ <span data-t="start"></span> · <span data-t="oneTag"></span></button>
+  <button class="btn" type="button" id="goOn" style="background:linear-gradient(#0ea5e9,#1d4ed8);box-shadow:0 4px 0 #1e3a8a"><span data-t="online"></span></button>
   <button class="btn ghost" type="button" id="rulesBtn">📖 <span data-t="rules"></span></button>
   <section class="card" id="scoreCard" hidden><h2>🏆 <span data-t="score"></span><button class="btn ghost" type="button" id="scoreClr" style="margin-inline-start:auto;padding:6px 12px;font-size:13px" data-t="clear"></button></h2><div class="list" id="scoreList"></div></section>
   <nav class="gswitch" aria-label="یاری"></nav>
@@ -103,6 +118,7 @@ h1{margin:4px 0 0;text-align:center;font-size:30px}
 <main class="scr" id="talk" hidden></main>
 <main class="scr" id="vote" hidden></main>
 <main class="scr" id="end" hidden></main>
+<main class="scr" id="on" hidden></main>
 <div id="ov" hidden></div>
 
 <script>
@@ -259,7 +275,7 @@ $("hintOn").onchange=e=>{cfg.hint=e.target.checked;save()};
 $("scoreClr").onclick=()=>{score={};save();lobby()};
 $("rulesBtn").onclick=()=>{const o=$("ov");o.hidden=false;o.innerHTML='<div class="card"><h2>📖 '+t("rules")+'</h2><ul class="rules"></ul><button class="btn" type="button">'+t("close")+'</button></div>';
   const ul=o.querySelector("ul");S.rulesList[LI()].forEach(x=>{const li=document.createElement("li");li.textContent=x;ul.append(li)});o.querySelector("button").onclick=()=>o.hidden=true};
-function show(id){["lobby","pass","talk","vote","end"].forEach(k=>$(k).hidden=k!==id);scrollTo(0,0)}
+function show(id){["lobby","pass","talk","vote","end","on"].forEach(k=>$(k).hidden=k!==id);scrollTo(0,0)}
 
 // ---------- a round ----------
 let R=null,timer=null;
@@ -324,7 +340,177 @@ function endScreen(playersWin,why){show("end");const P=$("end"),w=word(),spyN=R.
   rv[1].querySelector("small").textContent=t("theSpy");rv[1].querySelector("b").textContent=spyN;
   const sc=$("sc");R.names.slice().sort((a,b)=>(score[b]||0)-(score[a]||0)).forEach((nm,i)=>{const d=document.createElement("div");d.className="pl";d.innerHTML="<i></i><b></b><em></em>";d.querySelector("i").textContent=["🥇","🥈","🥉"][i]||"⭐";d.querySelector("b").textContent=nm;d.querySelector("em").textContent=num(score[nm]||0)+" "+t("pts");sc.append(d)});
   $("again").textContent=t("again");$("again").onclick=()=>{sfx.tap();newRound()};$("home").textContent=t("home");$("home").onclick=()=>{R=null;lobby()}}
-lobby();
+</script>
+<script>
+"use strict";
+// ================= 🌐 online: every player on their own phone =================
+// spy/<code> = {host, hostName, status: lobby | card | talk | vote | guess | over, createdAt, pub, cat, min, nsp, hint, round,
+//   order:[uid…], first, wi, spies:{uid:true}, seen:{uid:true}, endAt, voteEnd, votes:{uid:uid}, acc, opts:[…], guess, result:{win,why,acc}, score:{uid:n},
+//   players:{uid:{name,on}}, chat:{id:{u,n,x,t}}}
+// The host's phone moves the game on; the others only write their own name, "seen", vote, guess and chat lines.
+Object.assign(S,{
+ online:["🌐 ئۆنلاین · هەر کەس ب مۆبایلا خۆ","🌐 ئۆنلاین · هەر کەس بە مۆبایلی خۆی","🌐 أونلاين · كل لاعب بهاتفه","🌐 Online · everyone on their own phone"],
+ oneTag:["📱 ل سەر ئێک مۆبایلێ","📱 لەسەر یەک مۆبایل","📱 على هاتف واحد","📱 On one phone"],
+ needLogin:["بۆ یاریا ئۆنلاین، پێشی ل ڕووپەلێ سەرەکی یێ AG ب حسابێ خۆ بچە ژوورێ.","بۆ یاری ئۆنلاین، سەرەتا لە پەڕەی سەرەکی AG بە هەژمارەکەت بچۆ ژوورەوە.","للعب أونلاين، سجّل الدخول أولاً من الصفحة الرئيسية في AG.","To play online, first sign in on the AG main page."],
+ goLogin:["↩ بچە ژوورێ","↩ چوونە ژوورەوە","↩ تسجيل الدخول","↩ Sign in"],
+ newRoom:["➕ ژوورەکێ چێکە","➕ ژوورێک دروست بکە","➕ أنشئ غرفة","➕ Create a room"],join:["چوونا ژوورێ","چوونە ژوورەوە","دخول","Join"],
+ openRooms:["ژوورێن ڤەکری","ژوورە کراوەکان","الغرف المفتوحة","Open rooms"],noRooms:["هێشتا چ ژوور نینن · ئێکێ چێکە!","هێشتا هیچ ژوورێک نییە · یەکێک دروست بکە!","لا توجد غرف بعد · أنشئ واحدة!","No rooms yet · create one!"],
+ code5:["کۆدێ ٥ پیتی بنڤیسە","کۆدی ٥ پیتی بنووسە","اكتب رمزاً من ٥ أحرف","Type the 5-letter code"],noRoom:["ئەڤ ژوورە نینە.","ئەم ژوورە نییە.","هذه الغرفة غير موجودة.","This room doesn't exist."],
+ full:["ژوور تژی یە (١٢).","ژوورەکە پڕە (١٢).","الغرفة ممتلئة (١٢).","The room is full (12)."],roomCode:["کۆدێ ژوورێ","کۆدی ژوور","رمز الغرفة","Room code"],
+ share:["📤 هنارتن بۆ هەڤالان","📤 ناردن بۆ هاوڕێیان","📤 أرسل للأصدقاء","📤 Send to friends"],copied:["کۆد هاتە کۆپیکرن","کۆدەکە کۆپی کرا","تم نسخ الرمز","Code copied"],
+ shareTxt:["وەرە دگەل من یاریا «کێ سیخۆڕە؟» بکە د AG Classic Games دا! کۆد: ","وەرە لەگەڵم یاری «کێ سیخوڕە؟» بکە لە AG Classic Games! کۆد: ","تعال العب «من الجاسوس؟» معي في AG Classic Games! الرمز: ","Come play “Who is the spy?” with me in AG Classic Games! Code: "],
+ waitHost:["⏳ چاڤەڕێی خودانێ ژوورێ بە دا دەست پێ بکەت…","⏳ چاوەڕێی خاوەنی ژوور بە تا دەست پێبکات…","⏳ انتظر صاحب الغرفة ليبدأ…","⏳ Waiting for the host to start…"],
+ need3:["بۆ دەستپێکرنێ ٣ کەس یان پتر پێتڤینە","بۆ دەستپێکردن ٣ کەس یان زیاتر پێویستە","تحتاج ٣ لاعبين أو أكثر للبدء","You need 3 or more players to start"],
+ tapSee:["👁 ل ڤێرێ بدە دا پەیڤا خۆ ببینی","👁 لێرە دابگرە بۆ بینینی وشەکەت","👁 اضغط هنا لترى كلمتك","👁 Tap here to see your word"],
+ seenBtn:["✔ من دیت","✔ بینیم","✔ رأيت","✔ Seen"],seenN:["کەسێن دیتین: ","ئەوانەی بینیان: ","شاهدوا: ","Seen: "],
+ notIn:["تو د ڤێ گەڕێ دا نینی. چاڤەڕێی گەڕا دی بە 🙂","تۆ لەم گەڕەدا نیت. چاوەڕێی گەڕی داهاتوو بە 🙂","أنت لست في هذه الجولة. انتظر الجولة التالية 🙂","You're not in this round. Wait for the next one 🙂"],
+ myWord:["👁 پەیڤا من","👁 وشەکەم","👁 كلمتي","👁 My word"],chatPh:["پرسیار یان بەرسڤا خۆ بنڤیسە…","پرسیار یان وەڵامەکەت بنووسە…","اكتب سؤالك أو جوابك…","Write your question or answer…"],
+ send:["هنارتن","ناردن","إرسال","Send"],voteNow:["🗳 دەنگدان نوکە","🗳 ئێستا دەنگ بدەن","🗳 صوّتوا الآن","🗳 Vote now"],
+ voteSecret:["ب نهێنی دەنگێ خۆ بدە: کێ سیخۆڕە؟","بە نهێنی دەنگ بدە: کێ سیخوڕە؟","صوّت سراً: من الجاسوس؟","Vote in secret: who is the spy?"],
+ voted:["دەنگ دان: ","دەنگیان دا: ","صوّتوا: ","Voted: "],yourVote:["✔ دەنگێ تە هاتە هنارتن","✔ دەنگەکەت نێردرا","✔ تم إرسال صوتك","✔ Your vote was sent"],
+ spyGuessing:["🕵️ سیخۆڕ هاتە گرتن! نوکە ئەو هەول ددەت پەیڤێ ببینیت…","🕵️ سیخوڕ گیرا! ئێستا هەوڵ دەدات وشەکە بدۆزێتەوە…","🕵️ تم كشف الجاسوس! الآن يحاول تخمين الكلمة…","🕵️ The spy was caught! Now they're trying to guess the word…"],
+ youCaught:["🎯 تو هاتییە گرتن! دووماهیک شانس: پەیڤ کیژە بوو؟","🎯 گیرای! دوایین هەل: وشەکە کامە بوو؟","🎯 تم كشفك! فرصتك الأخيرة: ما هي الكلمة؟","🎯 You were caught! Last chance: which was the word?"],
+ tie:["دەنگ وەکهەڤ بوون، کەس نەهاتە گرتن.","دەنگەکان یەکسان بوون، کەس نەگیرا.","تعادلت الأصوات ولم يُكشف أحد.","The votes were tied, nobody was caught."],
+ votesOf:["دەنگ","دەنگ","الأصوات","Votes"],next:["🔄 گەڕەکا دی","🔄 گەڕێکی تر","🔄 جولة أخرى","🔄 Next round"],toLobby:["⚙ ژوور","⚙ ژوور","⚙ الغرفة","⚙ Room"],
+ hostGone:["خودانێ ژوورێ دەرکەفت.","خاوەنی ژوور دەرچوو.","غادر صاحب الغرفة.","The host left."],closed:["ژوور هاتە گرتن.","ژوورەکە داخرا.","أُغلقت الغرفة.","The room was closed."],
+ waitOthers:["⏳ چاڤەڕێی یێن دی بە…","⏳ چاوەڕێی ئەوانی تر بە…","⏳ انتظر الآخرين…","⏳ Waiting for the others…"],me:["(تو)","(تۆ)","(أنت)","(you)"]
+});
+const firebaseConfig={apiKey:"AIzaSyAy7OuYhyVPF2ek7EUY3Uh8e4NfEO08jZs",authDomain:"chess-zeravan.firebaseapp.com",
+  databaseURL:"https://chess-zeravan-default-rtdb.europe-west1.firebasedatabase.app",projectId:"chess-zeravan",appId:"1:269435267387:web:b9a20392e4d3d0f6826f1e"};
+let fdb=null,user=null,me=null,prof={},srvOff=0;
+const srvNow=()=>Date.now()+srvOff,TS=()=>firebase.database.ServerValue.TIMESTAMP;
+const myName=()=>(prof.name||(user&&user.displayName)||t("player")).slice(0,30);
+function fbBoot(){if(typeof firebase==="undefined")return;try{firebase.initializeApp(firebaseConfig);fdb=firebase.database();
+  fdb.ref(".info/serverTimeOffset").on("value",s=>{srvOff=Number(s.val())||0});
+  firebase.auth().onAuthStateChanged(u=>{user=u;me=u?u.uid:null;if(u)fdb.ref("profiles/"+me+"/public").on("value",s=>{prof=s.val()||{}},()=>{})})}catch(e){}}
+let toastT=null;function toast(x){let e=$("toast");if(!e){e=document.createElement("div");e.id="toast";document.body.append(e)}e.textContent=x;e.classList.add("on");clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove("on"),2600)}
+const newCode=()=>{const a="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";let s="";for(let i=0;i<5;i++)s+=a[rnd(a.length)];return s};
+const O={code:null,ref:null,d:null,tick:null,key:"",peek:false,chatN:-1};
+const OMAX=12;
+const onP=d=>Object.entries(d.players||{}).filter(([u,p])=>p&&p.on);
+const inRound=d=>Object.values(d.order||{});
+const pn=(d,u)=>((d.players||{})[u]||{}).name||t("player");
+const isSpy=(d,u)=>!!(d.spies||{})[u];
+const oWord=d=>(CATS[d.cat]||CATS.place)[2][d.wi]||CATS.place[2][0];
+
+function openOnline(){if(!fdb||!me){const o=$("ov");o.hidden=false;o.innerHTML='<div class="card"><h2>🌐</h2><p class="sub"></p><a class="btn" href="./" style="text-align:center;text-decoration:none;color:#fff"></a><button class="btn ghost" type="button"></button></div>';
+    o.querySelector("p").textContent=t("needLogin");o.querySelector("a").textContent=t("goLogin");o.querySelector("button").textContent=t("close");o.querySelector("button").onclick=()=>o.hidden=true;return}
+  oLeave(true);show("on");const P=$("on");
+  P.innerHTML='<div class="top" style="align-self:stretch"><button type="button" id="oBack"></button></div><div class="big" style="margin-top:0">🌐 '+esc(t("title"))+'</div>'+
+   '<button class="play" type="button" id="oNew" style="align-self:stretch"></button><div class="join"><input id="oCode" maxlength="5" placeholder="ABCDE" autocomplete="off"><button class="btn ghost" type="button" id="oJoin"></button></div>'+
+   '<b style="align-self:flex-start" id="oOpen"></b><div class="list" id="oList"><span class="sub">…</span></div>';
+  $("oBack").textContent="↩ "+t("oneTag");$("oBack").onclick=()=>lobby();$("oNew").textContent=t("newRoom");$("oJoin").textContent=t("join");$("oOpen").textContent=t("openRooms");
+  $("oNew").onclick=oCreate;$("oJoin").onclick=()=>{const c=($("oCode").value||"").trim().toUpperCase();if(c.length===5)oJoin(c);else toast(t("code5"))};
+  fdb.ref("spy").orderByChild("status").equalTo("lobby").limitToLast(30).once("value").then(s=>{const el=$("oList");if(!el)return;el.textContent="";
+    const rooms=Object.entries(s.val()||{}).filter(([c,r])=>r&&r.pub&&srvNow()-(r.createdAt||0)<3*3600e3).sort((a,b)=>(b[1].createdAt||0)-(a[1].createdAt||0));
+    if(!rooms.length){el.innerHTML='<span class="sub"></span>';el.firstChild.textContent=t("noRooms");return}
+    rooms.forEach(([c,r])=>{const b=document.createElement("button");b.type="button";b.className="pl";b.innerHTML="<i>🕵️</i><b></b><em></em>";b.querySelector("b").textContent=r.hostName||"";
+      b.querySelector("em").textContent="👥 "+num(onP(r).length)+" · "+c;b.onclick=()=>oJoin(c);el.append(b)})}).catch(()=>{})}
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
+async function oCreate(){const c=newCode();
+  try{await fdb.ref("spy/"+c).set({host:me,hostName:myName(),status:"lobby",createdAt:TS(),pub:true,cat:cfg.cat||"",min:cfg.min,nsp:cfg.spies,hint:!!cfg.hint,round:0});oJoin(c)}catch(e){toast("✖")}}
+async function oJoin(c){const ref=fdb.ref("spy/"+c);
+  try{const r=(await ref.once("value")).val();if(!r){toast(t("noRoom"));return}
+    if(onP(r).length>=OMAX&&!(r.players||{})[me]){toast(t("full"));return}
+    const pr=ref.child("players/"+me);await pr.set({name:myName(),on:true});pr.onDisconnect().update({on:false});
+    oLeave(true);Object.assign(O,{code:c,ref,d:r,key:"",peek:false,chatN:-1});show("on");
+    ref.on("value",x=>{O.d=x.val();if(!O.d){toast(t("closed"));oLeave();return}oRender()});
+    clearInterval(O.tick);O.tick=setInterval(oTick,500)}catch(e){toast("✖")}}
+function oLeave(quiet){clearInterval(O.tick);O.tick=null;if(O.ref){O.ref.off();const d=O.d;
+    try{if(d&&d.host===me)O.ref.remove();else O.ref.child("players/"+me).update({on:false})}catch(e){}}
+  O.code=null;O.ref=null;O.d=null;if(!quiet)openOnline()}
+
+// ---------- drawing the room ----------
+function oRender(){const d=O.d;if(!d)return;if(d.round!==O.round){O.round=d.round;O.peek=false}const st=d.status,host=d.host===me,mine=inRound(d).includes(me);
+  const key=[st,d.round,O.peek,LANG_(),(d.seen||{})[me]?1:0,(d.votes||{})[me]||"",d.guess!=null?1:0,st==="lobby"||st==="over"?JSON.stringify([d.players,d.cat,d.min,d.nsp,d.hint,d.score]):""].join("|");
+  if(key!==O.key){O.key=key;O.chatN=-1;draw(d,st,host,mine)}
+  oLive(d)}
+const LANG_=()=>L;
+function head(d){return'<div class="top" style="align-self:stretch"><button type="button" id="oQuit">🚪</button><span style="margin-inline-start:auto">🕵️ <b>'+O.code+'</b> · 👥 <span id="oCnt">'+num(onP(d).length)+'</span></span></div>'}
+function plist(d,ids,fn){return ids.map(u=>'<div class="pl"><i>'+(u===d.host?"👑":"🙂")+'</i><b>'+esc(pn(d,u))+(u===me?" "+t("me"):"")+'</b>'+(fn?'<em>'+fn(u)+'</em>':"")+'</div>').join("")}
+function draw(d,st,host,mine){const P=$("on");let h=head(d);
+  if(host&&(d.players||{})[d.host]&&!(d.players[d.host]||{}).on){}
+  if(st==="lobby"){
+    h+='<div class="codebox"><small>'+t("roomCode")+'</small><b>'+O.code+'</b><button class="btn ghost" type="button" id="oShare">'+t("share")+'</button></div>';
+    if(host){h+='<div class="card" style="align-self:stretch;text-align:start"><div class="cats" id="oCats"></div><div class="row"><span>'+t("time")+'</span><div class="seg" id="oMin"></div></div>'+
+        '<div class="row"><span>'+t("spies")+'</span><div class="seg" id="oNsp"></div></div><label class="tog"><span>'+t("hint")+'</span><input type="checkbox" id="oHint"'+(d.hint?" checked":"")+'></label></div>'+
+        '<button class="play" type="button" id="oStart" style="align-self:stretch"'+(onP(d).length<3?" disabled":"")+'>▶ '+t("start")+'</button>'+(onP(d).length<3?'<p class="sub">'+t("need3")+'</p>':"")}
+    else h+='<p class="sub">'+t("waitHost")+'</p>';
+    h+='<div class="list">'+plist(d,onP(d).map(x=>x[0]))+'</div>'+chatBox();P.innerHTML=h;
+    if(host){const cs=$("oCats");[""].concat(CK).forEach(k=>{const b=document.createElement("button");b.type="button";b.className="cat"+((d.cat||"")===k?" on":"");b.innerHTML="<i></i><span></span>";
+        b.querySelector("i").textContent=k?CATS[k][0]:"🎲";b.querySelector("span").textContent=k?cName(k):t("mixed");b.onclick=()=>O.ref.update({cat:k});cs.append(b)});
+      oSeg("oMin",[3,5,8],d.min||5,v=>num(v)+" "+t("min"),v=>O.ref.update({min:v}));
+      const mx=onP(d).length>=7?2:1;oSeg("oNsp",mx>1?[1,2]:[1],Math.min(d.nsp||1,mx),v=>"🕵️ "+num(v),v=>O.ref.update({nsp:v}));
+      $("oHint").onchange=e=>O.ref.update({hint:e.target.checked});$("oStart").onclick=()=>oStart()}
+    $("oShare").onclick=()=>{const x=t("shareTxt")+O.code;if(navigator.share)navigator.share({title:"AG · "+t("title"),text:x,url:location.origin+location.pathname}).catch(()=>{});else{try{navigator.clipboard.writeText(x)}catch(e){}toast(t("copied"))}}}
+  else if(!mine&&st!=="over"){h+='<div class="hand">⏳</div><p class="sub">'+t("notIn")+'</p>'+chatBox();P.innerHTML=h}
+  else if(st==="card"){const spy=isSpy(d,me),w=oWord(d),seen=(d.seen||{})[me];
+    if(!O.peek)h+='<button type="button" class="flip" id="oPeek" style="background:linear-gradient(#4338ca,#1e1b4b);border:0"><div class="e">🎴</div><span>'+t("tapSee")+'</span></button>';
+    else h+='<div class="flip '+(spy?"s":"w")+'"><div class="e">'+(spy?"🕵️":w[0])+'</div><b>'+esc(spy?t("youSpy"):wName(w))+'</b><span>'+esc(spy?t("spyTxt"):t("remember"))+'</span>'+(spy&&!d.hint?"":'<small>'+esc(t("topicIs")+CATS[d.cat][0]+" "+cName(d.cat))+'</small>')+'</div>';
+    h+=seen?'<p class="sub">'+t("waitOthers")+'</p>':(O.peek?'<button class="btn" type="button" id="oSeen">'+t("seenBtn")+'</button>':"");
+    h+='<p class="sub" id="oSeenN"></p>';P.innerHTML=h;
+    const pk=$("oPeek");if(pk)pk.onclick=()=>{O.peek=true;sfx.flip();vib(30);if(spy){sfx.spy();vib([60,40,60])}oRender()};
+    const sb=$("oSeen");if(sb)sb.onclick=()=>{sfx.tap();O.ref.child("seen/"+me).set(true).catch(()=>{})}}
+  else if(st==="talk"){h+='<div class="timer" id="oClock"></div><div class="tip"><span>'+t("first")+'</span> <b>'+esc(pn(d,d.first))+'</b></div>'+
+      '<button class="btn ghost" type="button" id="oMy">'+t("myWord")+'</button><div id="oMyW" class="tip" hidden></div>'+chatBox(true)+(host?'<button class="btn red" type="button" id="oVote">'+t("voteNow")+'</button>':"");
+    P.innerHTML=h;const w=oWord(d),spy=isSpy(d,me);
+    $("oMy").onclick=()=>{const e=$("oMyW");e.hidden=!e.hidden;e.textContent=spy?"🕵️ "+t("youSpy")+(d.hint?" · "+t("topicIs")+cName(d.cat):""):w[0]+" "+wName(w)};
+    if(host)$("oVote").onclick=()=>toVote()}
+  else if(st==="vote"){const my=(d.votes||{})[me];h+='<div class="big" style="margin-top:0">'+t("voteTitle")+'</div><div class="timer" id="oClock" style="font-size:40px"></div><p class="sub">'+(my?t("yourVote"):t("voteSecret"))+'</p><div class="list" id="oVl"></div><p class="sub" id="oVn"></p>'+chatBox(true);
+    P.innerHTML=h;const vl=$("oVl");inRound(d).filter(u=>u!==me).forEach(u=>{const b=document.createElement("button");b.type="button";b.className="pl"+(my===u?" sel":"");b.innerHTML="<i>🙂</i><b></b>";b.querySelector("b").textContent=pn(d,u);
+      if(!my)b.onclick=()=>{sfx.tap();O.ref.child("votes/"+me).set(u).catch(()=>{})};else b.disabled=true;vl.append(b)})}
+  else if(st==="guess"){const list=CATS[d.cat][2],opts=Object.values(d.opts||{});
+    if(d.acc===me&&d.guess==null){h+='<div class="res g" style="font-size:22px">'+t("youCaught")+'</div><div class="opts" id="oG"></div>';P.innerHTML=h;const g=$("oG");
+      opts.forEach(k=>{const b=document.createElement("button");b.type="button";b.textContent=list[k][0]+" "+wName(list[k]);b.onclick=()=>{[...g.children].forEach(x=>x.disabled=true);sfx.tap();O.ref.child("guess").set(k).catch(()=>{})};g.append(b)})}
+    else{h+='<div class="hand">🕵️</div><p class="big" style="font-size:19px">'+t("spyGuessing")+'</p><p class="sub">'+esc(pn(d,d.acc))+'</p>'+chatBox(true);P.innerHTML=h}}
+  else if(st==="over"){const r=d.result||{},w=oWord(d),pw=r.win==="p",sp=Object.keys(d.spies||{}),votes=d.votes||{},cnt={};Object.values(votes).forEach(u=>cnt[u]=(cnt[u]||0)+1);
+    const why=r.why==="wrong"?esc(pn(d,r.acc))+t("wasNot"):r.why==="tie"?t("tie"):r.why==="guessed"?t("spyGuessed"):r.why==="missed"?t("spyMissed"):"";
+    h+='<div class="res '+(pw?"g":"s")+'">'+(pw?t("pWin"):t("sWin"))+'</div><p class="sub">'+why+'</p>'+
+      '<div class="reveal"><div><small>'+t("theWord")+'</small><i>'+w[0]+'</i><b>'+esc(wName(w))+'</b></div><div><small>'+t("theSpy")+'</small><i>🕵️</i><b>'+esc(sp.map(u=>pn(d,u)).join(t("and")))+'</b></div></div>';
+    const sc=d.score||{},ids=Object.keys(d.players||{}).sort((a,b)=>(sc[b]||0)-(sc[a]||0));
+    h+='<div class="list">'+ids.map((u,i)=>'<div class="pl'+(u===me?" sel":"")+'" style="'+(u===me?"border-color:#a78bfa;background:rgba(124,58,237,.3)":"")+'"><i>'+(["🥇","🥈","🥉"][i]||"⭐")+'</i><b>'+esc(pn(d,u))+(isSpy(d,u)?" 🕵️":"")+'</b><small style="color:#c7d2fe">🗳 '+num(cnt[u]||0)+'</small><em>'+num(sc[u]||0)+" "+t("pts")+'</em></div>').join("")+'</div>';
+    if(host)h+='<div style="display:flex;gap:10px"><button class="btn" type="button" id="oNext">'+t("next")+'</button><button class="btn ghost" type="button" id="oLob">'+t("toLobby")+'</button></div>';else h+='<p class="sub">'+t("waitHost")+'</p>';
+    h+=chatBox();P.innerHTML=h;if(host){$("oNext").onclick=()=>oStart();$("oLob").onclick=()=>O.ref.update({status:"lobby"})}
+    if(O.endSnd!==d.round){O.endSnd=d.round;const iWon=isSpy(d,me)?!pw:pw;iWon?sfx.win():sfx.lose()}}
+  const q=$("oQuit");if(q)q.onclick=()=>oLeave();
+  const ci=$("oChatIn");if(ci){const go=()=>{const x=ci.value.trim().slice(0,120);if(!x)return;ci.value="";O.ref.child("chat").push({u:me,n:myName(),x,t:TS()}).catch(()=>{})};$("oChatGo").onclick=go;ci.onkeydown=e=>{if(e.key==="Enter")go()}}}
+function oSeg(id,vals,cur,lab,set){const el=$(id);vals.forEach(v=>{const b=document.createElement("button");b.type="button";b.textContent=lab(v);if(v===cur)b.className="on";b.onclick=()=>set(v);el.append(b)})}
+function chatBox(big){return'<div class="chat'+(big?" big":"")+'"><div class="msgs" id="oMsgs"></div><div class="join"><input id="oChatIn" maxlength="120" autocomplete="off" placeholder="'+esc(t("chatPh"))+'"><button class="btn" type="button" id="oChatGo">'+t("send")+'</button></div></div>'}
+// the parts that change every second: clock, counters, chat
+function oLive(d){const c=$("oCnt");if(c)c.textContent=num(onP(d).length);
+  const ck=$("oClock");if(ck){const end=d.status==="talk"?d.endAt:d.voteEnd,left=Math.max(0,Math.ceil(((end||0)-srvNow())/1000));ck.textContent=mmss(left);ck.classList.toggle("warn",left<=30)}
+  const sn=$("oSeenN");if(sn)sn.textContent=t("seenN")+num(Object.keys(d.seen||{}).length)+" / "+num(inRound(d).length);
+  const vn=$("oVn");if(vn)vn.textContent=t("voted")+num(Object.keys(d.votes||{}).length)+" / "+num(inRound(d).length);
+  const m=$("oMsgs");if(m){const all=Object.values(d.chat||{}).filter(x=>x&&x.x).sort((a,b)=>(a.t||0)-(b.t||0)).slice(-60);
+    if(all.length!==O.chatN){const neu=O.chatN>=0&&all.length>O.chatN;O.chatN=all.length;m.textContent="";
+      all.forEach(x=>{const r=document.createElement("div");r.className="msg"+(x.u===me?" mine":"");const b=document.createElement("b");b.textContent=x.n||"";const s=document.createElement("span");s.textContent=x.x;r.append(b,s);m.append(r)});
+      m.scrollTop=m.scrollHeight;if(neu)sfx.tick()}}}
+
+// ---------- the host's phone moves the game on ----------
+function oStart(){const d=O.d;if(!d||d.host!==me)return;const ids=onP(d).map(x=>x[0]);if(ids.length<3){toast(t("need3"));return}
+  const keep=cfg.cat;cfg.cat=d.cat||"";const[cat,wi]=pickWord();cfg.cat=keep;
+  const n=Math.min(ids.length>=7?2:1,d.nsp||1),spies={};while(Object.keys(spies).length<n)spies[ids[rnd(ids.length)]]=true;
+  O.peek=false;O.ref.update({status:"card",round:(d.round||0)+1,order:ids,cat,wi,spies,first:ids[rnd(ids.length)],seen:null,votes:null,guess:null,acc:null,opts:null,result:null,chat:null,endAt:null,voteEnd:null})}
+function toVote(){const d=O.d;if(!d||d.host!==me||d.status!=="talk")return;O.ref.update({status:"vote",voteEnd:srvNow()+60000})}
+function finish(win,why,acc){const d=O.d,up={status:"over",result:{win,why,acc:acc||null}},sc=Object.assign({},d.score||{});
+  inRound(d).forEach(u=>{const spy=isSpy(d,u);if(win==="p"&&!spy)sc[u]=(sc[u]||0)+1;if(win==="s"&&spy)sc[u]=(sc[u]||0)+3});up.score=sc;O.ref.update(up)}
+let hostBusy=0;
+function oTick(){const d=O.d;if(!d)return;oLive(d);if(d.host!==me)return;if(Date.now()-hostBusy<1500)return;
+  const now=srvNow(),ids=inRound(d),live=ids.filter(u=>((d.players||{})[u]||{}).on);
+  if(d.status==="card"){if(live.length&&live.every(u=>(d.seen||{})[u])){hostBusy=Date.now();O.ref.update({status:"talk",endAt:now+(d.min||5)*60000})}}
+  else if(d.status==="talk"){if(d.endAt&&now>=d.endAt){hostBusy=Date.now();sfx.alarm();toVote()}}
+  else if(d.status==="vote"){const v=d.votes||{},all=live.every(u=>v[u]);
+    if(all||(d.voteEnd&&now>=d.voteEnd)){hostBusy=Date.now();const cnt={};Object.values(v).forEach(u=>cnt[u]=(cnt[u]||0)+1);
+      const best=Math.max(0,...Object.values(cnt)),top=Object.keys(cnt).filter(u=>cnt[u]===best);
+      if(!best||top.length>1){finish("s","tie");return}const acc=top[0];
+      if(!isSpy(d,acc)){finish("s","wrong",acc);return}
+      const list=CATS[d.cat][2],opts=[d.wi];while(opts.length<Math.min(8,list.length)){const k=rnd(list.length);if(!opts.includes(k))opts.push(k)}opts.sort(()=>Math.random()-.5);
+      O.ref.update({status:"guess",acc,opts,guessEnd:now+40000})}}
+  else if(d.status==="guess"){if(d.guess!=null){hostBusy=Date.now();finish(d.guess===d.wi?"s":"p",d.guess===d.wi?"guessed":"missed")}
+    else if(d.guessEnd&&now>=d.guessEnd||!((d.players||{})[d.acc]||{}).on){hostBusy=Date.now();finish("p","missed")}}}
+
+$("goOn").onclick=()=>{sfx.tap();openOnline()};
+fbBoot();lobby();
 </script>
 </body>
 </html>
