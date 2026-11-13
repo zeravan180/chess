@@ -1556,7 +1556,10 @@ function lvScores(d){const sc={},ok={};Object.keys(d.players||{}).forEach(u=>{sc
 function lvRank(d){const {sc,ok}=lvScores(d);return Object.keys(d.players||{}).map(u=>({u,name:(d.players[u]||{}).name||"یاریکەر",photo:(d.players[u]||{}).photo||"",on:!!(d.players[u]||{}).on,s:sc[u]||0,ok:ok[u]||0})).sort((a,b)=>b.s-a.s||b.ok-a.ok)}
 function lvPhase(d){if(d.status!=="q")return d.status;return srvNow()<d.qAt?"rev":"ask"}
 let lvKey="";
-function liveRender(force){const d=LV.d;if(!d)return;const ph=lvPhase(d),box=$("liveBox"),qi=d.qi||0,mine=(lvAns(d,qi)[me]||{}).c;
+function liveRender(force){const d=LV.d;if(!d)return;
+  // a new game in the same room: forget the answers, sounds and steps of the last game
+  const gk=d.status==="lobby"?"lobby":String(d.seed);if(gk!==LV.game){LV.game=gk;LV.picked={};LV.rev=-1;LV.adv=-1;lvKey=""}
+  const ph=lvPhase(d),box=$("liveBox"),qi=d.qi||0,mine=(lvAns(d,qi)[me]||{}).c;
   const key=[d.status,qi,ph,LANG,mine!=null?mine:LV.picked[qi],ph==="ask"?Object.keys(lvAns(d,qi)).length:0,d.status==="lobby"?JSON.stringify([d.players,d.n,d.cat]):""].join("|");
   if(key===lvKey&&!force)return;lvKey=key;const host=d.host===me;
   const head='<div class="lvhead"><span>🏟️ <b>'+LV.code+'</b></span><span>👥 '+lvOn(d).length+'</span><button class="ghost lvx" id="lvQuit" type="button">🚪</button></div>';
