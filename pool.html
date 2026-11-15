@@ -430,9 +430,25 @@ html,body{touch-action:pan-y;overscroll-behavior-x:none;-webkit-text-size-adjust
 .plspin{width:44px!important;height:44px!important;min-height:0!important;flex:none;border-radius:50%!important;padding:0!important;border:2px solid #e9b949!important;background:radial-gradient(circle at 38% 32%,#fff,#ddd 60%,#999)!important;position:relative}
 .plspin{touch-action:none}.plspin>svg{width:100%;height:100%;display:block;pointer-events:none}
 .plspin:disabled{opacity:.45}
-.plfine{display:flex;gap:8px;justify-content:center}
+.plfine{display:flex;justify-content:center;touch-action:none;flex:none}
+/* fine aim: a ridged wheel, drag it up or down to turn the aim a little */
+.plwheel{position:relative;width:34px;height:clamp(64px,calc(var(--H,600px) - var(--actTop,170px) - 200px),150px);border-radius:12px;overflow:hidden;cursor:ns-resize;touch-action:none;
+  border:2px solid #9aa8b4;box-shadow:inset 0 0 8px rgba(0,0,0,.8),0 2px 6px rgba(0,0,0,.5);
+  background:linear-gradient(90deg,#4a5560,#c9d3db 30%,#eef3f7 50%,#c9d3db 70%,#4a5560)}
+.plwheel>i{position:absolute;inset:0;background:repeating-linear-gradient(#0000 0 5px,rgba(20,28,36,.75) 5px 7px,#0000 7px 9px);background-position:0 var(--wy,0px)}
+.plwheel::after{content:"";position:absolute;inset:0;background:linear-gradient(#0009,#0000 22%,#0000 78%,#0009);pointer-events:none}
+.plfine.off{opacity:.45}
 .plfine button,html.land .tw-bar .plfine button{width:44px!important;height:34px!important;min-height:0!important;padding:0!important;border-radius:10px!important;font-size:18px!important;background:linear-gradient(#2b5a48,#163a2d)!important;border:1px solid rgba(255,215,120,.5)!important;color:#fff}
-.plcue{display:flex;flex-direction:column;align-items:center;font-size:11px;color:#f3e7c9;line-height:1.2}
+.plcue{display:flex;flex-direction:column;align-items:center;font-size:11px;color:#f3e7c9;line-height:1.2;background:rgba(0,0,0,.3)!important;border:1px solid rgba(255,215,120,.5)!important;border-radius:12px!important;padding:5px 9px!important;min-height:0!important;width:auto!important;cursor:pointer}
+#plCueNm::before{content:"🔄 ";color:#ffd76a}
+#plCuePop{position:absolute;inset:0;z-index:9;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:10px}
+#plCuePop[hidden]{display:none}
+.plcp{background:#16261f;border:1px solid rgba(255,215,120,.5);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:8px;color:#fff;width:min(440px,94%);max-height:88%;overflow:auto}
+.plcp>b{text-align:center}
+.plci{display:flex;flex-direction:column;gap:4px;background:rgba(255,255,255,.06)!important;border:2px solid transparent!important;border-radius:12px!important;padding:8px 10px!important;color:#fff;text-align:start;width:100%!important;min-height:0!important}
+.plci.on{border-color:#ffd76a!important;background:rgba(255,215,106,.15)!important}
+.plci svg{width:100%;height:16px;display:block}
+.plci .r{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px}.plci small{color:#cfe}
 .plcue b{font-size:12px}
 #plSpinPop{position:absolute;inset:0;z-index:9;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center}
 #plSpinPop[hidden]{display:none}
@@ -553,13 +569,14 @@ html.land .lseat .nm span.plrow{max-width:var(--sideW)}
     <div class="tw-bar">
       <button id="undoBtn" class="ghost" type="button" hidden>↩ هەلبژارتنا نوو</button>
       <div class="plctl"><button id="plSpin" class="plspin" type="button" aria-label="Spin"><svg id="plSpinMiniSvg" viewBox="-1 -1 2 2" aria-hidden="true"><path d="M-1 0H1M0-1V1" stroke="#0003" stroke-width=".05"/><circle id="plSpinMini" r=".2" fill="#e33" stroke="#fff" stroke-width=".06"/></svg></button><div id="plPow" class="plpow" role="slider" aria-label="Power"><i></i><b>⬇</b></div></div>
-      <div class="plfine" id="plFine"><button id="plL" type="button" aria-label="↺">↺</button><button id="plR" type="button" aria-label="↻">↻</button></div>
-      <div class="plcue" id="plCueBox"><b id="plCueNm"></b><small id="plCueSt"></small></div>
+      <div class="plfine" id="plFine" role="slider" aria-label="🎯"><div class="plwheel" id="plWheel"><i></i></div></div>
+      <button class="plcue" id="plCueBox" type="button"><b id="plCueNm"></b><small id="plCueSt"></small></button>
       <span class="hint" id="twHint"></span>
     </div>
     <div class="panel" id="overBox" hidden></div>
     <button id="plEdit" class="pledbtn" type="button" aria-label="⚙ جهێ دوگمان" title="⚙ جهێ دوگمان">⚙</button>
     <div id="plEditBar" hidden><span>✋ دوگمان ڕاکێشە بۆ جهێ تە دڤێت</span><button id="plEditReset" class="ghost" type="button">↺ وەکی بەرێ</button><button id="plEditOk" class="primary" type="button">✔ باشە</button></div>
+    <div id="plCuePop" hidden><div class="plcp"></div></div>
     <div id="plSpinPop" hidden><div class="plsp"><b>🌀 زڤڕینا تۆپا سپی</b>
       <svg id="plSpinSvg" viewBox="-90 -90 180 180" aria-hidden="true"><defs><radialGradient id="spg" cx="38%" cy="32%" r="70%"><stop offset="0" stop-color="#fff"/><stop offset=".6" stop-color="#e6e6e0"/><stop offset="1" stop-color="#9a9a94"/></radialGradient></defs>
         <circle r="80" fill="url(#spg)"/><circle id="plSpinLim" r="40" fill="none" stroke="#2f6fd0" stroke-width="2" stroke-dasharray="5 5"/><path d="M-80 0H80M0-80V80" stroke="#0003" stroke-width="1.5"/><circle id="plSpinDot" r="11" fill="#e33" stroke="#fff" stroke-width="2.5"/></svg>
@@ -1462,7 +1479,7 @@ function onState(){const g=G,n=g.last?g.last.n||0:0;
 function replay(){}
 function onBoardClick(){}
 // ---- power bar and spin ----
-function paintCtl(){const a=G&&canAct(),pw=$("plPow"),sb=$("plSpin");if(!pw)return;pw.classList.toggle("off",!a);sb.disabled=!a;
+function paintCtl(){const a=G&&canAct(),pw=$("plPow"),sb=$("plSpin");if(!pw)return;pw.classList.toggle("off",!a);sb.disabled=!a;const fw=$("plFine");if(fw)fw.classList.toggle("off",!a);
   pw.firstChild.style.height=(pow*100)+"%";const md=$("plSpinMini");if(md){md.setAttribute("cx",spin.x*.78);md.setAttribute("cy",spin.y*.78)}
   const cs=cueStats(myCue());$("plCueNm").textContent=AGnm(XM()[myCue()]);$("plCueSt").textContent="⚡"+cs.pw+" 🎯"+cs.aim+" 🌀"+cs.spin}
 const AGnm=it=>{const n=it&&it.name;if(!n)return"";const i={kmr:0,ckb:1,ar:2,en:3}[LANG]||0;return n[i]||n[0]};
@@ -1475,11 +1492,29 @@ function powFrac(e){const el=$("plPow"),r=el.getBoundingClientRect(),rot=documen
   el.addEventListener("pointermove",e=>{if(!on)return;pow=powFrac(e);paintCtl();drawAimSoon()});
   const end=()=>{if(!on)return;on=false;hold(false);if(pow>.04&&canAct())shoot();else{pow=0;paintCtl();drawAimSoon()}};
   el.addEventListener("pointerup",end);el.addEventListener("pointercancel",()=>{on=false;hold(false);pow=0;paintCtl();drawAimSoon()})})();
-// fine aiming: each tap turns the aim a little; holding the button keeps turning
-(function wireFine(){[["plL",-1],["plR",1]].forEach(([id,sg])=>{const b=$(id);if(!b)return;let t=null,n=0;
-  const turn=()=>{const a=.0035*sg*(n>8?3:1),c=Math.cos(a),s2=Math.sin(a);aim={dx:aim.dx*c-aim.dy*s2,dy:aim.dx*s2+aim.dy*c};n++;drawAimSoon()};
-  b.addEventListener("pointerdown",e=>{if(!canAct())return;e.preventDefault();n=0;turn();clearInterval(t);t=setInterval(turn,90)});
-  ["pointerup","pointerleave","pointercancel"].forEach(ev=>b.addEventListener(ev,()=>clearInterval(t)))})})();
+// fine aiming: drag the ridged wheel up or down; a long drag turns the aim only a little, for exact shots
+(function wireWheel(){const w=$("plWheel");if(!w)return;let on=false,last=0,wy=0;
+  const ly=e=>gameLocal(e)[1];
+  w.addEventListener("pointerdown",e=>{if(editing||!canAct())return;e.preventDefault();on=true;last=ly(e);try{w.setPointerCapture(e.pointerId)}catch(_){}});
+  w.addEventListener("pointermove",e=>{if(!on)return;const y=ly(e),d=y-last;last=y;if(!d)return;
+    const a=d*.0016,c=Math.cos(a),s2=Math.sin(a);aim={dx:aim.dx*c-aim.dy*s2,dy:aim.dx*s2+aim.dy*c};
+    wy+=d;w.style.setProperty("--wy",wy+"px");if(Math.abs(wy%9)<Math.abs(d)+.01)psnd("click");drawAimSoon()});
+  const end=()=>{on=false};w.addEventListener("pointerup",end);w.addEventListener("pointercancel",end)})();
+// choosing another cue during the game: only the cues this player has (free ones and bought ones)
+function openCuePick(){if(editing)return;const pop=$("plCuePop"),box=pop.querySelector(".plcp"),T=XM(),cur=myCue();box.textContent="";
+  const h=document.createElement("b");h.textContent="🎱 دارێ یاریێ هەڵبژێرە";box.append(h);
+  Object.keys(T).filter(k=>freeOr(T,k)).forEach(k=>{const c=cueStats(k),b=document.createElement("button");b.type="button";b.className="plci"+(k===cur?" on":"");
+    b.innerHTML='<svg viewBox="0 -14 560 28" preserveAspectRatio="xMidYMid meet">'+POOL.cue(k,560)+'</svg><div class="r"><b></b><small></small></div>';
+    b.querySelector("b").textContent=(k===cur?"✔ ":"")+AGnm(T[k]);b.querySelector("small").textContent="⚡"+c.pw+" 🎯"+c.aim+" 🌀"+c.spin+(c.magic?" ✨":"");
+    b.onclick=()=>{pickCue(k);pop.hidden=true};box.append(b)});
+  const more=document.createElement("a");more.href="./#pack_poolcue";more.className="ghost";more.style.cssText="text-align:center;padding:8px;color:#ffd76a";more.textContent="🛒 دارێن پتر ل دکانێ";box.append(more);
+  const x=document.createElement("button");x.type="button";x.className="ghost";x.textContent="✖";x.onclick=()=>pop.hidden=true;box.append(x);pop.hidden=false}
+function pickCue(k){myDp=k==="pc_basic"?null:k;psnd("click");
+  if(fdb&&me)fdb.ref("profiles/"+me+"/private/poolcue").set(myDp).catch(()=>{});
+  // the others see the new cue too: it is kept on my seat
+  try{const g=G,ms=g&&mySeatIn(g);if(fdb&&g&&!BOT&&!LOCAL&&ms>=0&&code)fdb.ref("dgames/"+code+"/seats/"+ms+"/dp").set(dpKey()).catch(()=>{})}catch(e){}
+  applySkins();paintCtl();drawAimSoon()}
+(function wireCuePick(){const b=$("plCueBox");if(b)b.addEventListener("click",()=>{if(!editing)openCuePick()})})();
 // spin: the red dot can go anywhere on the white ball. Drag it on the small ball, or tap the small ball for a big one.
 // The dot says where the cue hits; how strong the spin is comes from the cue (spin 1-10, the cobra more).
 function spinFrom(svg,e,k){const q=svgPt(svg,e);if(!q)return;let x=q[0]/k,y=q[1]/k;const d=Math.hypot(x,y);if(d>1){x/=d;y/=d}spin={x,y};paintSpin()}
