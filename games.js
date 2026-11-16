@@ -244,12 +244,92 @@ function playTimer(){var tries=0;
     var ref=null;
     firebase.auth().onAuthStateChanged(function(u){if(ref){ref.off();ref=null}PT.uid=u?u.uid:null;PT.S=null;PT.ld=false;PT.acc=0;
       giftShow();if(!u)return;
+      firebase.database().ref("profiles/"+u.uid+"/public/frame").once("value").then(function(s){setMyFrame(s.val()||"")}).catch(function(){});
       ref=firebase.database().ref("ptime/"+u.uid);
       ref.on("value",function(s){PT.S=s.val();PT.ld=true;accLoad();ptSave();ptPaint()},function(e){PT.err="read "+((e&&e.code)||"")})})}catch(e){}})();
   PT.act=Date.now();["pointerdown","touchstart","keydown","wheel"].forEach(function(e){addEventListener(e,function(){PT.act=Date.now()},{passive:true,capture:true})});
   setInterval(function(){
     if(PT.uid&&PT.ld&&document.visibilityState==="visible"&&Date.now()-PT.act<180000){var st=ptState();if(st.k==="run")PT.acc=Math.min(PT.acc+1,90);ptSave();accSave()}
     giftShow();ptPaint()},1000)}
-function ready(){fillSwitch();buildCarousel();buildGift();playTimer();dmBadge();fzWatchAll()}
+/* ---- 🖼 avatar frames: bought in the shop, shown around the player's picture on every page ----
+   A frame is an SVG drawn over the round picture: the picture fills the middle (radius 47 of 64). */
+var FRN=0;
+function fid(){return "agf"+(++FRN)}
+function ring(R,r,fill,extra){return '<path fill-rule="evenodd" fill="'+fill+'" d="M'+(-R)+' 0a'+R+' '+R+' 0 1 0 '+(2*R)+' 0a'+R+' '+R+' 0 1 0 '+(-2*R)+' 0zM'+(-r)+' 0a'+r+' '+r+' 0 1 0 '+(2*r)+' 0a'+r+' '+r+' 0 1 0 '+(-2*r)+' 0z"'+(extra||"")+'/>'}
+function lin(id,cs,x2,y2){var h='<linearGradient id="'+id+'" x1="0" y1="0" x2="'+(x2==null?1:x2)+'" y2="'+(y2==null?1:y2)+'">';cs.forEach(function(c,i){h+='<stop offset="'+(i/(cs.length-1)).toFixed(2)+'" stop-color="'+c+'"/>'});return h+'</linearGradient>'}
+function rad(id,a,b){return '<radialGradient id="'+id+'" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff"/><stop offset=".35" stop-color="'+a+'"/><stop offset="1" stop-color="'+b+'"/></radialGradient>'}
+function at(deg,r){var a=(deg-90)*Math.PI/180;return[(Math.cos(a)*r).toFixed(2),(Math.sin(a)*r).toFixed(2)]}
+// a little four-point sparkle that blinks
+function spark(x,y,s,c,dur,beg){return '<path d="M'+x+' '+(y-s)+'Q'+x+' '+y+' '+(x+s)+' '+y+'Q'+x+' '+y+' '+x+' '+(y+s)+'Q'+x+' '+y+' '+(x-s)+' '+y+'Q'+x+' '+y+' '+x+' '+(y-s)+'z" fill="'+(c||"#fff")+'" opacity="0"><animate attributeName="opacity" values="0;1;0" dur="'+(dur||2)+'s" begin="'+(beg||0)+'s" repeatCount="indefinite"/></path>'}
+function sparks(n,r,c,dur){var h="";for(var i=0;i<n;i++){var p=at(i*360/n+17,r);h+=spark(+p[0],+p[1],4.5,c,dur||2.4,(i*(dur||2.4)/n).toFixed(2))}return h}
+// a moving shine that runs round a metal ring
+function sweep(id,R,r){return '<g opacity=".55">'+ring(R,r,'url(#'+id+'s)')+'<animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="5s" repeatCount="indefinite"/></g>'}
+function sweepDef(id){return '<linearGradient id="'+id+'s" x1="0" y1="0" x2="1" y2="0"><stop offset=".35" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".95"/><stop offset=".65" stop-color="#fff" stop-opacity="0"/></linearGradient>'}
+function gems(n,r,size,a,b,id,off){var h="";for(var i=0;i<n;i++){var p=at(i*360/n+(off||0),r);h+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+size+'" fill="url(#'+id+')" stroke="#0006" stroke-width=".8"/>'}return h}
+function metal(id,cs,o){o=o||{};var h='<defs>'+lin(id,cs)+sweepDef(id)+(o.gem?rad(id+"g",o.gem[0],o.gem[1]):"")+'</defs>';
+  h+=ring(58,46,'url(#'+id+')',' stroke="#0007" stroke-width="1"');h+=ring(55,49,'none',' stroke="#fff6" stroke-width="1"');
+  if(o.dots)for(var i=0;i<o.dots;i++){var p=at(i*360/o.dots,52);h+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="1.6" fill="'+cs[0]+'" stroke="#0005" stroke-width=".6"/>'}
+  if(o.gem)h+=gems(o.gn||4,52,o.gs||4.6,0,0,id+"g",o.goff||0);
+  h+=sweep(id,58,46);if(o.sp)h+=sparks(o.sp,60,o.spc);return h}
+function crown(id,c1,c2,y){return '<g transform="translate(0 '+(y||-60)+')"><path d="M-17 6L-20-10-9-2 0-14 9-2 20-10 17 6z" fill="url(#'+id+')" stroke="#5a3a00" stroke-width="1.2"/>'+
+  '<circle cx="0" cy="-14" r="2.6" fill="#ff3b5c"/><circle cx="-20" cy="-10" r="2.2" fill="#4fc3ff"/><circle cx="20" cy="-10" r="2.2" fill="#4fc3ff"/><rect x="-17" y="4" width="34" height="5" rx="2" fill="url(#'+id+')" stroke="#5a3a00" stroke-width="1"/></g>'}
+function laurel(c){var h="";[-1,1].forEach(function(sd){for(var i=0;i<6;i++){var a=200+i*14,p=at(sd<0?a:360-a,60),rot=(sd<0?a:360-a)+(sd<0?60:-60);
+  h+='<ellipse cx="'+p[0]+'" cy="'+p[1]+'" rx="6.5" ry="2.8" fill="'+c+'" stroke="#0004" stroke-width=".6" transform="rotate('+rot.toFixed(0)+' '+p[0]+' '+p[1]+')"/>'}});return h}
+var FRAMES={
+ fr_none:{price:0,none:1,name:["بێ چوارچۆڤە","بێ چوارچێوە","بدون إطار","No frame"],draw:function(){return""}},
+ fr_bronze:{price:100,name:["چوارچۆڤێ برۆنزی","چوارچێوەی برۆنزی","إطار برونزي","Bronze frame"],draw:function(id){return metal(id,["#f3c29a","#b06a32","#6e3b14","#c98a54","#7a4318"],{dots:12})}},
+ fr_silver:{price:200,name:["چوارچۆڤێ زیڤی","چوارچێوەی زیو","إطار فضي","Silver frame"],draw:function(id){return metal(id,["#ffffff","#c7ced6","#7d8792","#e4e9ee","#8a949f"],{gem:["#e8f6ff","#7aa6c9"],gn:4,sp:3})}},
+ fr_gold:{price:300,name:["چوارچۆڤێ زێڕی","چوارچێوەی زێڕ","إطار ذهبي","Gold frame"],draw:function(id){return '<defs>'+lin(id+"l",["#7fbf3a","#2f6b12"])+'</defs>'+laurel("url(#"+id+"l)")+metal(id,["#fff3b0","#f5c542","#a8740c","#ffe07a","#b07c10"],{dots:16,sp:4,spc:"#fff8d0"})}},
+ fr_rose:{price:300,name:["زێڕێ گولی","زێڕی گوڵی","ذهب وردي","Rose gold"],draw:function(id){var h=metal(id,["#ffe3dc","#e8a598","#a85f55","#f6c7bc","#b8706a"],{sp:3,spc:"#fff0f0"});for(var i=0;i<20;i++){var p=at(i*18,52);h+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="1.9" fill="#fff8f4" stroke="#c98" stroke-width=".5"/>'}return h}},
+ fr_emerald:{price:400,name:["زومروت","زومروت","زمرد","Emerald"],draw:function(id){return metal(id,["#fff3b0","#e6b43a","#8a5c08","#ffd76a","#9a6a10"],{gem:["#5dfc9a","#04602c"],gn:8,gs:4.2,sp:4,spc:"#d0ffe0"})}},
+ fr_sapphire:{price:400,name:["یاقووتا شین","یاقووتی شین","ياقوت أزرق","Sapphire"],draw:function(id){return metal(id,["#ffffff","#c7ced6","#6f7a86","#e4e9ee","#7d8792"],{gem:["#6ab8ff","#0a2a8a"],gn:8,gs:4.2,sp:4,spc:"#d8ecff"})}},
+ fr_ruby:{price:400,name:["یاقووتا سۆر","یاقووتی سوور","ياقوت أحمر","Ruby"],draw:function(id){return metal(id,["#fff3b0","#e6b43a","#8a5c08","#ffd76a","#9a6a10"],{gem:["#ff6b8a","#7a0018"],gn:8,gs:4.2,goff:22.5,sp:4,spc:"#ffe0e8"})}},
+ fr_kurd:{price:500,name:["کوردستان","کوردستان","كردستان","Kurdistan"],draw:function(id){var h='<defs>'+lin(id,["#fff3b0","#f5c542","#a8740c"])+sweepDef(id)+'</defs>';
+   h+=ring(58,54.2,"#e31b23")+ring(54.2,50.2,"#ffffff")+ring(50.2,46,"#278e43")+ring(58,46,"none",' stroke="#0006" stroke-width="1"');
+   var s='<g transform="translate(0 -56)"><circle r="7.5" fill="url(#'+id+')" stroke="#a06a00" stroke-width="1"/>';for(var i=0;i<21;i++){var p=at(i*360/21,11.5),q=at(i*360/21,7);s+='<line x1="'+q[0]+'" y1="'+q[1]+'" x2="'+p[0]+'" y2="'+p[1]+'" stroke="#f5c542" stroke-width="1.6" stroke-linecap="round"/>'}
+   s+='<animateTransform attributeName="transform" type="rotate" from="0 0 -56" to="360 0 -56" dur="30s" repeatCount="indefinite" additive="sum"/></g>';return h+s+sweep(id,58,46)+sparks(3,60,"#fff7c0")}},
+ fr_fire:{price:600,rare:1,name:["ئاگر","ئاگر","نار","Fire"],draw:function(id){var h='<defs>'+lin(id,["#fff17a","#ff9a1f","#e0340b","#7a0c00"],0,1)+'<radialGradient id="'+id+'f" cx=".5" cy="1" r="1"><stop offset="0" stop-color="#fff59d"/><stop offset=".45" stop-color="#ff9800"/><stop offset="1" stop-color="#d32f2f" stop-opacity="0"/></radialGradient></defs>';
+   var fl="";for(var i=0;i<16;i++){fl+='<path d="M-5 0Q-6 -9 0 -17Q6 -9 5 0z" fill="url(#'+id+'f)" transform="rotate('+(i*22.5)+') translate(0 -55)"><animateTransform attributeName="transform" type="scale" values="1 1;1.1 1.35;.95 .9;1 1" dur="'+(0.7+(i%4)*0.13).toFixed(2)+'s" repeatCount="indefinite" additive="sum"/></path>'}
+   return h+'<g>'+fl+'<animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="14s" repeatCount="indefinite"/></g>'+ring(57,46,'url(#'+id+')',' stroke="#5a0a00" stroke-width="1"')+sparks(5,58,"#ffe082",1.6)}},
+ fr_ice:{price:600,rare:1,name:["بەفر و قەشا","بەفر و سەهۆڵ","جليد","Ice"],draw:function(id){var h=metal(id,["#ffffff","#bfe9ff","#5fb3e6","#e6f7ff","#7cc6f0"],{});
+   for(var i=0;i<8;i++){var p=at(i*45,56);h+='<g transform="translate('+p[0]+' '+p[1]+') rotate('+(i*45)+')"><path d="M0-8L2.4 0 0 8-2.4 0z" fill="#e8f8ff" stroke="#7cc6f0" stroke-width=".8"/><path d="M-6 0H6M-4-4L4 4M4-4L-4 4" stroke="#fff" stroke-width="1" opacity=".85"/></g>'}
+   return h+sparks(6,61,"#ffffff",2)}},
+ fr_neon:{price:700,rare:1,name:["نیۆنا ڕەنگین","نیۆنی ڕەنگاوڕەنگ","نيون ملوّن","Rainbow neon"],draw:function(id){var cs=["#ff1744","#ff9100","#ffea00","#00e676","#00b0ff","#d500f9"],h='<defs><filter id="'+id+'b" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.2"/></filter></defs><g>';
+   cs.forEach(function(c,i){var a0=i*60,a1=a0+60,p0=at(a0,52),p1=at(a1,52);h+='<path d="M'+p0[0]+' '+p0[1]+'A52 52 0 0 1 '+p1[0]+' '+p1[1]+'" stroke="'+c+'" stroke-width="9" fill="none" filter="url(#'+id+'b)"/><path d="M'+p0[0]+' '+p0[1]+'A52 52 0 0 1 '+p1[0]+' '+p1[1]+'" stroke="'+c+'" stroke-width="4.5" fill="none"/>'});
+   return h+'<animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="4s" repeatCount="indefinite"/></g>'+ring(47.5,46,"#fff")+ring(57,56,"#fff",' opacity=".7"')}},
+ fr_galaxy:{price:800,rare:1,name:["گەلەستێرک","گەلەستێرە","مجرة","Galaxy"],draw:function(id){var h='<defs>'+lin(id,["#2b0a5e","#7c4dff","#0b1a4a","#d500f9","#1a0640"])+'</defs>'+ring(58,46,'url(#'+id+')',' stroke="#b388ff" stroke-width="1.2"');
+   var st="";for(var i=0;i<26;i++){var p=at(i*137.5%360,47.5+((i*7)%10));st+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+(0.6+(i%3)*0.45).toFixed(2)+'" fill="#fff"><animate attributeName="opacity" values=".2;1;.2" dur="'+(1.2+(i%5)*.4).toFixed(1)+'s" repeatCount="indefinite"/></circle>'}
+   return h+'<g>'+st+'<animateTransform attributeName="transform" type="rotate" from="0" to="-360" dur="40s" repeatCount="indefinite"/></g>'+'<g transform="translate(0 -58)"><circle r="5.5" fill="#ffd54f"/><ellipse rx="10" ry="2.6" fill="none" stroke="#ffe082" stroke-width="1.3" transform="rotate(-20)"/></g>'+sparks(4,61,"#e1d5ff")}},
+ fr_royal:{price:900,rare:1,name:["پاشایی","پاشایەتی","ملكي","Royal"],draw:function(id){return metal(id,["#fff3b0","#f5c542","#a8740c","#ffe07a","#b07c10"],{gem:["#ff4d6d","#6a0015"],gn:6,gs:4.2,goff:30,sp:5,spc:"#fff8d0"})+crown(id,"#fff3b0","#a8740c",-58)}},
+ fr_diamond:{price:1000,rare:1,name:["ئەلماس","ئەڵماس","ألماس","Diamond"],draw:function(id){var h='<defs>'+lin(id,["#ffffff","#bdefff","#7fd6ff","#ffffff","#c9b8ff"])+sweepDef(id)+'</defs>';
+   for(var i=0;i<24;i++){var a0=i*15,a1=a0+15,o0=at(a0,58),o1=at(a1,58),n0=at(a0,46),n1=at(a1,46);h+='<path d="M'+o0[0]+' '+o0[1]+'A58 58 0 0 1 '+o1[0]+' '+o1[1]+'L'+n1[0]+' '+n1[1]+'A46 46 0 0 0 '+n0[0]+' '+n0[1]+'z" fill="'+(i%2?"#e8faff":"url(#"+id+")")+'" stroke="#9fdcff" stroke-width=".6"/>'}
+   for(i=0;i<12;i++){var p=at(i*30+7.5,52);h+='<path d="M'+p[0]+' '+(+p[1]-3.6)+'l3 3.6-3 3.6-3-3.6z" fill="#fff" stroke="#7fd6ff" stroke-width=".5"/>'}
+   return h+sweep(id,58,46)+sparks(8,60,"#ffffff",1.8)}},
+ fr_legend:{price:1000,rare:1,name:["باسکێن زێڕی","باڵی زێڕین","أجنحة ذهبية","Golden wings"],draw:function(id){var w="";
+   [-1,1].forEach(function(sd){for(var i=0;i<5;i++){var y=-26+i*10,l=26-i*3.4;w+='<path d="M'+(sd*53)+' '+y+'q'+(sd*l*0.55)+' -9 '+(sd*l)+' '+(-4+i*1.5)+'q'+(-sd*l*0.4)+' 7 '+(-sd*l)+' 7z" fill="url(#'+id+')" stroke="#7a5200" stroke-width=".8"/>'}});
+   return '<g opacity=".95">'+w+'<animateTransform attributeName="transform" type="scale" values="1 1;1.04 .97;1 1" dur="2.4s" repeatCount="indefinite"/></g>'+metal(id,["#fff8c8","#ffcf3a","#b07c10","#ffe78a","#9a6a10"],{gem:["#7ee8ff","#004a7a"],gn:4,gs:4.6,sp:6,spc:"#fffbe0"})+crown(id,"#fff3b0","#a8740c",-59)}}
+};
+function has(k){return !!(FRAMES[k]&&!FRAMES[k].none)}
+function frameSvg(k){var f=FRAMES[k];if(!has(k))return"";return '<svg class="agfr" viewBox="-64 -64 128 128" aria-hidden="true">'+f.draw(fid())+'</svg>'}
+// put a frame over a round picture: host is the element that holds it (it gets position:relative)
+function applyFrame(host,k){if(!host)return;var old=host.querySelector(":scope>.agfr");if(old)old.remove();host.classList.toggle("agfr-host",has(k));
+  if(!has(k))return;host.insertAdjacentHTML("beforeend",frameSvg(k))}
+// a round picture (img or letter) with a frame: returns a wrapper
+function framed(el,k){if(!has(k))return el;var w=document.createElement("span");w.className="agfr-wrap";w.append(el);applyFrame(w,k);return w}
+function myFrame(){try{return localStorage.getItem("ag.frame")||""}catch(e){return""}}
+function setMyFrame(k){try{if(k)localStorage.setItem("ag.frame",k);else localStorage.removeItem("ag.frame")}catch(e){}paintMine()}
+function paintMine(){var k=myFrame();[].forEach.call(document.querySelectorAll(".tb-av,.js-myframe"),function(h){applyFrame(h,k)})}
+(function(){var st=document.createElement("style");st.textContent=".agfr-host,.agfr-wrap{position:relative}.agfr-wrap{display:inline-flex;flex:none;border-radius:50%}"+
+  ".agfr{position:absolute;left:50%;top:50%;width:136%;height:136%;transform:translate(-50%,-50%);pointer-events:none;z-index:2;overflow:visible}"+
+  ".tb-av.agfr-host .lvl{z-index:3}.tb-av.agfr-host{background:none!important}"+
+  ".fpv{position:relative;width:96px;height:96px;margin:14px auto 10px;border-radius:50%;background:radial-gradient(circle at 50% 38%,#9fb3c8 0 22%,transparent 23%),radial-gradient(ellipse at 50% 100%,#9fb3c8 0 46%,transparent 47%),linear-gradient(#3b4a5c,#1f2a36)}"+
+  ".fpv img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}";(document.head||document.documentElement).append(st)})();
+AG.frames=FRAMES;AG.frameSvg=frameSvg;AG.applyFrame=applyFrame;AG.framed=framed;AG.myFrame=myFrame;AG.setMyFrame=setMyFrame;
+AG.addPack({type:"frame",def:"fr_none",items:FRAMES,
+  title:["🖼 چوارچۆڤێن وێنەیێ","🖼 چوارچێوەی وێنە","🖼 إطارات الصورة","🖼 Picture frames"],
+  desc:["چوارچۆڤەک ل دۆر وێنەیێ تە، یێ هەمی کەس دبینن. هندەک ژ وان دلڤن و دبریقن ✨","چوارچێوەیەک بە دەوری وێنەکەت کە هەموو کەس دەیبینن.","إطار حول صورتك يراه الجميع. بعضها متحرك ولامع ✨","A frame around your picture that everyone sees. Some move and sparkle ✨"],
+  preview:function(k){var d=document.createElement("div");d.className="fpv";var ph="";try{ph=localStorage.getItem("ag.photo")||""}catch(e){}if(ph){var im=document.createElement("img");im.src=ph;im.alt="";d.append(im)}applyFrame(d,k);return d}});
+
+function ready(){fillSwitch();buildCarousel();buildGift();playTimer();dmBadge();fzWatchAll();paintMine()}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",ready);else ready();
 })();

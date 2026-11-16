@@ -1032,7 +1032,7 @@ html,body{touch-action:pan-y;overscroll-behavior-x:none;-webkit-text-size-adjust
     <div class="lvl-card"></div>
     <div class="field"><span>🌐 زمان · Language</span><div class="langs"></div></div>
     <div class="avatar-row">
-      <img id="setImg" class="avatar-big" alt="">
+      <span class="js-myframe agfr-wrap"><img id="setImg" class="avatar-big" alt=""></span>
       <div class="col">
         <label for="photoInput" class="ghost filebtn">📷 وێنەیەکێ هەلبژێرە</label>
         <input id="photoInput" type="file" accept="image/*" hidden>
@@ -1720,7 +1720,7 @@ const myPhoto=()=>prof.photo||(user&&user.photoURL)||"";
 const who=()=>({uid:me,name:myName(),photo:myPhoto(),badge:myBadge(),pieces:pieceStyle()});
 function applyProfile(){
   if(!user)return;
-  $("acctImg").src=$("meChipImg").src=myPhoto();
+  $("acctImg").src=$("meChipImg").src=myPhoto();try{localStorage.setItem("ag.photo",myPhoto()||"")}catch(e){}if(window.AG&&AG.setMyFrame)AG.setMyFrame(prof.frame||"");
   $("acctName").textContent=myName()||"یاریکەر";$("meChipName").textContent=myName()||"تو";
   setPresence._last=null;setPresence();
 }
@@ -2009,12 +2009,12 @@ async function frProf(uid,hint){
   const get=p=>fdb.ref(p).once("value").then(s=>s.val()).catch(()=>null);
   const [p,pr,sc]=await Promise.all([get("profiles/"+uid+"/public"),get("presence/"+uid),get("scores/"+uid)]);
   const P=p||{},R=pr||{},S=sc||{},H=hint||{};
-  const o={uid,name:P.name||R.name||S.name||H.name||"یاریکەر",photo:P.photo||R.photo||S.photo||"",pid:P.pid||H.pid||0,online:!!(pr&&pr.state),gone:!p&&!pr&&!sc};
+  const o={uid,frame:P.frame||"",name:P.name||R.name||S.name||H.name||"یاریکەر",photo:P.photo||R.photo||S.photo||"",pid:P.pid||H.pid||0,online:!!(pr&&pr.state),gone:!p&&!pr&&!sc};
   frCache[uid]={t:Date.now(),o};return o}
 function frAv(o){let el;
   if(o.photo){el=document.createElement("img");el.src=o.photo;el.alt="";el.referrerPolicy="no-referrer"}
   else{el=document.createElement("span");el.textContent=(o.name||"?").trim().charAt(0).toUpperCase()||"?"}
-  el.className="fr-av"+(o.online?" on":"");return el}
+  el.className="fr-av"+(o.online?" on":"");return window.AG&&AG.framed?AG.framed(el,o.frame):el}
 function frBtn(txt,cls,fn){const b=document.createElement("button");b.type="button";b.className=cls||"ghost";b.textContent=txt;
   b.onclick=async e=>{e.stopPropagation();b.disabled=true;try{await fn()}finally{b.disabled=false}};return b}
 function frRow(o,btns,sub){const d=document.createElement("div");d.className="fr-row";
@@ -2889,7 +2889,7 @@ async function setPieces(k){
 }
 async function equip(type,k){
   if(type==="pieces"){await setPieces(k);return}
-  {const pk=SKINPACKS.find(p=>p.type===type);if(pk){try{await fdb.ref("profiles/"+me+"/private/"+type).set(k===pk.def?null:k);myPriv={...myPriv,[type]:k===pk.def?null:k};renderItems()}catch(e){toast("نەهاتە گوهۆڕین.")}return}}
+  {const pk=SKINPACKS.find(p=>p.type===type);if(pk){try{if(type==="frame"){await fdb.ref("profiles/"+me+"/public/frame").set(k===pk.def?null:k);AG.setMyFrame(k===pk.def?"":k)}await fdb.ref("profiles/"+me+"/private/"+type).set(k===pk.def?null:k);myPriv={...myPriv,[type]:k===pk.def?null:k};renderItems()}catch(e){toast("نەهاتە گوهۆڕین.")}return}}
   if(type==="dice"||type==="sboard"||type==="token"||type==="bgpiece"||type==="bgboard"||type==="dmpiece"||type==="dmboard"||type==="ztable"||type==="zcard"){const def={dice:"ds_classic",token:"tk_classic",sboard:"sb_classic",bgpiece:"bp_classic",bgboard:"bt_classic",dmpiece:"dp_classic",dmboard:"dm_classic",ztable:"zt_classic",zcard:"zc_classic"}[type];try{await fdb.ref("profiles/"+me+"/private/"+type).set(k===def?null:k);myPriv={...myPriv,[type]:k===def?null:k};renderItems()}catch(e){toast("نەهاتە گوهۆڕین.")}return}
   if(type==="dtable"){try{await fdb.ref("profiles/"+me+"/private/dtable").set(k==="dt_classic"?null:k);myPriv={...myPriv,dtable:k==="dt_classic"?null:k};renderItems()}catch(e){toast("نەهاتە گوهۆڕین.")}return}
   try{
