@@ -1238,7 +1238,7 @@ async function leaveRoom(silent){
 function seatCard(p,i,g,live){
   const d=document.createElement("div");d.className="seat tw-seat";
   const pc=document.createElement("span");pc.className="tw-chip";pc.innerHTML=(()=>{const pid="sc"+(++skinN),k=live?(seatSkin(i,"bp")||""):"";return '<svg viewBox="0 0 40 40" aria-hidden="true"><defs>'+bgPieceDefs(k,pid)+'</defs>'+bgPiece(k,SIDE[i],20,19,16,pid,false)+'</svg>'})();
-  const im=document.createElement("img");im.alt="";if(p&&p.photo)im.src=p.photo;
+  const im=document.createElement("img");im.alt="";if(p&&p.photo)im.src=p.photo;if(p&&p.uid&&!p.bot&&!p.local)im.dataset.fr=p.uid;
   const nm=document.createElement("div");nm.className="nm";const b=document.createElement("b");b.textContent=p?(p.name||"یاریکەر")+(p.uid===me&&!LOCAL?" (تو)":""):"چاڤەڕێ…";if(p&&!p.bot&&!p.local&&!LOCAL)b.append(lvlChip(p.uid));
   const sp=document.createElement("span");nm.append(b,sp);d.append(pc,im,nm);
   if(!p)d.classList.add("off");

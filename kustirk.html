@@ -1036,7 +1036,7 @@ async function leaveRoom(silent){
 }
 function seatCard(p,i,g,live){
   const d=document.createElement("div");d.className="seat"+(g.size===4?" t"+(i%2):"");
-  const im=document.createElement("img");im.alt="";if(p&&p.photo)im.src=p.photo;
+  const im=document.createElement("img");im.alt="";if(p&&p.photo)im.src=p.photo;if(p&&p.uid&&!p.bot&&!p.local)im.dataset.fr=p.uid;
   const nm=document.createElement("div");nm.className="nm";const b=document.createElement("b");b.textContent=p?(p.name||"یاریکەر")+(p.uid===me?" (تو)":""):"چاڤەڕێ…";if(p&&!p.bot)b.append(lvlChip(p.uid));
   const sp=document.createElement("span");sp.textContent=g.size===4?(i%2?"تیما زەر":"تیما شین"):"";nm.append(b,sp);d.append(im,nm);
   if(live&&g.status==="playing"){const rl=document.createElement("span");rl.className="role";const tm=D.team(i,g.size);

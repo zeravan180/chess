@@ -1340,7 +1340,7 @@ async function leaveRoom(silent){
 function seatCard(p,i,g,live){
   const d=document.createElement("div");d.className="seat tw-seat";
   const pc=document.createElement("span");pc.className="tw-chip";pc.innerHTML=(()=>{const gp=live&&g.grp?g.grp[i]:0,n=gp===1?1:gp===2?9:8;if(!window.POOL)return"";return '<svg viewBox="-20 -20 40 40" aria-hidden="true"><defs>'+POOL.shineDefs("chs"+i)+'</defs>'+(gp?POOL.ball(n,0,0,17,"ch"+i)+POOL.shine(0,0,17,"chs"+i):'<circle r="17" fill="#2a3a33" stroke="#fff6" stroke-width="2"/><text y="6" text-anchor="middle" font-size="17" font-weight="900" fill="#fff" font-family="system-ui">?</text>')+'</svg>'})();
-  const im=document.createElement("img");im.alt="";seatPhoto(p,im);
+  const im=document.createElement("img");im.alt="";seatPhoto(p,im);if(p&&p.uid&&!p.bot&&!p.local)im.dataset.fr=p.uid;
   const nm=document.createElement("div");nm.className="nm";const b=document.createElement("b");b.textContent=p?(p.name||"یاریکەر")+(p.uid===me&&!LOCAL?" (تو)":""):"چاڤەڕێ…";if(p&&!p.bot&&!p.local&&!LOCAL)b.append(lvlChip(p.uid));
   const sp=document.createElement("span");nm.append(b,sp);d.append(pc,im,nm);
   if(!p)d.classList.add("off");

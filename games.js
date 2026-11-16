@@ -317,11 +317,11 @@ function applyFrame(host,k){if(!host)return;var old=host.querySelector(":scope>.
 // a round picture (img or letter) with a frame: returns a wrapper
 function framed(el,k){if(!has(k))return el;var w=document.createElement("span");w.className="agfr-wrap";w.append(el);applyFrame(w,k);return w}
 function myFrame(){try{return localStorage.getItem("ag.frame")||""}catch(e){return""}}
-function setMyFrame(k){try{if(k)localStorage.setItem("ag.frame",k);else localStorage.removeItem("ag.frame")}catch(e){}paintMine()}
+function setMyFrame(k){try{if(k)localStorage.setItem("ag.frame",k);else localStorage.removeItem("ag.frame")}catch(e){}FRC={};paintMine();if(window.AG&&AG.seatFrames)AG.seatFrames()}
 function paintMine(){var k=myFrame();[].forEach.call(document.querySelectorAll(".tb-av,.js-myframe"),function(h){applyFrame(h,k)})}
 (function(){var st=document.createElement("style");st.textContent=".agfr-host,.agfr-wrap{position:relative}.agfr-wrap{display:inline-flex;flex:none;border-radius:50%}"+
   ".agfr{position:absolute;left:50%;top:50%;width:136%;height:136%;transform:translate(-50%,-50%);pointer-events:none;z-index:2;overflow:visible}"+
-  ".tb-av.agfr-host .lvl{z-index:3}.tb-av.agfr-host{background:none!important}"+
+  ".agfr.agfr-over{z-index:1}.lav .lsec,.lav .lchip,.lav .talk{z-index:3}"+".tb-av.agfr-host .lvl{z-index:3}.tb-av.agfr-host{background:none!important}"+
   ".fpv{position:relative;width:96px;height:96px;margin:14px auto 10px;border-radius:50%;background:radial-gradient(circle at 50% 38%,#9fb3c8 0 22%,transparent 23%),radial-gradient(ellipse at 50% 100%,#9fb3c8 0 46%,transparent 47%),linear-gradient(#3b4a5c,#1f2a36)}"+
   ".fpv img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}";(document.head||document.documentElement).append(st)})();
 AG.frames=FRAMES;AG.frameSvg=frameSvg;AG.applyFrame=applyFrame;AG.framed=framed;AG.myFrame=myFrame;AG.setMyFrame=setMyFrame;
@@ -330,6 +330,28 @@ AG.addPack({type:"frame",def:"fr_none",items:FRAMES,
   desc:["چوارچۆڤەک ل دۆر وێنەیێ تە، یێ هەمی کەس دبینن. هندەک ژ وان دلڤن و دبریقن ✨","چوارچێوەیەک بە دەوری وێنەکەت کە هەموو کەس دەیبینن.","إطار حول صورتك يراه الجميع. بعضها متحرك ولامع ✨","A frame around your picture that everyone sees. Some move and sparkle ✨"],
   preview:function(k){var d=document.createElement("div");d.className="fpv";var ph="";try{ph=localStorage.getItem("ag.photo")||""}catch(e){}if(ph){var im=document.createElement("img");im.src=ph;im.alt="";d.append(im)}applyFrame(d,k);return d}});
 
-function ready(){fillSwitch();buildCarousel();buildGift();playTimer();dmBadge();fzWatchAll();paintMine()}
+/* ---- frames on the players' pictures inside the games: a page marks a player's <img> with data-fr="<uid>" ---- */
+var FRC={};
+function frameOf(uid,cb){if(!uid)return cb("");var c=FRC[uid];if(c&&Date.now()-c.t<300000)return cb(c.k);
+  try{if(window.firebase&&firebase.apps&&firebase.apps.length&&firebase.auth().currentUser&&firebase.auth().currentUser.uid===uid){var m=myFrame();FRC[uid]={t:Date.now(),k:m};return cb(m)}}catch(e){}
+  if(!(window.firebase&&firebase.apps&&firebase.apps.length))return cb("");
+  if(c&&c.wait){c.wait.push(cb);return}FRC[uid]={t:0,k:"",wait:[cb]};
+  firebase.database().ref("profiles/"+uid+"/public/frame").once("value").then(function(s){var k=s.val()||"",w=FRC[uid].wait||[];FRC[uid]={t:Date.now(),k:k};w.forEach(function(f){f(k)})},function(){var w=FRC[uid].wait||[];FRC[uid]={t:Date.now(),k:""};w.forEach(function(f){f("")})})}
+// the picture may sit in a round box (the landscape seats); otherwise the frame is laid over the picture itself
+function seatFrame(im){var uid=im.getAttribute("data-fr");frameOf(uid,function(k){if(!im.isConnected)return;var box=im.parentElement;if(!box)return;
+  if(box.classList.contains("lav")){applyFrame(box,k);return}
+  var sv=im.nextElementSibling&&im.nextElementSibling.classList&&im.nextElementSibling.classList.contains("agfr")?im.nextElementSibling:null;
+  if(!has(k)){if(sv)sv.remove();return}
+  if(!sv){im.insertAdjacentHTML("afterend",frameSvg(k));sv=im.nextElementSibling;sv.classList.add("agfr-over")}
+  placeOver(im,sv)})}
+function placeOver(im,sv){var w=im.offsetWidth;sv.style.display=w?"":"none";if(!w)return;sv.style.left=(im.offsetLeft+w/2)+"px";sv.style.top=(im.offsetTop+im.offsetHeight/2)+"px";sv.style.width=sv.style.height=(w*1.36)+"px"}
+function seatFrames(root){[].forEach.call((root||document).querySelectorAll("img[data-fr]"),function(im){if(im.getAttribute("data-fr"))seatFrame(im)})}
+function watchSeats(){var t=null;new MutationObserver(function(ms){var go=false;ms.forEach(function(m){if(m.type==="attributes"||[].some.call(m.addedNodes,function(n){return n.nodeType===1&&(n.tagName==="IMG"||n.querySelector&&n.querySelector("img[data-fr]"))}))go=true});
+    if(go){clearTimeout(t);t=setTimeout(seatFrames,60)}}).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:["data-fr"]});
+  var re=function(){[].forEach.call(document.querySelectorAll(".agfr-over"),function(sv){var im=sv.previousElementSibling;if(im&&im.tagName==="IMG")placeOver(im,sv)})};
+  addEventListener("resize",function(){setTimeout(re,120)});setInterval(re,1500);seatFrames()}
+AG.seatFrames=seatFrames;
+
+function ready(){fillSwitch();buildCarousel();buildGift();playTimer();dmBadge();fzWatchAll();paintMine();watchSeats()}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",ready);else ready();
 })();

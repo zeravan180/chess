@@ -1164,7 +1164,7 @@ async function leaveRoom(silent){
 function seatCard(p,i,g,live){
   const d=document.createElement("div");d.className="seat tw-seat";
   const pc=document.createElement("span");pc.className="tw-chip";pc.innerHTML=(()=>{const k=live?seatSkin(i):PDEF[i],P=XM()[k]||{},c=P.c||(P.g&&P.g[0])||"#e2364f";return '<svg viewBox="0 0 40 40" aria-hidden="true"><rect x="9" y="9" width="22" height="22" rx="3" fill="'+(P.fill||"rgba(0,0,0,.1)")+'" stroke="'+c+'" stroke-width="5"/></svg>'})();
-  const im=document.createElement("img");im.alt="";seatPhoto(p,im);
+  const im=document.createElement("img");im.alt="";seatPhoto(p,im);if(p&&p.uid&&!p.bot&&!p.local)im.dataset.fr=p.uid;
   const nm=document.createElement("div");nm.className="nm";const b=document.createElement("b");b.textContent=p?(p.name||"یاریکەر")+(p.uid===me&&!LOCAL?" (تو)":""):"چاڤەڕێ…";if(p&&!p.bot&&!p.local&&!LOCAL)b.append(lvlChip(p.uid));
   const sp=document.createElement("span");nm.append(b,sp);d.append(pc,im,nm);
   if(!p)d.classList.add("off");

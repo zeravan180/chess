@@ -1288,7 +1288,7 @@ async function leaveRoom(silent){
 
 function seatCard(p,i,g,live){
   const d=document.createElement("div");const q=LD.quad(g,i);d.className="seat ld-seat";d.style.setProperty("--pc",QCOL[q]);
-  const im=document.createElement("img");im.alt="";if(p&&p.photo)im.src=p.photo;
+  const im=document.createElement("img");im.alt="";if(p&&p.photo)im.src=p.photo;if(p&&p.uid&&!p.bot&&!p.local)im.dataset.fr=p.uid;
   const nm=document.createElement("div");nm.className="nm";const b=document.createElement("b");b.textContent=p?(p.name||"یاریکەر")+(p.uid===me&&!LOCAL?" (تو)":""):"چاڤەڕێ…";if(p&&!p.bot&&!p.local&&!LOCAL)b.append(lvlChip(p.uid));
   const sp=document.createElement("span");nm.append(b,sp);d.append(im,nm);
   if(!p)d.classList.add("off");

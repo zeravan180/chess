@@ -1314,7 +1314,7 @@ async function leaveRoom(silent){
 
 function seatCard(p,i,g,live){
   const d=document.createElement("div");d.className="seat sn-seat";d.style.setProperty("--pc",PCOL[i]);
-  const im=document.createElement("img");im.alt="";if(p&&p.photo)im.src=p.photo;
+  const im=document.createElement("img");im.alt="";if(p&&p.photo)im.src=p.photo;if(p&&p.uid&&!p.bot&&!p.local)im.dataset.fr=p.uid;
   const nm=document.createElement("div");nm.className="nm";const b=document.createElement("b");b.textContent=p?(p.name||"یاریکەر")+(p.uid===me&&!LOCAL?" (تو)":""):"چاڤەڕێ…";if(p&&!p.bot&&!p.local&&!LOCAL)b.append(lvlChip(p.uid));
   const sp=document.createElement("span");nm.append(b,sp);
   const dot=document.createElement("i");dot.className="pdot";d.append(dot,im,nm);
