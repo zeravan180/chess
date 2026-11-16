@@ -384,6 +384,9 @@ body.dm-list .bnav{z-index:24}
 @keyframes rays{to{transform:translate(-50%,-50%) rotate(360deg)}}
 @keyframes glow{50%{opacity:.45;transform:translate(-50%,-50%) scale(.85)}}
 .lbList li .bdgw,.who-list .bdgw,#themLbl .bdgw{margin-inline:4px}
+#meLbl,#themLbl{position:relative}
+.cav{width:30px;height:30px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-inline-end:8px;background:#c9d6d0}
+html.land .cav{display:block;width:clamp(54px,calc(var(--sideW,160px) * .5),88px);height:auto;aspect-ratio:1;margin:8px auto 12px}
 .item .bd .bdgw.rays{margin:10px 0}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:8px 16px;border-radius:8px;font-size:13px;z-index:20}
 @media (prefers-reduced-motion:no-preference){.sq.last::before{transition:background .2s}}
@@ -3207,6 +3210,14 @@ function render(){chessSnd();
   const opp=mc==="w"?G.black:mc==="b"?G.white:null;
   $("themLbl").textContent=opp?("هەڤرک: "+(opp.name||"یاریکەر")):(G.black?"":"یاریکەرێ ڕەش هێشتا نەهاتییە");
   if(opp&&!opp.bot){const bn=badgeNode(opp.badge);if(bn)$("themLbl").append(" ",bn);$("themLbl").append(lvlChip(opp.uid))}
+  // the players' pictures, with the frame each one has chosen
+  {const cav=(ph,uid,bot)=>{let e;if(ph&&!bot){e=document.createElement("img");e.src=ph;e.alt="";e.referrerPolicy="no-referrer";if(uid)e.dataset.fr=uid}
+      else{e=document.createElement("img");e.alt="";e.src="data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect width="40" height="40" fill="'+(bot?"#2a2a2a":"#2b4a7a")+'"/><text x="20" y="27" font-size="20" text-anchor="middle">'+(bot?"🤖":"🙂")+'</text></svg>');if(uid&&!bot)e.dataset.fr=uid}
+      e.className="cav";return e};
+    if(mc)$("meLbl").prepend(cav(myPhoto(),me,false));if(opp)$("themLbl").prepend(cav(opp.photo,opp.uid,!!opp.bot))}
+  // landscape: the side panel under my name starts below my (now taller) name box
+  requestAnimationFrame(()=>{const land=document.documentElement.classList.contains("land"),ml=$("meLbl");
+    document.querySelectorAll("#game>.panel:not(.lb):not(#waitBox)").forEach(pn=>{pn.style.top=land&&ml&&ml.offsetHeight?(ml.offsetTop+ml.offsetHeight+8)+"px":""})});
   $("botBar").hidden=!BOT;if(BOT){$("botLbl").textContent=BOT_LV[BOT.level];$("botAgain").hidden=!over}
   if(BOT&&G.status==="playing"&&G.turn!==mc){pill.textContent="ڕۆبۆت هزر دکەت…";pill.className="pill"}
   $("actions").hidden=!mc||G.status!=="playing";
