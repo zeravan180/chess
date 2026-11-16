@@ -441,6 +441,19 @@ html,body{touch-action:pan-y;overscroll-behavior-x:none;-webkit-text-size-adjust
 .plfine button,html.land .tw-bar .plfine button{width:44px!important;height:34px!important;min-height:0!important;padding:0!important;border-radius:10px!important;font-size:18px!important;background:linear-gradient(#2b5a48,#163a2d)!important;border:1px solid rgba(255,215,120,.5)!important;color:#fff}
 .plcue{display:flex;flex-direction:column;align-items:center;font-size:11px;color:#f3e7c9;line-height:1.2;background:rgba(0,0,0,.3)!important;border:1px solid rgba(255,215,120,.5)!important;border-radius:12px!important;padding:5px 9px!important;min-height:0!important;width:auto!important;cursor:pointer}
 #plCueNm::before{content:"🔄 ";color:#ffd76a}
+#tour{padding:10px!important}
+.thead{display:flex;align-items:center;gap:10px;justify-content:space-between}.thead b{font-size:17px}.thead span{color:#ffd76a;font-size:13px}
+.tinfo{display:flex;flex-direction:column;align-items:center;gap:6px;margin:10px 0;padding:10px;border-radius:14px;background:rgba(0,0,0,.25);text-align:center}.tinfo span{font-size:13px;opacity:.85}
+.tplay{font-size:17px;padding:12px 26px}
+.tbr{display:flex;gap:14px;overflow-x:auto;padding:4px 2px 10px;align-items:center}
+.tcol{display:flex;flex-direction:column;justify-content:space-around;gap:14px;min-width:150px;flex:1;align-self:stretch}.tcol>small{text-align:center;color:#ffd76a;font-weight:800}
+.tmt{display:flex;flex-direction:column;gap:4px;padding:6px;border-radius:12px;background:linear-gradient(#2b3a46,#1a242c);border:1px solid rgba(255,215,120,.35);box-shadow:0 3px 8px rgba(0,0,0,.4)}
+.tst{font-size:11px;color:#cfe;text-align:center}
+.tpl{position:relative;display:flex;align-items:center;gap:8px;padding:5px 7px;border-radius:9px;background:rgba(255,255,255,.06)}
+.tpl img{width:34px;height:34px;border-radius:50%;object-fit:cover;flex:none}.tpl b{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tpl.won{background:rgba(255,213,79,.18)}.tpl.lost{opacity:.45}.tpl.me b{color:#8ff5c0}
+.twon{margin-inline-start:auto;font-style:normal;font:900 10px system-ui;color:#3a2600;background:linear-gradient(#ffe57a,#d9a21a);border-radius:20px;padding:3px 6px}
+.tprize{text-align:center;font-weight:900;color:#ffd76a;font-size:17px;padding:8px;border-radius:12px;background:rgba(0,0,0,.25)}
 #plCuePop{position:absolute;inset:0;z-index:9;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:10px}
 #plCuePop[hidden]{display:none}
 .plcp{background:#16261f;border:1px solid rgba(255,215,120,.5);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:8px;color:#fff;width:min(440px,94%);max-height:88%;overflow:auto}
@@ -512,6 +525,7 @@ html.land .lseat .nm span.plrow{max-width:var(--sideW)}
       <button class="card c-purple" id="cardPriv" type="button"><span class="art" data-dart="friends"></span><span class="ct">👥 دگەل هەڤالان</span></button>
       <button class="card c-teal" id="cardBot" type="button"><span class="art"><svg viewBox="0 0 160 120" width="100%" height="100%" aria-hidden="true"><circle cx="80" cy="60" r="46" fill="rgba(255,255,255,.22)"/><g class="bob2"><line x1="80" y1="14" x2="80" y2="28" stroke="#cfe" stroke-width="4"/><circle class="blink" cx="80" cy="12" r="6" fill="#ff5a4a"/><rect x="44" y="28" width="72" height="56" rx="16" fill="#e8f4ff" stroke="#3a5a7a" stroke-width="4"/><rect x="54" y="40" width="52" height="26" rx="10" fill="#1d2b3a"/><circle class="eye" cx="68" cy="53" r="6" fill="#5ff2ff"/><circle class="eye" cx="92" cy="53" r="6" fill="#5ff2ff"/><rect x="66" y="72" width="28" height="5" rx="2.5" fill="#3a5a7a"/><rect x="36" y="46" width="8" height="20" rx="4" fill="#3a5a7a"/><rect x="116" y="46" width="8" height="20" rx="4" fill="#3a5a7a"/></g><rect x="50" y="88" width="60" height="22" rx="8" fill="#3a5a7a"/><rect x="58" y="94" width="10" height="10" rx="2" fill="#ffd23f"/><rect x="74" y="94" width="10" height="10" rx="2" fill="#5ff2ff"/><rect x="90" y="94" width="10" height="10" rx="2" fill="#ff5a4a"/></svg></span><span class="ct">🤖 دگەل کۆمپیوتەری</span></button>
     </div>
+    <button class="card c-orange wide" id="cardTour" type="button"><span class="art" data-art="cup"></span><span class="ct"><b>🏆 بتوول</b><small>٤ یان ٨ یاریکەر · قەهرەمان خەلاتا مەزن دبەت</small></span></button>
     <button class="card c-yellow wide" id="cardLocal" type="button"><span class="art" data-dart="local"></span><span class="ct"><b>📱 ل سەر ئێک مۆبایلی</b><small>٢ کەس · بەلاشە</small></span></button>
     <div class="cards small">
       <button class="card c-red" id="cardRules" type="button"><span class="art" data-dart="rules"></span><span class="ct">📖 یاسا</span></button>
@@ -554,6 +568,15 @@ html.land .lseat .nm span.plrow{max-width:var(--sideW)}
   </div>
 
   <!-- waiting room -->
+  <div id="tourSheet" class="sheet-back" hidden><div class="sheet">
+    <div class="row" style="justify-content:space-between"><strong>🏆 بتوولا بلیاردێ</strong><button id="tClose" class="ghost" type="button" aria-label="بگرە">✕</button></div>
+    <span class="muted">هەر یاریەک ١ ب ١ یە. یێ دبڕیت دەردکەڤیت، و یێ دبەت دچیتە گەڕا دی. ئەگەر یاریکەر کێم بن، پشتی ٦٠ چرکەیان ڕۆبۆت جهێ وان پڕ دکەن.</span>
+    <b>چەند یاریکەر؟</b><div class="seg" id="tSize"></div>
+    <b>بهایێ چوونێ</b><div class="seg" id="tFee"></div>
+    <div class="tprize" id="tPrize"></div>
+    <button id="tGo" class="primary" type="button">🏆 بچە بتوولێ</button>
+  </div></div>
+  <section id="tour" class="panel" hidden><div id="tourBox"></div></section>
   <section id="wait" class="panel" hidden>
     <div class="row" style="justify-content:space-between"><h2 id="waitTitle" style="margin:0"></h2><button id="leaveWait" class="ghost">دەرکەفتن</button></div>
     <div id="waitCodeBox" class="row" hidden><span class="muted">کۆدێ مێزێ:</span><span id="waitCode" class="code"></span><button id="copyCode" class="ghost">کۆپی</button><button id="shareCode" class="ghost">🔗 هنارتن</button></div>
@@ -1089,7 +1112,7 @@ let online={},seatHold=null,srvOff=0,timerTick=null,autoBusy=false;
 const TURN=30;
 let fdb,user,me,prof={},G=null,gRef=null,code=null,pick={lv:2},busy=false,mergeTick=null,abandonSince=null,abandonTick=null;
 function toast(t){const el=$("toast");el.textContent=t;el.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>el.hidden=true,2800)}
-function show(v){for(const k of["loading","login","banned","lobby","wait","game"])$(k).hidden=k!==v;
+function show(v){for(const k of["loading","login","banned","lobby","wait","game","tour"])$(k).hidden=k!==v;
   const nav=v==="lobby";$("bnav").hidden=!nav;document.body.classList.toggle("has-nav",nav);if(v!=="lobby")$("modeSheet").hidden=true;$("meChip").hidden=!user||v==="login"}
 const newCode=()=>{const a="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";let s="";for(let i=0;i<5;i++)s+=a[Math.floor(Math.random()*a.length)];return s};
 const myName=()=>prof.name||(user&&user.displayName)||"یاریکەر";
@@ -1268,6 +1291,7 @@ function openRoom(c,resume){
     holdSeat();
     if(G.status==="waiting"&&!(G.seats&&G.seats[0])&&mySeatIn(G)>=0){repack();return}
     if(G.status==="playing"&&!(G.staked&&G.staked[ms]))payStake();
+    if(G.status==="over"&&G.tour&&TR.play)tGameOver(G);
     if(G.status==="over"){claimWinnings();const r=G.result||{};awardXp("d",c,r.draw?XP_DRAW:r.winSeats&&r.winSeats[ms]?XP_WIN:XP_LOSS)}
     if(G.status==="waiting")renderWait();else{onState();watchConn();startClock();startVoice()}
   });
@@ -1299,13 +1323,14 @@ class LocalRef{
 function openLocalGame(kind){
   forget();if(!me)me="local";
   const seats={0:{uid:me,name:kind==="bot"?myName():"یاریکەرێ A",photo:kind==="bot"?myPhoto():"",dp:dpKey()}};
-  seats[1]=kind==="bot"?{uid:"bot1",name:"🤖 ڕۆبۆت · "+({1:"ئاسان",2:"ناڤنجی",3:"زەحمەت"})[pick.lv],bot:true}:{uid:"p1",name:"یاریکەرێ B",local:true};
+  seats[1]=kind==="bot"?{uid:"bot1",name:(TR.play&&TR.play.botName)||"🤖 ڕۆبۆت · "+({1:"ئاسان",2:"ناڤنجی",3:"زەحمەت"})[pick.lv],bot:true}:{uid:"p1",name:"یاریکەرێ B",local:true};
   if(kind==="bot")BOT={lv:pick.lv||2,id:"bot-"+Math.random().toString(36).slice(2,12)};else LOCAL=true;
   document.body.classList.add("botgame");code=kind==="bot"?"BOT":"LOCAL";
   const conn={0:true,1:true};
   const st={code,mode:MODE,size:2,seats,public:false,createdAt:Date.now(),...startGame(),conn,staked:null};st.turnAt=Date.now()+1500;
   gRef=new LocalRef(st);G=null;resetView();
   gRef.on("value",s=>{if(!BOT&&!LOCAL)return;G=fixG(s.val());G.conn=conn;
+    if(G.status==="over"&&BOT&&TR.play)tGameOver(G);
     if(G.status==="over"&&BOT){const r=G.result||{};botXp(r.draw?"d":r.winSeats&&r.winSeats[0]?"w":"l",BOT.lv,BOT.id)}
     onState();startClock()});
 }
@@ -1693,7 +1718,7 @@ function wrapTx(ref){const t=ref.transaction.bind(ref);
   ref.transaction=async function(fn,...a){for(let k=0;;k++){try{return await t(fn,...a)}catch(e){const c=e&&(e.code||e.message);
     if(k<6&&(c==="set"||c==="disconnect"||c==="maxretry")){await new Promise(z=>setTimeout(z,300+k*250));continue}throw e}}};
   return ref}
-async function payStake(){
+async function payStake(){if(G&&G.tour)return;
   // a stake write during a move being saved would cancel that move ("set"), so it waits a moment
   if(busy||autoBusy){clearTimeout(window._stakeLater);window._stakeLater=setTimeout(()=>{const ms=G?mySeatIn(G):-1;if(G&&G.status==="playing"&&ms>=0&&!(G.staked&&G.staked[ms]))payStake()},900);return}
   if(stakeBusy)return;stakeBusy=true;const ms=mySeatIn(G),c=code;
@@ -1702,12 +1727,129 @@ async function payStake(){
 }
 
 function winMap(){return{}}
+// ================= 🏆 tournaments: 4 or 8 players, knock-out, the winner takes the big prize =================
+// ptour/<id> = {size, fee, p1, p2, status: wait | run | over, createdAt, startedAt, sl:{slot:{uid,name,photo}|{bot,name}}, mem:{uid:true},
+//   w:{"r_m": winner slot}, rc:{"r_m": room code}, rt:{"r_m": time the pair was ready}, champ, second, paid:{uid:true}}
+// Round r, match m is played by the winners of matches 2m and 2m+1 of round r-1 (round 0: slots 2m and 2m+1).
+// Every player's phone helps move the tournament on; a match of two robots is decided by a coin toss.
+const TFEES=[200,1000],TWAIT=60000,TFORFEIT=120000,TBOTS=["🤖 ئاسۆ","🤖 بەرزان","🤖 ڕۆژان","🤖 دلێر","🤖 سۆزان","🤖 هێرش","🤖 ئاڤێستا"];
+const TR={id:null,ref:null,d:null,tick:null,pick:{size:4,fee:200},play:null,busy:false,seen:""};
+const tRounds=n=>n===8?3:2;
+const tKey=(r,m)=>r+"_"+m;
+// who plays match r_m: two slots (or -1 while still unknown)
+function tPair(d,r,m){if(r===0)return[2*m,2*m+1];const w=d.w||{},a=w[tKey(r-1,2*m)],b=w[tKey(r-1,2*m+1)];return[a==null?-1:+a,b==null?-1:+b]}
+const tSlot=(d,s)=>(d.sl||{})[s]||null;
+const tMySlot=d=>{const sl=d.sl||{};for(const k in sl)if(sl[k]&&sl[k].uid===me)return +k;return -1};
+const tName=(d,s)=>{const p=tSlot(d,s);return p?(p.name||"یاریکەر"):"…"};
+function tPrize(fee,size){return{p1:fee*size*3/4,p2:fee}}
+function tPickSheet(){if(!user){toast("ئێکەم ب هەژمارا خۆ بچە ژوور.");return}const o=$("tourSheet");
+  const seg=(id,vals,cur,lab,set)=>{const e=$(id);e.textContent="";vals.forEach(v=>{const b=document.createElement("button");b.type="button";b.textContent=lab(v);if(v===cur)b.className="on";b.onclick=()=>{set(v);tPickSheet()};e.append(b)})};
+  seg("tSize",[4,8],TR.pick.size,v=>"👥 "+v,v=>TR.pick.size=v);seg("tFee",TFEES,TR.pick.fee,v=>short(v)+" 🪙",v=>TR.pick.fee=v);
+  const pz=tPrize(TR.pick.fee,TR.pick.size);$("tPrize").textContent="🏆 "+short(pz.p1)+" 🪙 · 🥈 "+short(pz.p2)+" 🪙";o.hidden=false}
+// join the oldest open tournament of this kind, or open a new one
+async function tJoin(){const {size,fee}=TR.pick;if(!enoughCoins(fee))return;if(TR.busy)return;TR.busy=true;$("tGo").disabled=true;
+  try{const s=await fdb.ref("ptour").orderByChild("status").equalTo("wait").limitToLast(40).once("value"),all=s.val()||{},nowT=Date.now()+srvOff;
+    let id=Object.keys(all).find(k=>all[k].mem&&all[k].mem[me]);
+    if(!id){const c=Object.keys(all).filter(k=>{const t=all[k];return t.size===size&&t.fee===fee&&nowT-(t.createdAt||0)<TWAIT-3000&&Object.keys(t.sl||{}).length<size}).sort((a,b)=>all[a].createdAt-all[b].createdAt);
+      for(const k of c){let ok=false;const r=await fdb.ref("ptour/"+k).transaction(t=>{ok=false;if(!t||t.status!=="wait")return;t.sl=t.sl||{};t.mem=t.mem||{};if(t.mem[me]){ok=true;return t}
+          for(let i=0;i<t.size;i++)if(!t.sl[i]){t.sl[i]=who();t.mem[me]=true;ok=true;return t}return});
+        if(r.committed&&ok){id=k;break}}
+      if(!id){id=fdb.ref("ptour").push().key;const pz=tPrize(fee,size);
+        await fdb.ref("ptour/"+id).set({size,fee,p1:pz.p1,p2:pz.p2,status:"wait",createdAt:firebase.database.ServerValue.TIMESTAMP,sl:{0:who()},mem:{[me]:true}})}
+      await fdb.ref("coins/"+me+"/c").set(firebase.database.ServerValue.increment(-fee))}
+    $("tourSheet").hidden=true;tOpen(id)}catch(e){console.warn(e);toast("نەشیای بچییە بتوولێ. دووبارە بکە.")}
+  TR.busy=false;$("tGo").disabled=false}
+function tOpen(id){tClose(true);TR.id=id;TR.ref=fdb.ref("ptour/"+id);try{localStorage.setItem("pool.tour",id)}catch(e){}
+  TR.ref.on("value",s=>{TR.d=s.val();if(!TR.d){tClose();return}if(!$("tour").hidden)tDraw()});
+  clearInterval(TR.tick);TR.tick=setInterval(tTick,1000);showTour()}
+function tClose(quiet){clearInterval(TR.tick);TR.tick=null;if(TR.ref)TR.ref.off();TR.ref=null;TR.d=null;TR.id=null;TR.seen="";try{localStorage.removeItem("pool.tour")}catch(e){}if(!quiet)show("lobby")}
+function showTour(){show("tour");$("tour").hidden=false;tDraw()}
+// ---------- the bracket ----------
+function tCard(d,s,won,lost){const c=document.createElement("div");c.className="tpl"+(won?" won":"")+(lost?" lost":"")+(s>=0&&tSlot(d,s)&&tSlot(d,s).uid===me?" me":"");
+  const p=s>=0?tSlot(d,s):null,im=document.createElement("img");im.alt="";
+  if(p&&p.photo)im.src=p.photo;else im.src="data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect width="40" height="40" fill="'+(p&&p.bot?"#2a2a2a":"#1f3b5a")+'"/><text x="20" y="27" font-size="20" text-anchor="middle">'+(!p?"❔":p.bot?"🤖":"🙂")+'</text></svg>');
+  if(p&&p.uid&&!p.bot)im.dataset.fr=p.uid;
+  const n=document.createElement("b");n.textContent=p?(p.name||"یاریکەر")+(p.uid===me?" (تو)":""):"…";c.append(im,n);
+  if(won){const w=document.createElement("i");w.className="twon";w.textContent="WON";c.append(w)}return c}
+function tDraw(){const d=TR.d,box=$("tourBox");if(!d||!box)return;const R=tRounds(d.size),ms=tMySlot(d),nowT=Date.now()+srvOff;
+  box.textContent="";
+  const hd=document.createElement("div");hd.className="thead";
+  hd.innerHTML='<button class="ghost" type="button" id="tBack">↩</button><b></b><span></span>';hd.querySelector("b").textContent="🏆 بتوولا "+d.size+" یاریکەران";
+  hd.querySelector("span").textContent="🎟 "+short(d.fee)+" · 🏆 "+short(d.p1)+" 🪙";box.append(hd);
+  $("tBack").onclick=()=>{if(d.status==="run"&&ms>=0&&!tOut(d,ms)&&!confirm("ئەگەر دەرکەڤی، یاریا تە دێ ب بڕینێ بیت. پشتڕاستی؟"))return;tClose()};
+  const info=document.createElement("div");info.className="tinfo";box.append(info);
+  if(d.status==="wait"){const n=Object.keys(d.sl||{}).length,left=Math.max(0,Math.ceil(((d.createdAt||0)+TWAIT-nowT)/1000));
+    info.innerHTML='<b></b><span></span>';info.querySelector("b").textContent="⏳ چاڤەڕێی یاریکەران… "+n+" / "+d.size;
+    info.querySelector("span").textContent="د "+left+" چرکەیان دا دەست پێ دکەت · ڕۆبۆت جهێ ڤالا پڕ دکەن"}
+  else if(d.status==="over"){const me1=d.champ===me,me2=d.second===me;info.innerHTML='<b></b><span></span>';
+    info.querySelector("b").textContent=me1?"🏆 تو قەهرەمانی! +"+short(d.p1)+" 🪙":me2?"🥈 تو یێ دووێ بووی! +"+short(d.p2)+" 🪙":"🏆 قەهرەمان: "+tName(d,tChampSlot(d));
+    info.querySelector("span").textContent=me1||me2?"خەلات هاتە دان بۆ تە":"سوپاس بۆ بەشداربوونێ";if(me1||me2)tClaim()}
+  else{const mm=tMyMatch(d);info.innerHTML='<b></b><span></span>';
+    if(ms<0)info.querySelector("b").textContent="👀 تو تەماشەڤانی";
+    else if(tOut(d,ms))info.querySelector("b").textContent="❌ تو دەرکەفتی · دشێی سەح بکەی";
+    else if(mm){const[a,b]=tPair(d,mm.r,mm.m),op=a===ms?b:a,ready=op>=0;info.querySelector("b").textContent=ready?"⚔ نۆرا تەیە دگەل "+tName(d,op):"⏳ چاڤەڕێی هەڤرکێ خۆ بە…";
+      if(ready){const bt=document.createElement("button");bt.className="primary tplay";bt.type="button";bt.textContent="▶ یاریا خۆ بکە";bt.onclick=()=>tPlay(mm.r,mm.m);info.append(bt)}}}
+  // the columns: one per round
+  const br=document.createElement("div");br.className="tbr";
+  for(let r=0;r<R;r++){const col=document.createElement("div");col.className="tcol";const h=document.createElement("small");h.textContent=r===R-1?"🏆 دووماهیک":"گەڕا "+(r+1);col.append(h);
+    const nm=d.size>>(r+1);for(let m=0;m<nm;m++){const k=tKey(r,m),[a,b]=tPair(d,r,m),w=(d.w||{})[k],mt=document.createElement("div");mt.className="tmt";
+      const st=document.createElement("span");st.className="tst";st.textContent=w!=null?(tName(d,+w)+" بر"):a>=0&&b>=0?(d.rc&&d.rc[k]?"🎱 یاری بەردەوامە":"⚔ ئامادە"):"⏳ چاڤەڕێ";
+      mt.append(st,tCard(d,a,w!=null&&+w===a,w!=null&&+w!==a&&a>=0),tCard(d,b,w!=null&&+w===b,w!=null&&+w!==b&&b>=0));col.append(mt)}
+    br.append(col)}
+  box.append(br);if(window.AG&&AG.seatFrames)AG.seatFrames(box)}
+const tChampSlot=d=>{const k=tKey(tRounds(d.size)-1,0),w=(d.w||{})[k];return w==null?-1:+w};
+// is slot s out of the tournament?
+function tOut(d,s){const R=tRounds(d.size),w=d.w||{};for(let r=0;r<R;r++)for(let m=0;m<d.size>>(r+1);m++){const[a,b]=tPair(d,r,m),k=w[tKey(r,m)];if((a===s||b===s)&&k!=null&&+k!==s)return true}return false}
+// my next unfinished match
+function tMyMatch(d){const s=tMySlot(d),R=tRounds(d.size),w=d.w||{};if(s<0)return null;
+  for(let r=0;r<R;r++)for(let m=0;m<d.size>>(r+1);m++){const[a,b]=tPair(d,r,m);if((a===s||b===s)&&w[tKey(r,m)]==null)return{r,m}}return null}
+// ---------- playing my match ----------
+async function tPlay(r,m){const d=TR.d;if(!d)return;const k=tKey(r,m),[a,b]=tPair(d,r,m),ms=tMySlot(d),op=a===ms?b:a,o=tSlot(d,op);if(!o)return;
+  TR.play={id:TR.id,r,m,me:ms,op};
+  if(o.bot){const lv=pick.lv;pick.lv=3;TR.play.botName=o.name;openLocalGame("bot");pick.lv=lv;show("game");return}
+  // two people: the lower slot opens the table, the other one joins it
+  let c=(d.rc||{})[k];
+  if(!c&&ms<op){const nc=newCode();
+    await fdb.ref("dgames/"+nc).set({code:nc,game:MODE,size:2,mode:MODE,public:false,tour:TR.id,status:"waiting",seats:{0:whoS()},host:me,createdAt:now(),updatedAt:now()});
+    const t=await TR.ref.child("rc/"+k).transaction(v=>v||nc);c=t.snapshot.val()}
+  if(!c){toast("⏳ چاڤەڕێی هەڤرکی بە دا مێزێ ڤەکەت…");return}
+  try{const g=(await fdb.ref("dgames/"+c).once("value")).val();if(g&&mySeatIn(g)<0&&g.status==="waiting")await joinRoom(c);openRoom(c)}catch(e){toast("نەشیای بچییە مێزێ.")}}
+// a game of the tournament ended: the winner (or the phone of the person who lost) writes it
+function tGameOver(g){const P=TR.play;if(!P||!TR.ref)return;const r=g.result||{};let iWon;
+  if(BOT)iWon=!!(r.winSeats&&r.winSeats[0]);else{const s=mySeatIn(g);iWon=!!(r.winSeats&&r.winSeats[s])}
+  const win=iWon?P.me:P.op;TR.ref.child("w/"+tKey(P.r,P.m)).transaction(v=>v==null?win:v);TR.play=null;
+  setTimeout(()=>{forget();showTour()},3500)}
+// ---------- moving the tournament on (any player's phone) ----------
+function tTick(){const d=TR.d;if(!d||!TR.ref)return;const nowT=Date.now()+srvOff;if(!$("tour").hidden&&d.status==="wait")tDraw();
+  if(d.status==="wait"){const n=Object.keys(d.sl||{}).length;if(n>=d.size||nowT>(d.createdAt||0)+TWAIT)TR.ref.transaction(t=>{if(!t||t.status!=="wait")return;t.sl=t.sl||{};let b=0;
+      for(let i=0;i<t.size;i++)if(!t.sl[i])t.sl[i]={bot:true,name:TBOTS[(b++ +i)%TBOTS.length]};t.status="run";t.startedAt=Date.now()+srvOff;return t});return}
+  if(d.status!=="run")return;const R=tRounds(d.size),w=d.w||{},rt=d.rt||{};
+  for(let r=0;r<R;r++)for(let m=0;m<d.size>>(r+1);m++){const k=tKey(r,m);if(w[k]!=null)continue;const[a,b]=tPair(d,r,m);if(a<0||b<0)continue;
+    if(rt[k]==null){TR.ref.child("rt/"+k).transaction(v=>v==null?nowT:v);continue}
+    const A=tSlot(d,a),B=tSlot(d,b),since=nowT-rt[k];
+    // two robots: a short wait, then a coin toss
+    if(A&&B&&A.bot&&B.bot){if(since>6000+((r*7+m*3)%5)*1000)TR.ref.child("w/"+k).transaction(v=>v==null?(Math.random()<.5?a:b):v);continue}
+    // nobody came to play this match: the one who is here wins, or a coin toss if both are gone
+    if(since>TFORFEIT+(d.rc&&d.rc[k]?240000:0)){const ms=tMySlot(d);const mine=ms===a||ms===b;
+      if(mine&&TR.play==null&&!(G&&G.status==="playing"))TR.ref.child("w/"+k).transaction(v=>v==null?ms:v);
+      else if(since>TFORFEIT*2+(d.rc&&d.rc[k]?240000:0))TR.ref.child("w/"+k).transaction(v=>v==null?(A&&!A.bot?a:b):v)}}
+  const ck=tKey(R-1,0);if(w[ck]!=null){const c=+w[ck],[a,b]=tPair(d,R-1,0),sec=c===a?b:a,cu=(tSlot(d,c)||{}).uid||null,su=(tSlot(d,sec)||{}).uid||null;
+    TR.ref.transaction(t=>{if(!t||t.status!=="run")return;t.status="over";t.champ=cu;t.second=su;t.endedAt=Date.now()+srvOff;return t})}
+  // tell me when my match is ready
+  const mm=tMyMatch(d);if(mm){const[a,b]=tPair(d,mm.r,mm.m),k=tKey(mm.r,mm.m);if(a>=0&&b>=0&&TR.seen!==k&&TR.play==null){TR.seen=k;sfx("win");toast("⚔ یاریا تە ئامادەیە!");if($("tour").hidden&&!G)showTour()}
+    // the other player has opened our table: go in by myself
+    const rc=(d.rc||{})[k];if(a>=0&&b>=0&&rc&&TR.auto!==rc&&TR.play==null&&!G&&!$("tour").hidden){TR.auto=rc;tPlay(mm.r,mm.m)}}}
+// the prize: the server rules check that I am the champion (or second) and not yet paid
+let tClaimed="";
+async function tClaim(){const d=TR.d;if(!d||d.status!=="over"||tClaimed===TR.id||(d.paid&&d.paid[me]))return;const amt=d.champ===me?d.p1:d.second===me?d.p2:0;if(!amt)return;tClaimed=TR.id;
+  try{await fdb.ref().update({["coins/"+me+"/c"]:firebase.database.ServerValue.increment(amt),["coins/"+me+"/tclaim"]:TR.id,["ptour/"+TR.id+"/paid/"+me]:true});sfx("win");toast("🏆 +"+short(amt)+" 🪙")}catch(e){tClaimed="";console.warn("tclaim",e)}}
+
 // each winner claims their own share; the server rules check the game result before allowing it
 let claimBusy=false;
 async function claimWinnings(){
   // a write to the table while my move is still being saved cancels that move ("set") - so the claim waits until the move is saved
   if((typeof busy!=="undefined"&&busy)||(typeof autoBusy!=="undefined"&&autoBusy)){clearTimeout(window._claimLater);window._claimLater=setTimeout(()=>{if(G&&G.status==="over")claimWinnings()},900);return}
-  const g=G,ms=mySeatIn(g),r=g.result||{};if(claimBusy||ms<0||!(g.staked&&g.staked[ms])||(g.paid&&g.paid[ms]))return;
+  const g=G,ms=mySeatIn(g),r=g.result||{};if(g.tour)return;if(claimBusy||ms<0||!(g.staked&&g.staked[ms])||(g.paid&&g.paid[ms]))return;
   const amt=r.draw?stakeOf(g):(r.winSeats&&r.winSeats[ms]?stakeOf(g)*2:0);if(!amt)return;
   claimBusy=true;
   try{await fdb.ref().update({["coins/"+me+"/c"]:firebase.database.ServerValue.increment(amt),["coins/"+me+"/claim"]:code,["coins/"+me+"/claimSeat"]:String(ms),["dgames/"+code+"/paid/"+ms]:true})}catch(e){}
@@ -1751,7 +1893,11 @@ function sfx(k,v){if(!SND.on())return;try{actx=actx||new(window.AudioContext||wi
 // ---------- wiring ----------
 buildBoard();segs();
 $("cardOnline").onclick=()=>openModeSheet("online");$("cardPriv").onclick=()=>openModeSheet("priv");
-$("cardBot").onclick=$("guestBot").onclick=()=>openModeSheet("bot");$("cardLocal").onclick=()=>openModeSheet("local");
+$("cardBot").onclick=$("guestBot").onclick=()=>openModeSheet("bot");
+$("cardTour").onclick=async()=>{let id=null;try{id=localStorage.getItem("pool.tour")}catch(e){}
+  if(id&&fdb){try{const t=(await fdb.ref("ptour/"+id).once("value")).val();if(t&&t.mem&&t.mem[me]&&(t.status!=="over"||!(t.paid&&t.paid[me])&&(t.champ===me||t.second===me))){tOpen(id);return}}catch(e){}}
+  tPickSheet()};
+$("tClose").onclick=()=>$("tourSheet").hidden=true;$("tGo").onclick=tJoin;$("cardLocal").onclick=()=>openModeSheet("local");
 $("cardRules").onclick=()=>{$("rulesSheet").hidden=false};if(location.hash==="#rules")setTimeout(()=>{$("rulesSheet").hidden=false},400);$("rsClose").onclick=()=>{$("rulesSheet").hidden=true};$("rulesSheet").onclick=e=>{if(e.target.id==="rulesSheet")$("rulesSheet").hidden=true};
 $("joinBtn").addEventListener("click",e=>{if(!user||!fdb){e.stopImmediatePropagation();toast("بۆ ڤێ چەندێ ئینتەرنێت و چوونا ژوور پێدڤییە.")}},true);
 $("msClose").onclick=closeModeSheet;$("modeSheet").onclick=e=>{if(e.target.id==="modeSheet")closeModeSheet()};
