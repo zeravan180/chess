@@ -36,7 +36,7 @@ var GAMES=[
    icon:"<svg viewBox=\"0 0 40 40\" aria-hidden=\"true\"><path d=\"M8 9h24a3 3 0 013 3v13a3 3 0 01-3 3H19l-7 6v-6H8a3 3 0 01-3-3V12a3 3 0 013-3z\" fill=\"currentColor\"/><text x=\"20\" y=\"24\" text-anchor=\"middle\" font-size=\"15\" font-weight=\"900\" font-family=\"system-ui\" fill=\"#7c3aed\">?</text></svg>"},
   {id:"spy", page:"spy.html", name:["کێ سیخۆڕە؟", "کێ سیخوڕە؟", "من الجاسوس؟", "Who is the spy?"],
    icon:"<svg viewBox=\"0 0 40 40\" aria-hidden=\"true\"><path d=\"M6 17h28l-3-2-3-9-8 2-8-2-3 9z\" fill=\"currentColor\"/><circle cx=\"14\" cy=\"26\" r=\"5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\"/><circle cx=\"26\" cy=\"26\" r=\"5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\"/><path d=\"M19 26h2\" stroke=\"currentColor\" stroke-width=\"2.6\"/></svg>"},
-  {id:"fruit", page:"fruit.html", name:["میوێن کوردستانێ", "میوەکانی کوردستان", "فواكه كردستان", "Kurdistan Fruits"],
+  {id:"fruit", page:"fruit.html", skins:"fruitskins.js", name:["میوێن کوردستانێ", "میوەکانی کوردستان", "فواكه كردستان", "Kurdistan Fruits"],
    icon:"<svg viewBox=\"0 0 40 40\" aria-hidden=\"true\"><circle cx=\"14\" cy=\"24\" r=\"9\" fill=\"#ef3b2c\"/><circle cx=\"27\" cy=\"22\" r=\"6\" fill=\"#9b3fd6\"/><circle cx=\"31\" cy=\"30\" r=\"6\" fill=\"#9b3fd6\"/><circle cx=\"23\" cy=\"31\" r=\"6\" fill=\"#9b3fd6\"/><path d=\"M14 15c0-4 2-7 5-8\" stroke=\"currentColor\" stroke-width=\"2.4\" fill=\"none\"/><path d=\"M17 10c4-3 8-2 9 0-4 2-7 2-9 0z\" fill=\"#46b04a\"/></svg>"},
 ];
 var LI={kmr:0,ckb:1,ar:2,en:3};

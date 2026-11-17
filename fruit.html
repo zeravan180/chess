@@ -45,6 +45,30 @@ button{font:inherit;cursor:pointer;border:0;color:inherit}
 .tabs button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 7px;font-size:12px;font-weight:800;background:none;opacity:.75}
 .tabs button i{font-style:normal;font-size:26px}.tabs button.on{opacity:1;background:rgba(255,255,255,.12)}
 /* ranking */
+#duel{flex:1;overflow-y:auto;padding:16px;background:linear-gradient(#1f6e4a,#0f3d2e);display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center}
+#duel .card{width:100%;max-width:420px;background:var(--cream);color:var(--ink);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:12px;align-items:center;box-shadow:0 4px 0 #c9a46a}
+#duel input{width:100%;padding:12px;border-radius:14px;border:2px solid #d8b16a;font-size:22px;text-align:center;letter-spacing:5px;font-weight:900;font-family:ui-monospace,monospace;text-transform:uppercase}
+.dcode{font-size:40px;font-weight:900;letter-spacing:6px;font-family:ui-monospace,monospace;color:#b8321f}
+.vs{display:flex;align-items:center;justify-content:center;gap:16px}.vs .p{display:flex;flex-direction:column;align-items:center;gap:4px;font-weight:900;max-width:120px}.vs .p img{width:64px;height:64px;border-radius:50%;object-fit:cover;background:#245}.vs .p span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:110px}.vs b{font-size:30px;color:#b8321f}
+.duelhud{display:flex;justify-content:space-around;align-items:center;gap:8px;font-weight:900;font-size:14px}.duelhud div{display:flex;align-items:center;gap:6px;background:#fffaf0;border:2px solid #d8b16a;border-radius:14px;padding:3px 10px}.duelhud img{width:26px;height:26px;border-radius:50%;object-fit:cover}.duelhud .lead{border-color:#4caf50;background:#d7f7d0}
+#shop{flex:1;overflow-y:auto;padding:14px;background:linear-gradient(#1f6e4a,#0f3d2e)}
+.sh-h{margin:14px 4px 8px;font-size:17px;font-weight:900;color:var(--gold);display:flex;align-items:center;gap:8px}
+.sh-g{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.it{position:relative;background:linear-gradient(#fffaf0,#f3e1b8);color:var(--ink);border-radius:18px;padding:12px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;box-shadow:0 4px 0 #c9a46a,0 6px 14px rgba(0,0,0,.25);border:2px solid #fff6}
+.it.wide{grid-column:1/-1;flex-direction:row;text-align:start;gap:12px;background:linear-gradient(135deg,#fff3c4,#ffd36b 60%,#f2a81d);border-color:#fff}
+.it .ic{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;font-size:34px;background:radial-gradient(circle at 35% 30%,#fff,#bfe9ff 45%,#4a9fd4);border:3px solid #fff;box-shadow:0 3px 0 #2d6f99,inset 0 -6px 10px rgba(0,0,0,.15);flex:none}
+.it .ic.gold{background:radial-gradient(circle at 35% 30%,#fff,#ffe07a 45%,#d48a00);box-shadow:0 3px 0 #8a5a00,inset 0 -6px 10px rgba(0,0,0,.15)}
+.it .ic.pink{background:radial-gradient(circle at 35% 30%,#fff,#ffb3c8 45%,#e0457b);box-shadow:0 3px 0 #8a1a45,inset 0 -6px 10px rgba(0,0,0,.15)}
+.it b{font-size:14px}.it small{font-size:12px;opacity:.8;line-height:1.5}.it .tx{flex:1;display:flex;flex-direction:column;gap:3px}
+.it .have{position:absolute;top:6px;inset-inline-start:8px;background:#2e7d32;color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;font-weight:900}
+.it .rib{position:absolute;top:-8px;inset-inline-end:10px;background:#e63957;color:#fff;border-radius:10px;padding:2px 9px;font-size:11px;font-weight:900;box-shadow:0 2px 0 #8a0f2b}
+.buy{background:linear-gradient(#5fd17a,#21964a);color:#fff;font-weight:900;font-size:15px;padding:8px 16px;border-radius:20px;box-shadow:0 3px 0 #116b31;white-space:nowrap}
+.buy.ag{background:linear-gradient(#ffd75e,#e09a12);color:#3a2300;box-shadow:0 3px 0 #8a5a00}.buy.used{background:#cfc6ae;color:#5a4a2a;box-shadow:none}
+.lk{display:flex;gap:3px;justify-content:center;flex-wrap:wrap;width:100%;min-height:52px;align-items:center;border-radius:12px;padding:4px;background:linear-gradient(#2c8a5c,#145a3c);background-size:cover;background-position:center}
+.lk svg{width:30px;height:30px}
+.pre{display:flex;gap:10px;justify-content:center}.pre button{position:relative;width:62px;height:62px;border-radius:50%;font-size:28px;background:radial-gradient(circle at 35% 30%,#fff,#bfe9ff 50%,#5aa9d8);border:3px solid #fff;box-shadow:0 3px 0 #2d6f99}
+.pre button.on{outline:4px solid #4caf50;background:radial-gradient(circle at 35% 30%,#fff,#c8f7c5 50%,#4caf50)}.pre button small{position:absolute;bottom:-6px;inset-inline-end:-6px;background:#e63957;color:#fff;border-radius:10px;padding:0 6px;font-size:11px;font-weight:900}
+.pre button:disabled{filter:grayscale(1) opacity(.5)}
 #rank{flex:1;overflow-y:auto;padding:14px;background:linear-gradient(#1f6e4a,#0f3d2e)}
 .rk{display:flex;align-items:center;gap:12px;background:var(--cream);color:var(--ink);border-radius:16px;padding:10px 12px;margin-bottom:9px;box-shadow:0 3px 0 #c9a46a}
 .rk.mine{outline:3px solid var(--gold)}
@@ -119,6 +143,7 @@ html[dir=rtl] .sbar>em{transform:translate(50%,-50%)}
 </head>
 <body>
 <script src="games.js"></script>
+<script src="fruitskins.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
@@ -133,10 +158,14 @@ html[dir=rtl] .sbar>em{transform:translate(50%,-50%)}
   </div>
   <div id="map"><div id="mapIn"></div></div>
   <div id="rank" hidden></div>
+  <div id="duel" hidden></div>
+  <div id="shop" hidden></div>
   <div class="tabs">
     <a href="./" class="" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 7px;font-size:12px;font-weight:800;color:#fff;text-decoration:none;opacity:.75"><i style="font-style:normal;font-size:26px">🏠</i><span data-t="home"></span></a>
     <button type="button" id="tMap" class="on"><i>🗺️</i><span data-t="map"></span></button>
+    <button type="button" id="tDuel"><i>⚔️</i><span data-t="duel"></span></button>
     <button type="button" id="tRank"><i>🏆</i><span data-t="friends"></span></button>
+    <button type="button" id="tShop"><i>🛒</i><span data-t="shop"></span></button>
   </div>
   <nav class="gswitch" aria-label="یاری"></nav>
 </div>
@@ -156,6 +185,7 @@ html[dir=rtl] .sbar>em{transform:translate(50%,-50%)}
     <button class="gear" id="pGear" type="button" aria-label="⚙">⚙</button>
     <button class="boost" id="bHam" type="button" title="🔨">🔨<small>1</small></button>
     <button class="boost" id="bShuf" type="button" title="🔀">🔀<small>1</small></button>
+    <button class="boost" id="bHand" type="button" title="🖐">🖐<small>0</small></button>
   </div>
 </div>
 <div id="ovl" class="ov" hidden></div>
@@ -184,7 +214,30 @@ const S={
   ["Swap two fruits side by side so 3 or more of the same kind line up.","4 in a row → striped fruit: clears the whole line.","L or T shape → shiny fruit: blasts the fruits around it.","5 in a row → rainbow star: removes every fruit of one kind.","Reach the level goal with fewer moves to earn more stars ⭐⭐⭐"]],
  sound:["دەنگ","دەنگ","الصوت","Sound"],noFriends:["هێشتا هەڤال نینن. ژ ڕووپەلێ سەرەکی هەڤالان زێدە بکە، و ئەو دێ ل ڤێرێ و ل سەر نەخشێ دیار بن.","هێشتا هاوڕێت نییە. لە پەڕەی سەرەکی هاوڕێ زیاد بکە.","لا يوجد أصدقاء بعد. أضف أصدقاء من الصفحة الرئيسية ليظهروا هنا وعلى الخريطة.","No friends yet. Add friends on the main page and they will show here and on the map."],
  login:["بۆ دیتنا هەڤالان و پاشەکەفتنا ئاستێ خۆ، ل ڕووپەلێ سەرەکی ب هەژمارا خۆ بچە ژوور.","بۆ بینینی هاوڕێکان، لە پەڕەی سەرەکی بچۆ ژوورەوە.","سجّل الدخول من الصفحة الرئيسية لترى أصدقاءك وتحفظ تقدّمك.","Sign in on the main page to see friends and save your progress."],
- you:["تو","تۆ","أنت","You"],player:["یاریکەر","یاریزان","لاعب","Player"],stars:["ستێر","ئەستێرە","نجوم","stars"],noCoins:["کۆینێن تە بەس ناکەن","کۆینەکانت بەس نییە","عملاتك غير كافية","Not enough coins"],
+ you:["تو","تۆ","أنت","You"],shop:["دکان","دووکان","المتجر","Shop"],
+ gift:["🎁 خەلاتا ڕۆژانە","🎁 خەڵاتی ڕۆژانە","🎁 هدية يومية","🎁 Daily gift"],giftD:["هەر ڕۆژ تشتەکێ بەلاش!","هەموو ڕۆژێک شتێکی بەخۆڕایی!","شيء مجاني كل يوم!","Something free every day!"],
+ take:["وەرگرە","وەرگرە","خذ","Take"],tomorrow:["سوبە دووبارە وەرە","سبەی وەرەوە","عد غداً","Come back tomorrow"],
+ starter:["🎁 پاکێجا دەستپێکێ","🎁 پاکێجی دەستپێک","🎁 حزمة البداية","🎁 Starter pack"],starterD:["٥🔨 ٥🔀 ٣⭐ و ٢ دەمژمێرێن ♾️ دلان · تنێ ئێک جار!","٥🔨 ٥🔀 ٣⭐ و ٢ کاتژمێر ♾️ دڵ · تەنها یەک جار!","٥🔨 ٥🔀 ٣⭐ وساعتان ♾️ قلوب · مرة واحدة!","5🔨 5🔀 3⭐ and 2 hours of ♾️ hearts · once only!"],
+ secHearts:["❤️ دل","❤️ دڵ","❤️ القلوب","❤️ Hearts"],secBoost:["🧰 ئامراز","🧰 ئامراز","🧰 المعززات","🧰 Boosters"],secLooks:["🎨 شێواز","🎨 شێواز","🎨 الأشكال","🎨 Looks"],
+ inf1:["♾️ دل بۆ ١ دەمژمێرێ","♾️ دڵ بۆ ١ کاتژمێر","♾️ قلوب لساعة","♾️ Hearts for 1 hour"],inf24:["♾️ دل بۆ ٢٤ دەمژمێران","♾️ دڵ بۆ ٢٤ کاتژمێر","♾️ قلوب ليوم كامل","♾️ Hearts for 24 hours"],
+ bHam:["🔨 چەکوچ ×٣","🔨 چەکوش ×٣","🔨 مطرقة ×٣","🔨 Hammer ×3"],bHamD:["ئێک میوێ دشکێنیت","یەک میوە دەشکێنێت","تكسر فاكهة","Breaks one fruit"],
+ bShuf:["🔀 تێکەلکرن ×٣","🔀 تێکەڵکردن ×٣","🔀 خلط ×٣","🔀 Shuffle ×3"],bShufD:["تەختێ تێکەل دکەت","تەختەکە تێکەڵ دەکات","تخلط اللوحة","Mixes the board"],
+ bStar:["⭐ ستێرا ڕەنگین","⭐ ئەستێرەی ڕەنگاوڕەنگ","⭐ نجمة ملوّنة","⭐ Rainbow star"],bStarD:["ئاست ب ستێرەکێ دەست پێ دکەت","ئاست بە ئەستێرەیەک دەست پێدەکات","تبدأ المستوى بنجمة","Start a level with a star"],
+ bSw:["🍭 خەتدار + گەش","🍭 هێڵدار + گەش","🍭 مخططة + لامعة","🍭 Striped + shiny"],bSwD:["دوو میوێن تایبەت ل دەستپێکێ","دوو میوەی تایبەت لە سەرەتا","فاكهتان خاصتان في البداية","Two special fruits at the start"],
+ bHand:["🖐 دەستێ جادوویی ×٢","🖐 دەستی جادوویی ×٢","🖐 اليد السحرية ×٢","🖐 Magic hand ×2"],bHandD:["دوو میوان دگوهۆڕیت بێ مەرج","دوو میوە دەگۆڕێت بێ مەرج","تبدّل فاكهتين بلا شرط","Swaps two fruits freely"],
+ owned:["هەیە","هەیە","لديك","Owned"],use:["بکاربینە","بەکاری بهێنە","استخدم","Use"],inUse:["✔ ب کار دئێت","✔ بەکاردێت","✔ مستخدم","✔ In use"],
+ buyIt:["کڕین","کڕین","شراء","Buy"],free:["بەلاش","بەخۆڕایی","مجاني","Free"],pre:["ئامرازێن دەستپێکێ","ئامرازی سەرەتا","معززات البداية","Start boosters"],
+ handOn:["🖐 دوو میوێن ل نک ئێک بگوهۆڕە","🖐 دوو میوەی تەنیشت یەک بگۆڕە","🖐 بدّل أي فاكهتين متجاورتين","🖐 Swap any two neighbours"],gotIt:["🎉 هاتە زێدەکرن!","🎉 زیاد کرا!","🎉 تمت الإضافة!","🎉 Added!"],duel:["١ ب ١","١ بە ١","١ ضد ١","1 vs 1"],
+ duelT:["⚔️ دگەل هەڤالەکی ئۆنلاین","⚔️ لەگەڵ هاوڕێیەک ئۆنلاین","⚔️ مع صديق أونلاين","⚔️ With a friend online"],
+ duelD:["هەردوو هەمان تەختێ وەردگرن و ٢٠ لڤین. یێ پتر خالان کۆم بکەت دبەت! بەلاشە، و دل ناچن.","هەردووکتان هەمان تەختە و ٢٠ جوڵە وەردەگرن. ئەوەی خاڵی زیاتر کۆبکاتەوە دەیباتەوە!","تحصلان على نفس اللوحة و٢٠ حركة. من يجمع نقاطاً أكثر يفوز! مجاناً ولا تنقص القلوب.","You both get the same board and 20 moves. The higher score wins! Free, no hearts used."],
+ mkRoom:["➕ ژوورەکێ چێکە","➕ ژوورێک دروست بکە","➕ أنشئ غرفة","➕ Create a room"],joinR:["چوونا ژوورێ","چوونە ژوورەوە","دخول","Join"],
+ shareR:["📤 کۆدی بۆ هەڤالێ خۆ بهنێرە","📤 کۆدەکە بنێرە بۆ هاوڕێکەت","📤 أرسل الرمز لصديقك","📤 Send the code to your friend"],
+ waitF:["⏳ چاڤەڕێی هەڤالێ خۆ بە…","⏳ چاوەڕێی هاوڕێکەت بە…","⏳ بانتظار صديقك…","⏳ Waiting for your friend…"],
+ startD:["▶ دەست پێ بکە","▶ دەست پێبکە","▶ ابدأ","▶ Start"],ready:["ئامادە بە!","ئامادە بە!","استعد!","Get ready!"],
+ waitEnd:["⏳ چاڤەڕێی هەڤالێ خۆ بە دا ب دووماهی بینیت…","⏳ چاوەڕێی هاوڕێکەت بە…","⏳ بانتظار انتهاء صديقك…","⏳ Waiting for your friend to finish…"],
+ dWin:["🏆 تە بر!","🏆 بردتەوە!","🏆 فزت!","🏆 You won!"],dLose:["😢 هەڤالێ تە بر","😢 هاوڕێکەت بردییەوە","😢 فاز صديقك","😢 Your friend won"],dDraw:["🤝 بەرابەر","🤝 یەکسان","🤝 تعادل","🤝 Draw"],
+ again:["🔄 دووبارە","🔄 دووبارە","🔄 مرة أخرى","🔄 Again"],leave:["🚪 دەرکەفتن","🚪 دەرچوون","🚪 خروج","🚪 Leave"],noRoom:["ئەڤ ژوورە نینە","ئەم ژوورە نییە","الغرفة غير موجودة","No such room"],
+ full:["ژوور تژی یە","ژوورەکە پڕە","الغرفة ممتلئة","The room is full"],copied:["کۆد هاتە کۆپیکرن","کۆدەکە کۆپی کرا","تم نسخ الرمز","Code copied"],player:["یاریکەر","یاریزان","لاعب","Player"],stars:["ستێر","ئەستێرە","نجوم","stars"],noCoins:["کۆینێن تە بەس ناکەن","کۆینەکانت بەس نییە","عملاتك غير كافية","Not enough coins"],
  hammer:["🔨 چەکوچ: ل سەر میوەیەکێ بدە دا بشکێنیت","🔨 چەکوش: میوەیەک دیاری بکە","🔨 المطرقة: اضغط على فاكهة لكسرها","🔨 Hammer: tap a fruit to break it"],
  shuffled:["🔀 میوە هاتنە تێکەلکرن","🔀 میوەکان تێکەڵ کران","🔀 تم خلط الفواكه","🔀 Shuffled"],
  p1:["باشە!","باشە!","جيد!","Good!"],p2:["زۆر باشە!","زۆر باشە!","رائع!","Great!"],p3:["نایابە!","نایابە!","مذهل!","Amazing!"],p4:["کوردستان! 🌞","کوردستان! 🌞","كردستان! 🌞","Kurdistan! 🌞"]
@@ -197,6 +250,8 @@ const jget=(k,d)=>{try{const v=JSON.parse(ls(k));return v==null?d:v}catch(e){ret
 let toastT;function toast(x){let e=$("toast");if(!e){e=document.createElement("div");e.id="toast";document.body.append(e)}e.textContent=x;e.classList.add("on");clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove("on"),2400)}
 
 // ---------- the fruits (drawn here, nothing downloaded) ----------
+// the looks I use (bought in the shop): fruit set, board picture, map season
+let SKIN=Object.assign({f:"fs_classic",bg:"fb_green",map:"fm_spring"},jget("fr.skin",{}));
 const FR=[
  {k:"apple",n:["سێڤ","سێو","تفاح","Apple"],svg:'<defs><radialGradient id="g0" cx=".35" cy=".3" r=".75"><stop offset="0" stop-color="#ffb3a8"/><stop offset=".35" stop-color="#ef3b2c"/><stop offset="1" stop-color="#8f0f0a"/></radialGradient></defs><path d="M50 30c-6-8-24-10-32 4-8 15-2 38 10 48 7 6 14 6 22 2 8 4 15 4 22-2 12-10 18-33 10-48-8-14-26-12-32-4z" fill="url(#g0)"/><path d="M50 30c0-8 2-14 7-19" stroke="#6b3a12" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M55 22c8-9 20-8 24-4-6 7-16 9-24 4z" fill="#46b04a"/><ellipse cx="33" cy="44" rx="7" ry="11" fill="#fff" opacity=".45" transform="rotate(25 33 44)"/>'},
  {k:"grape",n:["ترێ","ترێ","عنب","Grapes"],svg:'<defs><radialGradient id="g1" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#e6b8ff"/><stop offset=".45" stop-color="#9b3fd6"/><stop offset="1" stop-color="#4a0f7a"/></radialGradient></defs><path d="M50 18c0-6 4-10 9-12" stroke="#6b3a12" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M52 16c9-6 20-2 22 4-9 4-17 3-22-4z" fill="#46b04a"/><g fill="url(#g1)"><circle cx="36" cy="32" r="12"/><circle cx="60" cy="32" r="12"/><circle cx="48" cy="48" r="12"/><circle cx="26" cy="50" r="11"/><circle cx="70" cy="50" r="11"/><circle cx="38" cy="65" r="11"/><circle cx="60" cy="65" r="11"/><circle cx="49" cy="81" r="10"/></g><g fill="#fff" opacity=".5"><circle cx="32" cy="28" r="3"/><circle cx="56" cy="28" r="3"/><circle cx="44" cy="44" r="3"/><circle cx="34" cy="61" r="2.6"/><circle cx="56" cy="61" r="2.6"/></g>'},
@@ -206,7 +261,7 @@ const FR=[
  {k:"lemon",n:["لیمۆ","لیمۆ","ليمون","Lemon"],svg:'<defs><radialGradient id="g5" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fffbd0"/><stop offset=".45" stop-color="#ffe03a"/><stop offset="1" stop-color="#c49a00"/></radialGradient></defs><path d="M12 54c4-20 20-32 38-32s34 12 38 32c-4 20-20 30-38 30S16 74 12 54z" fill="url(#g5)"/><circle cx="11" cy="54" r="5" fill="#d9b300"/><circle cx="89" cy="54" r="5" fill="#d9b300"/><ellipse cx="38" cy="42" rx="12" ry="6" fill="#fff" opacity=".5" transform="rotate(-15 38 42)"/>'}
 ];
 const STAR='<defs><radialGradient id="gS" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff"/><stop offset=".5" stop-color="#ffd54f"/><stop offset="1" stop-color="#e65100"/></radialGradient></defs><circle cx="50" cy="50" r="40" fill="#2a1a40"/><g><path d="M50 12l9 26h27l-22 16 9 27-23-17-23 17 9-27-22-16h27z" fill="url(#gS)" stroke="#fff" stroke-width="2"/><animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="6s" repeatCount="indefinite"/></g><g><circle cx="20" cy="30" r="4" fill="#ff5252"/><circle cx="80" cy="30" r="4" fill="#40c4ff"/><circle cx="18" cy="70" r="4" fill="#69f0ae"/><circle cx="82" cy="70" r="4" fill="#e040fb"/><circle cx="50" cy="88" r="4" fill="#ffd740"/></g>';
-const fsvg=(tp,sp)=>{let inner=tp<0?STAR:FR[tp].svg;
+const fsvg=(tp,sp)=>{let inner=tp<0?STAR:(window.M3SK?M3SK.fruit(SKIN.f,tp):FR[tp].svg);
   if(sp==="h")inner+='<g opacity=".85"><rect x="14" y="40" width="72" height="5" rx="2.5" fill="#fff"/><rect x="14" y="52" width="72" height="5" rx="2.5" fill="#fff"/><rect x="14" y="64" width="72" height="5" rx="2.5" fill="#fff"/></g>';
   if(sp==="v")inner+='<g opacity=".85"><rect x="38" y="22" width="5" height="64" rx="2.5" fill="#fff"/><rect x="50" y="22" width="5" height="64" rx="2.5" fill="#fff"/><rect x="62" y="22" width="5" height="64" rx="2.5" fill="#fff"/></g>';
   if(sp==="w")inner='<circle cx="50" cy="52" r="46" fill="none" stroke="#fff" stroke-width="5" stroke-dasharray="9 6" opacity=".9"><animateTransform attributeName="transform" type="rotate" from="0 50 52" to="360 50 52" dur="3s" repeatCount="indefinite"/></circle>'+inner+'<circle cx="50" cy="52" r="40" fill="rgba(255,255,255,.18)"/>';
@@ -239,10 +294,15 @@ function level(n){const r=rng(n*7919+13),types=n<=3?4:n<=25?5:6,moves=Math.max(1
 // ---------- hearts ----------
 const HMAX=5,HREG=30*60e3;
 function hearts(){let h=jget("fr.h",{n:HMAX,t:0});if(h.n<HMAX){const now=Date.now(),k=Math.floor((now-h.t)/HREG);if(k>0){h.n=Math.min(HMAX,h.n+k);h.t=h.n>=HMAX?0:h.t+k*HREG;ls("fr.h",JSON.stringify(h))}}return h}
-function useHeart(){const h=hearts();if(h.n<=0)return false;if(h.n===HMAX)h.t=Date.now();h.n--;ls("fr.h",JSON.stringify(h));paintBar();return true}
+function useHeart(){if(infOn())return true;const h=hearts();if(h.n<=0)return false;if(h.n===HMAX)h.t=Date.now();h.n--;ls("fr.h",JSON.stringify(h));paintBar();return true}
 function giveHearts(){ls("fr.h",JSON.stringify({n:HMAX,t:0}));paintBar()}
 const mmss=ms=>{const s=Math.max(0,Math.ceil(ms/1000)),m=Math.floor(s/60);return num(m)+":"+num(String(s%60).padStart(2,"0"))};
 
+// ---------- my things: boosters, unlimited hearts, the daily gift, the starter pack ----------
+let inv=Object.assign({ham:0,shuf:0,star:0,sw:0,hand:0,inf:0,starter:false,daily:""},jget("fr.inv",{}));
+const saveInv=()=>{ls("fr.inv",JSON.stringify(inv));if(fdb&&me)fdb.ref("m3/"+me+"/inv").set(inv).catch(()=>{});paintBar()};
+const infOn=()=>Date.now()<(inv.inf||0);
+const addInf=ms=>{inv.inf=Math.max(Date.now(),inv.inf||0)+ms};
 // ---------- my progress (on this phone, and in the database when signed in) ----------
 let prog=jget("fr.prog",{lv:1,st:{}});
 const saveProg=()=>{ls("fr.prog",JSON.stringify(prog));if(fdb&&me)fdb.ref("m3/"+me).update({lv:prog.lv,st:prog.st,ts:firebase.database.ServerValue.TIMESTAMP}).catch(()=>{})};
@@ -251,11 +311,16 @@ const totalStars=p=>Object.values((p&&p.st)||{}).reduce((a,b)=>a+(+b||0),0);
 // ---------- firebase: my name and picture, coins, friends and their levels ----------
 const firebaseConfig={apiKey:"AIzaSyAy7OuYhyVPF2ek7EUY3Uh8e4NfEO08jZs",authDomain:"chess-zeravan.firebaseapp.com",
   databaseURL:"https://chess-zeravan-default-rtdb.europe-west1.firebasedatabase.app",projectId:"chess-zeravan",appId:"1:269435267387:web:b9a20392e4d3d0f6826f1e"};
-let fdb=null,user=null,me=null,prof={},coins=0,friends={},fprog={},fprof={};
+let fdb=null,user=null,me=null,prof={},coins=0,owned={},friends={},fprog={},fprof={};
 function fbBoot(){if(typeof firebase==="undefined")return;try{firebase.initializeApp(firebaseConfig);fdb=firebase.database();
   firebase.auth().onAuthStateChanged(u=>{user=u;me=u?u.uid:null;if(!u){paintBar();return}
     fdb.ref("profiles/"+me+"/public").on("value",s=>{prof=s.val()||{};paintBar()},()=>{});
     fdb.ref("coins/"+me+"/c").on("value",s=>{coins=Number(s.val())||0;paintBar()},()=>{});
+    fdb.ref("m3/"+me+"/inv").once("value").then(s=>{const v=s.val();if(v){["ham","shuf","star","sw","hand"].forEach(k=>{inv[k]=Math.max(inv[k]||0,+v[k]||0)});inv.inf=Math.max(inv.inf||0,+v.inf||0);inv.starter=!!(inv.starter||v.starter);if((v.daily||"")>(inv.daily||""))inv.daily=v.daily}saveInv()}).catch(()=>{});
+    // the looks I bought and chose in the shop
+    Promise.all(["m3fruit","m3bg","m3map"].map(k=>fdb.ref("profiles/"+me+"/private/"+k).once("value").then(x=>x.val()).catch(()=>null))).then(([f,b,m])=>{
+      SKIN={f:f||"fs_classic",bg:b||"fb_green",map:m||"fm_spring"};ls("fr.skin",JSON.stringify(SKIN));drawMap.done=0;drawMap();drawShop()});
+    fdb.ref("owned/"+me).on("value",s=>{owned=s.val()||{};drawShop()},()=>{});
     // the saved progress: keep whichever is further
     fdb.ref("m3/"+me).once("value").then(s=>{const v=s.val();if(v&&(v.lv>prog.lv||totalStars(v)>totalStars(prog))){prog={lv:Math.max(v.lv||1,prog.lv),st:Object.assign({},v.st||{},prog.st)};ls("fr.prog",JSON.stringify(prog))}saveProg();drawMap()}).catch(()=>{});
     fdb.ref("friends/"+me).on("value",s=>{friends=s.val()||{};Object.keys(friends).forEach(f=>{
@@ -267,7 +332,7 @@ const myPhoto=()=>prof.photo||(user&&user.photoURL)||"";
 const face=(ph,name)=>ph||("data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect width="40" height="40" fill="#2b6a8a"/><text x="20" y="27" font-size="18" font-weight="700" fill="#fff" text-anchor="middle" font-family="sans-serif">'+String(name||"?").trim().charAt(0).toUpperCase().replace(/[<&>]/g,"")+'</text></svg>'));
 
 // ---------- the top bar ----------
-function paintBar(){const h=hearts();$("hN").textContent=num(h.n);$("hT").textContent=h.n<HMAX?mmss(h.t+HREG-Date.now()):"";$("cN").textContent=num(coins);
+function paintBar(){const h=hearts();if(infOn()){$("hN").textContent="♾️";$("hT").textContent=mmss(inv.inf-Date.now())}else{$("hN").textContent=num(h.n);$("hT").textContent=h.n<HMAX?mmss(h.t+HREG-Date.now()):""}$("cN").textContent=num(coins);
   const im=$("meImg"),src=face(myPhoto(),myName());if(im.src!==src)im.src=src;
   const fk=window.AG&&AG.myFrame?AG.myFrame():"";if($("meAv").dataset.fk!==fk){$("meAv").dataset.fk=fk;if(window.AG&&AG.applyFrame)AG.applyFrame($("meAv"),fk)}}
 setInterval(()=>{if(!$("home").hidden)paintBar()},1000);
@@ -277,8 +342,9 @@ const NODE_H=110;
 function nodePos(i,W){const y=(NL-i)*NODE_H+90,x=W/2+Math.sin(i*0.9)*W*0.28;return[x,y]}
 function drawMap(){const box=$("mapIn"),W=$("map").clientWidth||360,H=NL*NODE_H+180;box.style.height=H+"px";box.textContent="";
   let d="";for(let i=1;i<=NL;i++){const[x,y]=nodePos(i,W);d+=(i===1?"M":"L")+x.toFixed(1)+" "+y}
-  box.insertAdjacentHTML("beforeend",'<svg class="path" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none"><path d="'+d+'" fill="none" stroke="#e9cf94" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/><path d="'+d+'" fill="none" stroke="#fff3cf" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/><path d="'+d+'" fill="none" stroke="#e6a23c" stroke-width="4" stroke-dasharray="2 14" stroke-linecap="round"/></svg>');
-  const DECO=["🌳","🌲","🏡","⛰️","🌻","🍎","🍇","🌾","🐑","🕌","🏔️","🌸"];
+  const MP=(window.M3SK&&M3SK.maps[SKIN.map])||{bg:"",deco:["🌳","🌲","🏡","⛰️","🌻","🍎","🍇","🌾","🐑","🕌","🏔️","🌸"],road:["#e9cf94","#fff3cf","#e6a23c"]};box.style.background=MP.bg||"";
+  box.insertAdjacentHTML("beforeend",'<svg class="path" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none"><path d="'+d+'" fill="none" stroke="'+MP.road[0]+'" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/><path d="'+d+'" fill="none" stroke="'+MP.road[1]+'" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/><path d="'+d+'" fill="none" stroke="'+MP.road[2]+'" stroke-width="4" stroke-dasharray="2 14" stroke-linecap="round"/></svg>');
+  const DECO=MP.deco;
   for(let i=1;i<=NL;i+=1){const[x,y]=nodePos(i,W),dd=document.createElement("span");dd.className="deco";dd.textContent=DECO[(i*7)%DECO.length];const side=x<W/2?1:-1;dd.style.left=(x+side*W*0.3-17)+"px";dd.style.top=(y-20)+"px";box.append(dd)}
   for(let i=1;i<=NL;i++){const[x,y]=nodePos(i,W),b=document.createElement("button");b.type="button";b.className="node"+(i>prog.lv?" lock":i===prog.lv?" cur":"");b.style.left=x+"px";b.style.top=y+"px";
     b.textContent=i>prog.lv?"🔒":num(i);const st=prog.st[i]||0;if(i<prog.lv||st){const s=document.createElement("span");s.className="st";s.textContent="⭐".repeat(st)+"☆".repeat(3-st);b.append(s)}
@@ -299,8 +365,8 @@ function drawRank(){const box=$("rank");if(box.hidden)return;box.textContent="";
     d.children[0].textContent=["🥇","🥈","🥉"][i]||num(i+1);const im=d.querySelector("img");im.src=face(r.photo,r.name);im.dataset.fr=r.uid;
     d.querySelector("b").textContent=r.name+(r.uid===me?" ("+t("you")+")":"");d.querySelector("em").innerHTML=t("level")+" "+num(r.lv)+"<small>⭐ "+num(r.st)+"</small>";box.append(d)});
   if(rows.length===1){const p=document.createElement("p");p.className="hint2";p.textContent=t("noFriends");box.append(p)}}
-$("tMap").onclick=()=>{$("tMap").classList.add("on");$("tRank").classList.remove("on");$("map").hidden=false;$("rank").hidden=true};
-$("tRank").onclick=()=>{$("tRank").classList.add("on");$("tMap").classList.remove("on");$("map").hidden=true;$("rank").hidden=false;drawRank()};
+function tab(k){["map","rank","duel","shop"].forEach(x=>{$(x).hidden=x!==k;$("t"+x[0].toUpperCase()+x.slice(1)).classList.toggle("on",x===k)});if(k==="rank")drawRank();if(k==="duel")drawDuel();if(k==="shop")drawShop()}
+$("tMap").onclick=()=>tab("map");$("tRank").onclick=()=>tab("rank");$("tDuel").onclick=()=>tab("duel");$("tShop").onclick=()=>tab("shop");
 
 // ---------- windows ----------
 function ov(html){const o=$("ovl");o.innerHTML='<div class="win">'+html+'</div>';o.hidden=false;return o.firstChild}
@@ -310,7 +376,10 @@ function goalText(g){return g.t==="c"?t("collect")+" "+num(g.n)+" "+fname(g.f):g
 function openLevel(n){sfx.tap();const lv=level(n),st=prog.st[n]||0;
   const w=ov('<button class="x" type="button">✕</button><h2>'+t("level")+' '+num(n)+'</h2><div class="stars3">'+[1,2,3].map(i=>'<span class="'+(i<=st?"on":"")+'">⭐</span>').join("")+'</div><b>'+t("goal")+'</b><div class="wg"></div><small>👣 '+num(lv.moves)+' '+t("moves")+'</small><button class="btn" type="button" id="go">'+t("play")+'</button>');
   const wg=w.querySelector(".wg");lv.goals.forEach(g=>{const d=document.createElement("div");d.className="goal";d.innerHTML=goalIcon(g)+'<span></span>';d.querySelector("span").textContent=goalText(g);wg.append(d)});
-  w.querySelector(".x").onclick=closeOv;w.querySelector("#go").onclick=()=>{if(!useHeart()){noHearts();return}closeOv();startLevel(n)}}
+  const pre={star:false,sw:false};if(inv.star||inv.sw){const pr=document.createElement("div");pr.className="pre";const lab=document.createElement("small");lab.textContent=t("pre");
+    [["star","⭐"],["sw","🍭"]].forEach(([k,ic])=>{const b=document.createElement("button");b.type="button";b.innerHTML=ic+'<small></small>';b.querySelector("small").textContent=num(inv[k]||0);b.disabled=!inv[k];b.onclick=()=>{pre[k]=!pre[k];b.classList.toggle("on",pre[k]);sfx.tap()};pr.append(b)});
+    w.querySelector("#go").before(lab,pr)}
+  w.querySelector(".x").onclick=closeOv;w.querySelector("#go").onclick=()=>{if(!useHeart()){noHearts();return}if(pre.star){inv.star--}if(pre.sw){inv.sw--}if(pre.star||pre.sw)saveInv();closeOv();startLevel(n,pre)}}
 function noHearts(){const h=hearts();const w=ov('<button class="x" type="button">✕</button><h2>'+t("noHearts")+'</h2><div style="font-size:64px">💔</div><p>'+t("nextHeart")+mmss(h.t+HREG-Date.now())+'</p><button class="btn" type="button" id="buy">'+t("refill")+'</button>');
   w.querySelector(".x").onclick=closeOv;w.querySelector("#buy").onclick=()=>spend(200,()=>{giveHearts();closeOv();toast("❤️ ×5")})}
 async function spend(n,ok){if(!fdb||!me){toast(t("login"));return}if(coins<n){toast(t("noCoins")+" ("+num(n)+" 🪙)");return}
@@ -320,7 +389,7 @@ function settings(inGame){const w=ov('<button class="x" type="button">✕</butto
   w.querySelector("#sS").onclick=()=>{ls("ag.sfx",ls("ag.sfx")==="0"?"1":"0");paint();sfx.tap()};w.querySelector("#sV").onclick=()=>{ls("ag.vib",ls("ag.vib")==="0"?"1":"0");paint();vib(40)};
   w.querySelector("#sH").onclick=()=>{const h=ov('<button class="x" type="button">✕</button><h2>'+t("help")+'</h2><ul class="help"></ul>');const ul=h.querySelector("ul");S.helpL[LI()].forEach(x=>{const li=document.createElement("li");li.textContent=x;ul.append(li)});h.querySelector(".x").onclick=closeOv};
   const sl=w.querySelector("#sL");LANGS.forEach(k=>{const b=document.createElement("button");b.type="button";b.textContent=LBL[k];if(k===L)b.className="on";b.onclick=()=>{L=k;ls("lang",k);txt();closeOv();settings(inGame)};sl.append(b)});
-  w.querySelector(".x").onclick=closeOv;const q=w.querySelector("#sQ");if(q)q.onclick=()=>{closeOv();endLevel(false,true)}}
+  w.querySelector(".x").onclick=closeOv;const q=w.querySelector("#sQ");if(q)q.onclick=()=>{closeOv();if(G&&G.duel){duelDone(true);return}endLevel(false,true)}}
 $("hGear").onclick=()=>settings(false);$("pGear").onclick=()=>settings(true);
 function txt(){document.documentElement.dir=L==="en"?"ltr":"rtl";document.documentElement.lang=L==="en"?"en":L==="ar"?"ar":"ku";document.querySelectorAll("[data-t]").forEach(e=>e.textContent=t(e.dataset.t));document.title=t("title")+" · AG Classic Games";drawMap.done=0;drawMap();drawRank()}
 
@@ -328,7 +397,7 @@ function txt(){document.documentElement.dir=L==="en"?"ltr":"rtl";document.docume
 let G=null;     // the level being played
 let CS=40,busy=false,sel=null,idSeq=1,hintT=null,boostMode=null;
 const inB=(x,y)=>x>=0&&y>=0&&x<N&&y<N;
-function newFruit(types,r){return{t:Math.floor((r||Math.random)()*types),sp:null,id:idSeq++,el:null}}
+function newFruit(types,r){return{t:Math.floor((r||(G&&G.rnd)||Math.random)()*types),sp:null,id:idSeq++,el:null}}
 // a starting board with no lines already made
 function fillStart(){const g=[];for(let y=0;y<N;y++){g.push([]);for(let x=0;x<N;x++){let f;do{f=newFruit(G.lv.types)}while((x>=2&&g[y][x-1].t===f.t&&g[y][x-2].t===f.t)||(y>=2&&g[y-1][x].t===f.t&&g[y-2][x].t===f.t));g[y].push(f)}}return g}
 function layout(){const wrap=$("boardWrap"),s=Math.floor(Math.min(wrap.clientWidth-20,wrap.clientHeight-20)/N);CS=Math.max(30,Math.min(70,s));
@@ -345,17 +414,21 @@ function drawCells(){const b=$("board");[...b.querySelectorAll(".cell")].forEach
 // the ice under a fruit cracks: one layer less, with a little crack and sound
 function crackIce(x,y){const c=cellEl[y]&&cellEl[y][x];if(c)c.className=iceCls(x,y);fx("crack",4+x*CS,4+y*CS,CS,CS);tone(1800,900,.12,"triangle",.07)}
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
-function startLevel(n){const lv=level(n);G={lv,n,moves:lv.moves,score:0,got:{},iceLeft:0,boost:{ham:1,shuf:1},over:false,combo:0};
+function startLevel(n,pre){const lv=level(n);G={lv,n,moves:lv.moves,score:0,got:{},iceLeft:0,boost:{ham:1,shuf:1,hand:0},over:false,combo:0};paintPlayBg();
   G.ice=[...Array(N)].map(()=>Array(N).fill(0));lv.ice.forEach(([x,y,k])=>{G.ice[y][x]=k});G.iceLeft=lv.ice.reduce((a,v)=>a+v[2],0);
   $("home").hidden=true;$("play").hidden=false;$("board").textContent="";$("lvN").textContent=num(n);
   G.g=fillStart();while(!anyMove())G.g=fillStart();
+  // boosters chosen before the level: a rainbow star, or a striped and a shiny fruit, already on the board
+  if(pre&&pre.star){const x=Math.floor(Math.random()*N),y=2+Math.floor(Math.random()*4);G.g[y][x].t=-1;G.g[y][x].sp="b"}
+  if(pre&&pre.sw){const a=G.g[1+Math.floor(Math.random()*3)][Math.floor(Math.random()*N)],b=G.g[4+Math.floor(Math.random()*3)][Math.floor(Math.random()*N)];if(a.t>=0)a.sp="h";if(b.t>=0)b.sp="w"}
   requestAnimationFrame(()=>{drawCells();G.g.forEach((row,y)=>row.forEach((f,x)=>mkEl(f,x,y,y-N-1)));hud();idleHint()})}
-function hud(){$("mv").textContent=num(G.moves);$("sc").textContent=num(G.score);const lv=G.lv,p=Math.min(1,G.score/lv.s3);$("sfill").style.width=(p*100)+"%";
+function paintPlayBg(){const u=window.M3SK?M3SK.bgUrl(SKIN.bg):"";$("play").style.backgroundImage=u?u:"";$("play").style.backgroundSize=u?"cover":"";$("play").style.backgroundPosition="center"}
+function hud(){$("mv").textContent=num(G.moves);$("bHam").hidden=$("bShuf").hidden=$("bHand").hidden=!!G.duel;if(G.duel){$("sc").textContent=num(G.score);duelHud();return}$("sc").textContent=num(G.score);const lv=G.lv,p=Math.min(1,G.score/lv.s3);$("sfill").style.width=(p*100)+"%";
   const ems=$("sbar").querySelectorAll("em");[lv.s1,lv.s2,lv.s3].forEach((s,i)=>{ems[i].style.left=ems[i].style.right="";ems[i].style[L==="en"?"left":"right"]=(s/lv.s3*94)+"%";ems[i].classList.toggle("on",G.score>=s)});
   const gb=$("goals");gb.textContent="";lv.goals.forEach(g=>{const d=document.createElement("div"),left=goalLeft(g);d.className="goal"+(left<=0?" done":"");d.innerHTML=goalIcon(g)+'<span></span>';d.querySelector("span").textContent=left>0?num(left):"";gb.append(d)});
-  $("bHam").querySelector("small").textContent=num(G.boost.ham);$("bShuf").querySelector("small").textContent=num(G.boost.shuf)}
+  $("bHam").querySelector("small").textContent=num(G.boost.ham+inv.ham);$("bShuf").querySelector("small").textContent=num(G.boost.shuf+inv.shuf);$("bHand").querySelector("small").textContent=num(inv.hand)}
 function goalLeft(g){if(g.t==="c")return Math.max(0,g.n-(G.got[g.f]||0));if(g.t==="i")return G.iceLeft;return Math.max(0,g.n-G.score)}
-const goalsDone=()=>G.lv.goals.every(g=>goalLeft(g)<=0);
+const goalsDone=()=>G.lv.goals.length>0&&G.lv.goals.every(g=>goalLeft(g)<=0);
 
 // ---------- finding lines ----------
 function findRuns(){const runs=[];for(let y=0;y<N;y++){let x=0;while(x<N){const f=G.g[y][x];if(!f||f.t<0){x++;continue}let e=x+1;while(e<N&&G.g[y][e]&&G.g[y][e].t===f.t)e++;if(e-x>=3){const c=[];for(let i=x;i<e;i++)c.push([i,y]);runs.push({d:"h",c,t:f.t})}x=e}}
@@ -405,12 +478,13 @@ async function fall(){for(let x=0;x<N;x++){let w=N-1;for(let y=N-1;y>=0;y--){con
 function praise(x){const e=document.createElement("div");e.className="praise";e.textContent=x;$("boardWrap").append(e);setTimeout(()=>e.remove(),1150)}
 
 // ---------- the player's move ----------
-async function trySwap(a,b){if(busy||G.over)return;busy=true;clearHint();const A=G.g[a[1]][a[0]],B=G.g[b[1]][b[0]];if(!A||!B){busy=false;return}
+async function trySwap(a,b){if(busy||G.over)return;busy=true;clearHint();const hand=boostMode==="hand";const A=G.g[a[1]][a[0]],B=G.g[b[1]][b[0]];if(!A||!B){busy=false;return}
   sfx.swap();swapCells(a,b);place(A,b[0],b[1]);place(B,a[0],a[1]);await wait(200);
   let ok=false;
   // special swaps: the rainbow star, or two specials together
   if(A.t<0||B.t<0||(A.sp&&B.sp)){ok=true;G.moves--;hud();await combo(A,B,b,a);await wait(200);await fall();await wait(240);await settle(null)}
   else if(hasLineAt()){ok=true;G.moves--;hud();await settle([a,b])}
+  else if(hand){ok=true;boostMode=null;$("bHand").classList.remove("on");inv.hand--;saveInv();hud()}
   if(!ok){sfx.bad();swapCells(a,b);place(A,a[0],a[1]);place(B,b[0],b[1]);await wait(200);busy=false;idleHint();return}
   await afterMove();busy=false}
 async function combo(A,B,pa,pb){const set=new Map(),add=(x,y)=>{if(inB(x,y)&&G.g[y][x])set.set(x+","+y,1)};
@@ -423,6 +497,7 @@ async function combo(A,B,pa,pb){const set=new Map(),add=(x,y)=>{if(inB(x,y)&&G.g
     else{for(let i=0;i<N;i++){add(i,y);add(x,i)}fx("beam",4,4+y*CS+CS*.3,CS*N,CS*.4);fx("beam",4+x*CS+CS*.3,4,CS*.4,CS*N);sfx.zap()}}
   const pts=await clearCells(set,null);G.score+=pts;hud()}
 async function afterMove(){hud();
+  if(G.duel){duelScore();if(G.moves<=0){duelDone();return}if(!anyMove()){toast(t("shuffled"));await shuffle()}idleHint();return}
   if(goalsDone()){await finale();return}
   if(G.moves<=0){outOfMoves();return}
   if(!anyMove()){toast(t("shuffled"));await shuffle()}idleHint()}
@@ -447,7 +522,7 @@ function endLevel(won,quit){clearHint();const n=G.n,lv=G.lv,score=G.score;G.over
     const nx=w.querySelector("#nx");if(nx)nx.onclick=()=>{closeOv();goHome();openLevel(n+1)};w.querySelector("#mp").onclick=()=>{closeOv();goHome()}}
   else{if(quit){goHome();return}const w=ov('<h2>'+t("lost")+'</h2><div style="font-size:60px">💔</div><button class="btn" type="button" id="rt">'+t("retry")+'</button><button class="btn blue" type="button" id="mp">'+t("map2")+'</button>');
     w.querySelector("#rt").onclick=()=>{closeOv();if(!useHeart()){goHome();noHearts();return}startLevel(n)};w.querySelector("#mp").onclick=()=>{closeOv();goHome()}}}
-function goHome(){G=null;$("play").hidden=true;$("home").hidden=false;$("board").textContent="";drawMap.done=0;drawMap();paintBar();drawRank()}
+function goHome(){if(G&&G.duel){$("sbar").hidden=false}G=null;$("play").hidden=true;$("home").hidden=false;$("board").textContent="";drawMap.done=0;drawMap();paintBar();drawRank()}
 
 // ---------- touch: drag a fruit onto its neighbour, or tap one and then the other ----------
 let down=null;
@@ -465,11 +540,110 @@ function unsel(){if(sel&&G){const f=G.g[sel[1]][sel[0]];if(f&&f.el)f.el.classLis
 function clearHint(){clearTimeout(hintT);document.querySelectorAll(".fr.hint").forEach(e=>e.classList.remove("hint"))}
 function idleHint(){clearHint();hintT=setTimeout(()=>{if(!G||busy||G.over)return;const m=anyMove();if(m)m.forEach(([x,y])=>{const f=G.g[y][x];if(f&&f.el)f.el.classList.add("hint")})},6000)}
 // boosters: one hammer and one shuffle in every level
-$("bHam").onclick=()=>{if(!G||busy||G.over||!G.boost.ham)return;boostMode=boostMode==="ham"?null:"ham";$("bHam").classList.toggle("on",!!boostMode);if(boostMode)toast(t("hammer"))};
-async function useHammer(c){boostMode=null;$("bHam").classList.remove("on");G.boost.ham--;busy=true;sfx.boom();fx("burst",4+c[0]*CS,4+c[1]*CS,CS,CS);
+$("bHam").onclick=()=>{if(!G||busy||G.over||!(G.boost.ham||inv.ham))return;boostMode=boostMode==="ham"?null:"ham";$("bHam").classList.toggle("on",!!boostMode);$("bHand").classList.remove("on");if(boostMode)toast(t("hammer"))};
+async function useHammer(c){boostMode=null;$("bHam").classList.remove("on");if(G.boost.ham)G.boost.ham--;else{inv.ham--;saveInv()}busy=true;sfx.boom();fx("burst",4+c[0]*CS,4+c[1]*CS,CS,CS);
   G.score+=await clearCells(new Map([[c[0]+","+c[1],1]]),null);hud();await wait(200);await fall();await wait(240);await settle(null);await afterMove();busy=false}
-$("bShuf").onclick=async()=>{if(!G||busy||G.over||!G.boost.shuf)return;G.boost.shuf--;busy=true;await shuffle();await settle(null);hud();busy=false;idleHint()};
+$("bShuf").onclick=async()=>{if(!G||busy||G.over||!(G.boost.shuf||inv.shuf))return;if(G.boost.shuf)G.boost.shuf--;else{inv.shuf--;saveInv()}busy=true;await shuffle();await settle(null);hud();busy=false;idleHint()};
+$("bHand").onclick=()=>{if(!G||busy||G.over||!inv.hand)return;boostMode=boostMode==="hand"?null:"hand";$("bHand").classList.toggle("on",boostMode==="hand");$("bHam").classList.remove("on");if(boostMode)toast(t("handOn"))};
 addEventListener("resize",()=>{if(G)layout();else{drawMap.done=0;drawMap()}});
+
+// ================= 🛒 the shop =================
+// things for coins (boosters, hearts) are kept in my inventory; looks are bought with AG in the main shop
+const SHOP=[
+ {k:"inf1",ic:"♾️",cls:"pink",n:"inf1",p:500,give:()=>addInf(3600e3)},
+ {k:"inf24",ic:"♾️",cls:"pink",n:"inf24",p:3000,rib:"🔥",give:()=>addInf(24*3600e3)},
+ {k:"hearts",ic:"❤️",cls:"pink",n:"refill",p:200,give:()=>giveHearts(),label:1},
+ {k:"ham",ic:"🔨",n:"bHam",d:"bHamD",p:150,give:()=>{inv.ham+=3}},
+ {k:"shuf",ic:"🔀",n:"bShuf",d:"bShufD",p:100,give:()=>{inv.shuf+=3}},
+ {k:"star",ic:"⭐",cls:"gold",n:"bStar",d:"bStarD",p:250,give:()=>{inv.star+=1}},
+ {k:"sw",ic:"🍭",cls:"gold",n:"bSw",d:"bSwD",p:200,give:()=>{inv.sw+=1}},
+ {k:"hand",ic:"🖐",n:"bHand",d:"bHandD",p:200,give:()=>{inv.hand+=2}}];
+const today=()=>new Date().toISOString().slice(0,10);
+function shopItem(o){const d=document.createElement("div");d.className="it";const have=o.k in inv&&typeof inv[o.k]==="number"&&o.k!=="inf"?inv[o.k]:0;
+  d.innerHTML='<div class="ic '+(o.cls||"")+'"></div><b></b>'+(o.d?'<small></small>':"")+'<button class="buy" type="button"></button>';
+  d.querySelector(".ic").textContent=o.ic;d.querySelector("b").textContent=o.label?"❤️ ×"+num(5):t(o.n);if(o.d)d.querySelector("small").textContent=t(o.d);
+  if(have>0){const h=document.createElement("span");h.className="have";h.textContent="×"+num(have);d.append(h)}
+  if(o.rib){const r=document.createElement("span");r.className="rib";r.textContent=o.rib;d.append(r)}
+  const b=d.querySelector(".buy");b.textContent=num(o.p)+" 🪙";b.onclick=()=>spend(o.p,()=>{o.give();saveInv();sfx.win();toast(t("gotIt"));drawShop()});return d}
+function drawShop(){const box=$("shop");if(!box||box.hidden)return;box.textContent="";
+  const head=(k)=>{const h=document.createElement("div");h.className="sh-h";h.textContent=t(k);box.append(h)};
+  const grid=()=>{const g=document.createElement("div");g.className="sh-g";box.append(g);return g};
+  let g=grid();
+  // the daily gift
+  {const d=document.createElement("div");d.className="it wide";const done=inv.daily===today();d.innerHTML='<div class="ic gold">🎁</div><div class="tx"><b></b><small></small></div><button class="buy" type="button"></button>';
+    d.querySelector("b").textContent=t("gift");d.querySelector("small").textContent=done?t("tomorrow"):t("giftD");const b=d.querySelector(".buy");b.textContent=done?"✔":t("take");if(done)b.className="buy used";
+    else b.onclick=()=>{const r=Math.random();let msg;if(r<.3){inv.ham++;msg="🔨 ×١"}else if(r<.55){inv.shuf++;msg="🔀 ×١"}else if(r<.75){inv.hand++;msg="🖐 ×١"}else if(r<.9){inv.star++;msg="⭐ ×١"}else{addInf(30*60e3);msg="♾️ ٣٠ خ"}
+      inv.daily=today();saveInv();sfx.win();toast("🎁 "+msg);drawShop()};g.append(d)}
+  // the starter pack, once
+  if(!inv.starter){const d=document.createElement("div");d.className="it wide";d.innerHTML='<div class="ic pink">🎁</div><div class="tx"><b></b><small></small></div><button class="buy" type="button"></button><span class="rib">-60%</span>';
+    d.querySelector("b").textContent=t("starter");d.querySelector("small").textContent=t("starterD");const b=d.querySelector(".buy");b.textContent=num(600)+" 🪙";
+    b.onclick=()=>spend(600,()=>{inv.ham+=5;inv.shuf+=5;inv.star+=3;addInf(2*3600e3);inv.starter=true;saveInv();sfx.win();toast(t("gotIt"));drawShop()});g.append(d)}
+  head("secHearts");g=grid();SHOP.slice(0,3).forEach(o=>g.append(shopItem(o)));
+  head("secBoost");g=grid();SHOP.slice(3).forEach(o=>g.append(shopItem(o)));
+  // looks: bought with AG in the main shop; the ones I own can be chosen here
+  if(window.M3SK){head("secLooks");g=grid();
+    const look=(type,items,cur,prev)=>Object.keys(items).forEach(k=>{const it=items[k],mine=!it.price||owned[k],d=document.createElement("div");d.className="it";
+      const pv=document.createElement("div");pv.className="lk";prev(k,pv);const nm=document.createElement("b");nm.textContent=it.name[LI()]||it.name[0];const b=document.createElement("button");b.type="button";
+      if(cur===k){b.className="buy used";b.textContent=t("inUse")}else if(mine){b.className="buy";b.textContent=t("use");b.onclick=()=>setLook(type,k)}else{b.className="buy ag";b.textContent=num(it.price)+" AG";b.onclick=()=>{location.href="./#pack_"+type}}
+      if(it.rare){const r=document.createElement("span");r.className="rib";r.textContent="✨";d.append(r)}d.append(pv,nm,b);g.append(d)});
+    look("m3fruit",M3SK.sets,SKIN.f,(k,pv)=>{let h="";for(let i=0;i<6;i++)h+='<svg viewBox="0 0 100 100">'+M3SK.fruit(k,i)+'</svg>';pv.innerHTML=h});
+    look("m3bg",M3SK.bgs,SKIN.bg,(k,pv)=>{pv.style.height="70px";const u=M3SK.bgUrl(k);if(u)pv.style.backgroundImage=u});
+    look("m3map",M3SK.maps,SKIN.map,(k,pv)=>{const m=M3SK.maps[k];if(m.bg)pv.style.background=m.bg;pv.style.fontSize="22px";pv.textContent=m.deco.slice(0,4).join(" ")})}}
+async function setLook(type,k){const key={m3fruit:"f",m3bg:"bg",m3map:"map"}[type],def={m3fruit:"fs_classic",m3bg:"fb_green",m3map:"fm_spring"}[type];SKIN[key]=k;ls("fr.skin",JSON.stringify(SKIN));sfx.tap();
+  if(fdb&&me)try{await fdb.ref("profiles/"+me+"/private/"+type).set(k===def?null:k)}catch(e){}drawMap.done=0;drawMap();drawShop()}
+
+// ================= ⚔️ 1 vs 1 online =================
+// m3duel/<code> = {host, status: wait | play | over, seed, startAt, round, p:{uid:{name,photo,score,left,done}}}
+const D={code:null,ref:null,d:null};
+const dNew=()=>{const a="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";let s2="";for(let i=0;i<5;i++)s2+=a[Math.floor(Math.random()*a.length)];return s2};
+const dMe=()=>({name:myName().slice(0,30),photo:myPhoto().length<1500?myPhoto():"",score:0,left:20,done:false});
+function drawDuel(){const box=$("duel");if(box.hidden)return;box.textContent="";
+  if(!fdb||!me){const p=document.createElement("p");p.className="hint2";p.textContent=t("login");box.append(p);return}
+  const d=D.d;
+  if(!D.code||!d){const c=document.createElement("div");c.className="card";c.innerHTML='<h2 style="margin:0"></h2><p style="margin:0;line-height:1.7"></p><button class="btn" type="button" id="dNew"></button><input id="dCode" maxlength="5" placeholder="ABCDE" autocomplete="off"><button class="btn blue" type="button" id="dJoin"></button>';
+    c.querySelector("h2").textContent=t("duelT");c.querySelector("p").textContent=t("duelD");box.append(c);$("dNew").textContent=t("mkRoom");$("dJoin").textContent=t("joinR");
+    $("dNew").onclick=dCreate;$("dJoin").onclick=()=>{const v=($("dCode").value||"").trim().toUpperCase();if(v.length===5)dJoin(v)};return}
+  const ps=Object.entries(d.p||{}),c=document.createElement("div");c.className="card";
+  const vs=document.createElement("div");vs.className="vs";
+  const pl=(u,x)=>{const e=document.createElement("div");e.className="p";const im=document.createElement("img");im.alt="";im.src=face(x&&x.photo,x&&x.name);if(u)im.dataset.fr=u;const n=document.createElement("span");n.textContent=x?x.name:"…";e.append(im,n);return e};
+  vs.append(pl(ps[0]&&ps[0][0],ps[0]&&ps[0][1]));const v=document.createElement("b");v.textContent="⚔️";vs.append(v,pl(ps[1]&&ps[1][0],ps[1]&&ps[1][1]));c.append(vs);
+  if(d.status==="wait"){const k=document.createElement("div");k.className="dcode";k.textContent=D.code;c.append(k);
+    if(ps.length<2){const sh=document.createElement("button");sh.className="btn blue";sh.type="button";sh.textContent=t("shareR");sh.onclick=dShare;const w=document.createElement("p");w.textContent=t("waitF");c.append(sh,w)}
+    else if(d.host===me){const st=document.createElement("button");st.className="btn";st.type="button";st.textContent=t("startD");st.onclick=dStart;c.append(st)}
+    else{const w=document.createElement("p");w.textContent=t("ready");c.append(w)}}
+  else if(d.status==="over"){const mine=(d.p||{})[me]||{},oth=ps.find(([u])=>u!==me),os=oth?oth[1].score||0:0,ms=mine.score||0;
+    const r=document.createElement("h2");r.style.margin="0";r.textContent=ms>os?t("dWin"):ms<os?t("dLose"):t("dDraw");const sc=document.createElement("p");sc.style.cssText="margin:0;font-size:20px;font-weight:900";sc.textContent=num(ms)+"  ⚔️  "+num(os);c.append(r,sc);
+    if(d.host===me){const a=document.createElement("button");a.className="btn";a.type="button";a.textContent=t("again");a.onclick=dAgain;c.append(a)}}
+  const lv=document.createElement("button");lv.className="btn red";lv.type="button";lv.textContent=t("leave");lv.onclick=dLeave;c.append(lv);box.append(c)}
+async function dCreate(){const c=dNew();try{await fdb.ref("m3duel/"+c).set({host:me,status:"wait",createdAt:firebase.database.ServerValue.TIMESTAMP,round:0,p:{[me]:dMe()}});dOpen(c)}catch(e){toast("✖")}}
+async function dJoin(c){try{const r=(await fdb.ref("m3duel/"+c).once("value")).val();if(!r){toast(t("noRoom"));return}const n=Object.keys(r.p||{}).length;if(n>=2&&!(r.p||{})[me]){toast(t("full"));return}
+  await fdb.ref("m3duel/"+c+"/p/"+me).set(dMe());dOpen(c)}catch(e){toast("✖")}}
+function dOpen(c){if(D.ref)D.ref.off();D.code=c;D.ref=fdb.ref("m3duel/"+c);D.ref.child("p/"+me+"/done").onDisconnect().set(true);
+  D.ref.on("value",s=>{const prev=D.d;D.d=s.val();if(!D.d){D.code=null;D.ref.off();D.ref=null;if(G&&G.duel)goHome();toast(t("noRoom"));drawDuel();return}
+    if(D.d.status==="play"&&(!prev||prev.status!=="play"||prev.round!==D.d.round))duelBegin();
+    if(G&&G.duel)duelHud();
+    if(D.d.status==="play"&&D.d.host===me){const ps=Object.values(D.d.p||{});if(ps.length>=2&&ps.every(x=>x.done))D.ref.update({status:"over"})}
+    if(D.d.status==="over"&&prev&&prev.status==="play"){if(G&&G.duel){closeOv();goHome()}tab("duel");const mine=(D.d.p||{})[me]||{},o=Object.entries(D.d.p||{}).find(([u])=>u!==me);const os=o?o[1].score||0:0;(mine.score||0)>=os?sfx.win():sfx.lose()}
+    drawDuel()})}
+function dShare(){const x=t("title")+" ⚔️ "+D.code;if(navigator.share)navigator.share({title:t("title"),text:x,url:location.origin+location.pathname}).catch(()=>{});else{try{navigator.clipboard.writeText(x)}catch(e){}toast(t("copied"))}}
+function dStart(){const d=D.d;if(!d||d.host!==me||Object.keys(d.p||{}).length<2)return;const up={status:"play",seed:Math.floor(Math.random()*1e9),startAt:Date.now()+3000,round:(d.round||0)+1};
+  Object.keys(d.p).forEach(u=>{up["p/"+u+"/score"]=0;up["p/"+u+"/left"]=20;up["p/"+u+"/done"]=false});D.ref.update(up)}
+function dAgain(){D.ref.update({status:"wait"})}
+async function dLeave(){const d=D.d,c=D.code;if(D.ref){D.ref.child("p/"+me+"/done").onDisconnect().cancel();D.ref.off()}D.ref=null;D.code=null;D.d=null;
+  try{if(d&&d.host===me)await fdb.ref("m3duel/"+c).remove();else await fdb.ref("m3duel/"+c+"/p/"+me).remove()}catch(e){}if(G&&G.duel)goHome();drawDuel()}
+// the same board for both: the random numbers come from the room's seed
+function duelBegin(){const d=D.d;closeOv();const lv={n:0,types:5,moves:20,goals:[],ice:[],s1:4000,s2:7000,s3:10000};
+  G={lv,n:0,moves:20,score:0,got:{},iceLeft:0,boost:{ham:0,shuf:0},over:true,combo:0,duel:true,rnd:rng(d.seed)};G.ice=[...Array(N)].map(()=>Array(N).fill(0));
+  $("home").hidden=true;$("play").hidden=false;$("board").textContent="";$("lvN").textContent="⚔️";$("sbar").hidden=true;
+  G.g=fillStart();while(!anyMove())G.g=fillStart();
+  requestAnimationFrame(()=>{drawCells();G.g.forEach((row,y)=>row.forEach((f,x)=>mkEl(f,x,y,y-N-1)));hud()});
+  const wait2=Math.max(0,(d.startAt||0)-Date.now());praise(t("ready"));setTimeout(()=>{if(G&&G.duel){G.over=false;idleHint()}},Math.min(4000,wait2))}
+function duelScore(){if(D.ref)D.ref.child("p/"+me).update({score:G.score,left:G.moves}).catch(()=>{})}
+function duelDone(quit){if(!G||!G.duel)return;G.over=true;clearHint();if(D.ref)D.ref.child("p/"+me).update({score:G.score,left:0,done:true}).catch(()=>{});
+  if(quit){goHome();tab("duel");return}ov('<h2>'+t("waitEnd")+'</h2><div style="font-size:50px">⏳</div><b style="font-size:22px">'+t("score")+': '+num(G.score)+'</b>')}
+function duelHud(){const gb=$("goals");if(!gb||!D.d)return;gb.textContent="";const ps=D.d.p||{};const me2=ps[me]||{};const o=Object.entries(ps).find(([u])=>u!==me);
+  const box=document.createElement("div");box.className="duelhud";const mk=(x,s2,lead)=>{const e=document.createElement("div");if(lead)e.className="lead";const im=document.createElement("img");im.alt="";im.src=face(x.photo,x.name);const b=document.createElement("b");b.textContent=num(s2);e.append(im,b);return e};
+  const ms=G?G.score:me2.score||0,os=o?o[1].score||0:0;box.append(mk({name:myName(),photo:myPhoto()},ms,ms>os));if(o){const ol=document.createElement("small");ol.textContent="⚔️ "+num(o[1].left!=null?o[1].left:20);box.append(mk(o[1],os,os>ms),ol)}gb.append(box)}
 
 fbBoot();txt();paintBar();
 </script>
