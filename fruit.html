@@ -22,8 +22,8 @@ button{font:inherit;cursor:pointer;border:0;color:inherit}
   background:linear-gradient(#2b8a5a,#176043);border-bottom:3px solid var(--gold2);box-shadow:0 4px 12px rgba(0,0,0,.4)}
 .pill{display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.3);border:1.5px solid var(--line);border-radius:22px;padding:4px 12px 4px 6px;font-weight:900;font-size:15px;min-width:0}
 .pill i{font-style:normal;font-size:20px}.pill small{font-weight:700;font-size:12px;opacity:.85}
-.me{position:relative;width:46px;height:46px;border-radius:50%;margin-inline:auto;flex:none}
-.me img{width:100%;height:100%;border-radius:50%;object-fit:cover;border:2px solid var(--gold);background:#245}
+.mybox{position:relative;width:46px;height:46px;border-radius:50%;margin-inline:auto;flex:none}
+.mybox>img{display:block;width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);background:#245}
 .gear{width:40px;height:40px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffe9a0,#e0a21a 60%,#9a6400);border:2px solid #fff6;font-size:20px;flex:none;box-shadow:0 3px 0 #6b4500}
 /* the map */
 #map{flex:1;overflow-y:auto;overflow-x:hidden;position:relative;-webkit-overflow-scrolling:touch}
@@ -47,7 +47,7 @@ button{font:inherit;cursor:pointer;border:0;color:inherit}
 /* ranking */
 #rank{flex:1;overflow-y:auto;padding:14px;background:linear-gradient(#1f6e4a,#0f3d2e)}
 .rk{display:flex;align-items:center;gap:12px;background:var(--cream);color:var(--ink);border-radius:16px;padding:10px 12px;margin-bottom:9px;box-shadow:0 3px 0 #c9a46a}
-.rk.me{outline:3px solid var(--gold)}
+.rk.mine{outline:3px solid var(--gold)}
 .rk>span{width:30px;text-align:center;font-weight:900;font-size:18px}
 .rk img{width:46px;height:46px;border-radius:50%;object-fit:cover;background:#245;flex:none}
 .rk b{flex:1;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -127,7 +127,7 @@ html[dir=rtl] .sbar>em{transform:translate(50%,-50%)}
 <div class="scr" id="home">
   <div class="bar">
     <div class="pill" id="hearts"><i>❤️</i><span id="hN">5</span><small id="hT"></small></div>
-    <div class="me tb-av" id="meAv"><img id="meImg" alt=""></div>
+    <div class="mybox" id="meAv"><img id="meImg" alt=""></div>
     <div class="pill" id="coinsP"><i>🪙</i><span id="cN">0</span></div>
     <button class="gear" id="hGear" type="button" aria-label="⚙">⚙</button>
   </div>
@@ -184,7 +184,7 @@ const S={
   ["Swap two fruits side by side so 3 or more of the same kind line up.","4 in a row → striped fruit: clears the whole line.","L or T shape → shiny fruit: blasts the fruits around it.","5 in a row → rainbow star: removes every fruit of one kind.","Reach the level goal with fewer moves to earn more stars ⭐⭐⭐"]],
  sound:["دەنگ","دەنگ","الصوت","Sound"],noFriends:["هێشتا هەڤال نینن. ژ ڕووپەلێ سەرەکی هەڤالان زێدە بکە، و ئەو دێ ل ڤێرێ و ل سەر نەخشێ دیار بن.","هێشتا هاوڕێت نییە. لە پەڕەی سەرەکی هاوڕێ زیاد بکە.","لا يوجد أصدقاء بعد. أضف أصدقاء من الصفحة الرئيسية ليظهروا هنا وعلى الخريطة.","No friends yet. Add friends on the main page and they will show here and on the map."],
  login:["بۆ دیتنا هەڤالان و پاشەکەفتنا ئاستێ خۆ، ل ڕووپەلێ سەرەکی ب هەژمارا خۆ بچە ژوور.","بۆ بینینی هاوڕێکان، لە پەڕەی سەرەکی بچۆ ژوورەوە.","سجّل الدخول من الصفحة الرئيسية لترى أصدقاءك وتحفظ تقدّمك.","Sign in on the main page to see friends and save your progress."],
- you:["تو","تۆ","أنت","You"],stars:["ستێر","ئەستێرە","نجوم","stars"],noCoins:["کۆینێن تە بەس ناکەن","کۆینەکانت بەس نییە","عملاتك غير كافية","Not enough coins"],
+ you:["تو","تۆ","أنت","You"],player:["یاریکەر","یاریزان","لاعب","Player"],stars:["ستێر","ئەستێرە","نجوم","stars"],noCoins:["کۆینێن تە بەس ناکەن","کۆینەکانت بەس نییە","عملاتك غير كافية","Not enough coins"],
  hammer:["🔨 چەکوچ: ل سەر میوەیەکێ بدە دا بشکێنیت","🔨 چەکوش: میوەیەک دیاری بکە","🔨 المطرقة: اضغط على فاكهة لكسرها","🔨 Hammer: tap a fruit to break it"],
  shuffled:["🔀 میوە هاتنە تێکەلکرن","🔀 میوەکان تێکەڵ کران","🔀 تم خلط الفواكه","🔀 Shuffled"],
  p1:["باشە!","باشە!","جيد!","Good!"],p2:["زۆر باشە!","زۆر باشە!","رائع!","Great!"],p3:["نایابە!","نایابە!","مذهل!","Amazing!"],p4:["کوردستان! 🌞","کوردستان! 🌞","كردستان! 🌞","Kurdistan! 🌞"]
@@ -260,14 +260,16 @@ function fbBoot(){if(typeof firebase==="undefined")return;try{firebase.initializ
     fdb.ref("m3/"+me).once("value").then(s=>{const v=s.val();if(v&&(v.lv>prog.lv||totalStars(v)>totalStars(prog))){prog={lv:Math.max(v.lv||1,prog.lv),st:Object.assign({},v.st||{},prog.st)};ls("fr.prog",JSON.stringify(prog))}saveProg();drawMap()}).catch(()=>{});
     fdb.ref("friends/"+me).on("value",s=>{friends=s.val()||{};Object.keys(friends).forEach(f=>{
       if(!fprog[f])fdb.ref("m3/"+f).once("value").then(x=>{fprog[f]=x.val()||{lv:1,st:{}};drawMap();drawRank()}).catch(()=>{});
-      if(!fprof[f])fdb.ref("profiles/"+f+"/public").once("value").then(x=>{fprof[f]=x.val()||{};drawMap();drawRank()}).catch(()=>{})});drawRank()},()=>{})})}catch(e){}}
+      if(!fprof[f]){fprof[f]={};const get=q=>fdb.ref(q).once("value").then(x=>x.val()||{}).catch(()=>({}));
+        Promise.all([get("profiles/"+f+"/public"),get("presence/"+f),get("scores/"+f)]).then(([P,R2,S2])=>{fprof[f]={name:P.name||R2.name||S2.name||"",photo:P.photo||R2.photo||S2.photo||"",frame:P.frame||""};drawMap();drawRank()})}});drawRank()},()=>{})})}catch(e){}}
 const myName=()=>prof.name||(user&&user.displayName)||t("you");
 const myPhoto=()=>prof.photo||(user&&user.photoURL)||"";
 const face=(ph,name)=>ph||("data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect width="40" height="40" fill="#2b6a8a"/><text x="20" y="27" font-size="18" font-weight="700" fill="#fff" text-anchor="middle" font-family="sans-serif">'+String(name||"?").trim().charAt(0).toUpperCase().replace(/[<&>]/g,"")+'</text></svg>'));
 
 // ---------- the top bar ----------
 function paintBar(){const h=hearts();$("hN").textContent=num(h.n);$("hT").textContent=h.n<HMAX?mmss(h.t+HREG-Date.now()):"";$("cN").textContent=num(coins);
-  const im=$("meImg");im.src=face(myPhoto(),myName())}
+  const im=$("meImg"),src=face(myPhoto(),myName());if(im.src!==src)im.src=src;
+  const fk=window.AG&&AG.myFrame?AG.myFrame():"";if($("meAv").dataset.fk!==fk){$("meAv").dataset.fk=fk;if(window.AG&&AG.applyFrame)AG.applyFrame($("meAv"),fk)}}
 setInterval(()=>{if(!$("home").hidden)paintBar()},1000);
 
 // ---------- the map ----------
@@ -291,9 +293,9 @@ function drawMap(){const box=$("mapIn"),W=$("map").clientWidth||360,H=NL*NODE_H+
 function drawRank(){const box=$("rank");if(box.hidden)return;box.textContent="";
   if(!me){const p=document.createElement("p");p.className="hint2";p.textContent=t("login");box.append(p);return}
   const rows=[{uid:me,name:myName(),photo:myPhoto(),lv:prog.lv,st:totalStars(prog)}];
-  Object.keys(friends).forEach(f=>{const p=fprog[f]||{lv:1,st:{}},pr=fprof[f]||{};rows.push({uid:f,name:pr.name||"…",photo:pr.photo||"",lv:p.lv||1,st:totalStars(p)})});
+  Object.keys(friends).forEach(f=>{const p=fprog[f]||{lv:1,st:{}},pr=fprof[f]||{};rows.push({uid:f,name:pr.name||t("player"),photo:pr.photo||"",lv:p.lv||1,st:totalStars(p)})});
   rows.sort((a,b)=>b.lv-a.lv||b.st-a.st);
-  rows.forEach((r,i)=>{const d=document.createElement("div");d.className="rk"+(r.uid===me?" me":"");d.innerHTML='<span></span><span style="position:relative;width:auto"><img alt=""></span><b></b><em></em>';
+  rows.forEach((r,i)=>{const d=document.createElement("div");d.className="rk"+(r.uid===me?" mine":"");d.innerHTML='<span></span><span style="position:relative;width:auto"><img alt=""></span><b></b><em></em>';
     d.children[0].textContent=["🥇","🥈","🥉"][i]||num(i+1);const im=d.querySelector("img");im.src=face(r.photo,r.name);im.dataset.fr=r.uid;
     d.querySelector("b").textContent=r.name+(r.uid===me?" ("+t("you")+")":"");d.querySelector("em").innerHTML=t("level")+" "+num(r.lv)+"<small>⭐ "+num(r.st)+"</small>";box.append(d)});
   if(rows.length===1){const p=document.createElement("p");p.className="hint2";p.textContent=t("noFriends");box.append(p)}}
