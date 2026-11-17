@@ -27,11 +27,13 @@ var PAINTS={
 // ---------- engines: how they sound, and (against the robots) how they pull ----------
 var ENGINES={
  en_i4:{price:0,name:L4("٤ سلەندەر","٤ سلەندەر","٤ سلندر","Inline-4"),d:L4("ئاسایی و ئارام","ئاسایی و هێمن","عادي وهادئ","Calm and simple"),cyl:4,idle:900,red:6800,sub:0,half:0.15,drive:2,bright:2600,roar:0.12,vol:0.5,acc:1,vmax:1},
- en_v6t:{price:300,name:L4("V6 تووربۆ","V6 تووربۆ","V6 توربو","V6 Turbo"),d:L4("فیتکا تووربۆیێ 🌀","فیکەی تووربۆ 🌀","صفير التوربو 🌀","Turbo whistle 🌀"),cyl:6,idle:850,red:7000,sub:0.1,half:0.2,drive:2.6,bright:3000,roar:0.14,vol:0.5,turbo:1,acc:1.06,vmax:1.03},
- en_v8:{price:500,name:L4("V8 گران","V8 قورس","V8 قوي","V8 Muscle"),d:L4("دەنگێ گران و تەقتەق 💥","دەنگی قورس و تەقەتەق 💥","صوت غليظ وفرقعة 💥","Deep rumble and pops 💥"),cyl:8,idle:750,red:7200,sub:0.55,half:0.3,drive:3.6,bright:2200,roar:0.16,vol:0.55,pops:1,acc:1.12,vmax:1.05},
- en_v10:{price:800,rare:1,name:L4("V10 قیژە 🔥","V10 قیژە 🔥","V10 صارخ 🔥","V10 Screamer 🔥"),d:L4("وەکی ترومبێلێن سووپەرکار","وەک سووپەرکار","مثل السيارات الخارقة","Like a supercar"),cyl:10,idle:1000,red:8500,sub:0.15,half:0.35,drive:4,bright:4200,roar:0.16,vol:0.55,pops:1,acc:1.18,vmax:1.08},
- en_v12:{price:1000,rare:1,name:L4("V12 شاهانە 👑","V12 شاهانە 👑","V12 ملكي 👑","V12 Royal 👑"),d:L4("بهێزترین و نەرمترین","بەهێزترین و نەرمترین","الأقوى والأنعم","The strongest and smoothest"),cyl:12,idle:900,red:8800,sub:0.1,half:0.22,drive:2.6,bright:5000,roar:0.12,vol:0.5,acc:1.2,vmax:1.1},
- en_ev:{price:600,name:L4("کارەبایی ⚡","کارەبایی ⚡","كهربائي ⚡","Electric ⚡"),d:L4("بێدەنگ و بلەز","بێدەنگ و خێرا","صامت وسريع","Silent and quick"),ev:1,cyl:2,idle:0,red:16000,vol:0.35,acc:1.3,vmax:1}};
+ en_i4t:{price:150,name:L4("٤ سلەندەر تووربۆ","٤ سلەندەر تووربۆ","٤ سلندر توربو","Inline-4 Turbo"),d:L4("بچووک بەس ب تووربۆ 🌀","بچووک بەڵام تووربۆ 🌀","صغير مع توربو 🌀","Small, with a turbo 🌀"),cyl:4,idle:900,red:7000,sub:0.05,half:0.18,drive:2.4,bright:3000,roar:0.13,vol:0.5,turbo:1,acc:1.04,vmax:1.02},
+ en_v6t:{price:300,name:L4("V6 تووربۆ","V6 تووربۆ","V6 توربو","V6 Turbo"),d:L4("فیتکا تووربۆیێ 🌀","فیکەی تووربۆ 🌀","صفير التوربو 🌀","Turbo whistle 🌀"),cyl:6,idle:850,red:7000,sub:0.1,half:0.2,drive:2.6,bright:3000,roar:0.14,vol:0.5,turbo:1,acc:1.08,vmax:1.04},
+ en_v8:{price:500,name:L4("V8 گران","V8 قورس","V8 قوي","V8 Muscle"),d:L4("دەنگێ گران و تەقتەق 💥","دەنگی قورس و تەقەتەق 💥","صوت غليظ وفرقعة 💥","Deep rumble and pops 💥"),cyl:8,idle:750,red:7200,sub:0.55,half:0.3,drive:3.6,bright:2200,roar:0.16,vol:0.55,pops:1,acc:1.12,vmax:1.06},
+ en_ev:{price:650,name:L4("کارەبایی ⚡","کارەبایی ⚡","كهربائي ⚡","Electric ⚡"),d:L4("بێدەنگ و بلەز","بێدەنگ و خێرا","صامت وسريع","Silent and quick"),ev:1,cyl:2,idle:0,red:16000,vol:0.35,acc:1.16,vmax:1.07},
+ en_v10:{price:800,rare:1,name:L4("V10 قیژە 🔥","V10 قیژە 🔥","V10 صارخ 🔥","V10 Screamer 🔥"),d:L4("وەکی ترومبێلێن سووپەرکار","وەک سووپەرکار","مثل السيارات الخارقة","Like a supercar"),cyl:10,idle:1000,red:8500,sub:0.15,half:0.35,drive:4,bright:4200,roar:0.16,vol:0.55,pops:1,acc:1.2,vmax:1.09},
+ en_v12:{price:1000,rare:1,name:L4("V12 شاهانە 👑","V12 شاهانە 👑","V12 ملكي 👑","V12 Royal 👑"),d:L4("بهێز و نەرم","بەهێز و نەرم","قوي وناعم","Strong and smooth"),cyl:12,idle:900,red:8800,sub:0.1,half:0.22,drive:2.6,bright:5000,roar:0.12,vol:0.5,acc:1.24,vmax:1.11},
+ en_w16:{price:1500,rare:1,name:L4("W16 هایپەرکار 🚀","W16 هایپەرکار 🚀","W16 هايبركار 🚀","W16 Hypercar 🚀"),d:L4("بهێزترینا هەمیان!","بەهێزترینی هەمووان!","الأقوى على الإطلاق!","The strongest of all!"),cyl:16,idle:1000,red:7400,sub:0.3,half:0.4,drive:3.2,bright:3600,roar:0.2,vol:0.55,turbo:1,pops:1,acc:1.3,vmax:1.14}};
 // ---------- lights: day lights and headlights ----------
 var LIGHTS={
  li_white:{price:0,name:L4("سپی","سپی","أبيض","White"),col:[1,1,1.05],head:[0.75,0.82,0.95]},
@@ -72,9 +74,16 @@ var STRIPES={
  st_red:{price:150,name:L4("دوو خەتێن سۆر","دوو هێڵی سوور","خطان أحمران","Red stripes"),col:[0.5,0.01,0.02]},
  st_gold:{price:250,name:L4("دوو خەتێن زێڕ","دوو هێڵی زێڕ","خطان ذهبيان","Gold stripes"),col:[0.7,0.45,0.06]},
  st_kurd:{price:300,rare:1,kurd:1,name:L4("ئالایێ کوردستانێ ☀️","ئاڵای کوردستان ☀️","علم كردستان ☀️","Kurdistan flag ☀️"),col:[0.8,0.02,0.02]}};
-var DEF={paint:"pt_white",engine:"en_i4",light:"li_white",rim:"rm_silver",wing:"wg_none",glow:"gl_none",stripe:"st_none"};
-var SETS={paint:PAINTS,engine:ENGINES,light:LIGHTS,rim:RIMS,wing:WINGS,glow:GLOWS,stripe:STRIPES};
-var TYPE={paint:"rcpaint",engine:"rcengine",light:"rclight",rim:"rcrim",wing:"rcwing",glow:"rcglow",stripe:"rcstripe"};
+// ---------- the kind of car ----------
+var BODIES={
+ bd_sedan:{price:0,name:L4("سێدان","سێدان","سيدان","Sedan"),acc:1,vmax:1,mass:1},
+ bd_wagon:{price:150,name:L4("ستەیشن","ستەیشن","ستيشن","Station wagon"),acc:1,vmax:0.99,mass:1.1},
+ bd_coupe:{price:200,name:L4("سپۆرت (کووپێ)","سپۆرت (کووپێ)","رياضية (كوبيه)","Sports coupé"),acc:1.02,vmax:1.03,mass:0.9},
+ bd_pickup:{price:250,name:L4("پیکاپ","پیکاپ","بيك آب","Pickup"),acc:0.97,vmax:0.97,mass:1.4},
+ bd_truck:{price:600,rare:1,name:L4("تریلە 🚛","تریلە 🚛","تريلة 🚛","Semi truck 🚛"),acc:0.85,vmax:0.92,mass:3}};
+var DEF={body:"bd_sedan",paint:"pt_white",engine:"en_i4",light:"li_white",rim:"rm_silver",wing:"wg_none",glow:"gl_none",stripe:"st_none"};
+var SETS={body:BODIES,paint:PAINTS,engine:ENGINES,light:LIGHTS,rim:RIMS,wing:WINGS,glow:GLOWS,stripe:STRIPES};
+var TYPE={body:"rcbody",paint:"rcpaint",engine:"rcengine",light:"rclight",rim:"rcrim",wing:"rcwing",glow:"rcglow",stripe:"rcstripe"};
 // linear colour -> css (the same tone curve the 3D picture uses)
 function css(c){if(!c)return"transparent";return"rgb("+c.map(function(v){return Math.round(Math.min(1,Math.pow(Math.max(0,v)/(1+Math.max(0,v))*1.3,1/2.2))*255)}).join(",")+")"}
 function rainbow(t){return[0.5+0.5*Math.sin(t*2.2),0.5+0.5*Math.sin(t*2.2+2.1),0.5+0.5*Math.sin(t*2.2+4.2)]}
@@ -126,31 +135,52 @@ function draw2D(x,w,h,sk,hl){sk=look(sk);var P=PAINTS[sk.paint],S=STRIPES[sk.str
   x.fillStyle="rgba(0,0,0,.3)";x.beginPath();x.ellipse(150,103,128,7,0,0,7);x.fill();
   var body=css(P.col),dark=css(P.col.map(function(v){return v*0.35})),lite=css((P.col2||P.col).map(function(v){return Math.min(1.5,v*1.6+0.05)}));
   var bg=x.createLinearGradient(0,30,0,96);bg.addColorStop(0,lite);bg.addColorStop(0.45,body);bg.addColorStop(1,dark);
+  var B=sk.body,wx=[72,232];
+  if(B==="bd_truck"){ // the trailer behind a tall cab
+    x.save();x.translate(150,0);x.scale(0.62,1);x.translate(-150,0);
+    x.fillStyle="#e9edf2";x.strokeStyle="rgba(0,0,0,.35)";x.fillRect(-60,8,250,66);x.strokeRect(-60,8,250,66);x.fillStyle=bg;x.fillRect(-60,56,250,8);
+    x.fillStyle="#333";x.fillRect(-50,74,240,8);
+    x.beginPath();x.moveTo(196,92);x.lineTo(196,18);x.quadraticCurveTo(198,8,212,8);x.lineTo(262,8);x.quadraticCurveTo(286,10,290,40);x.lineTo(296,62);x.quadraticCurveTo(300,86,292,92);x.closePath();x.fillStyle=bg;x.fill();x.stroke();
+    x.beginPath();x.moveTo(248,14);x.lineTo(268,14);x.quadraticCurveTo(282,18,286,42);x.lineTo(248,42);x.closePath();var tg=x.createLinearGradient(0,14,0,42);tg.addColorStop(0,"#9fb4c8");tg.addColorStop(1,"#1a2430");x.fillStyle=tg;x.fill();
+    var lcT=Lt.rainbow?rainbow(t):Lt.col;x.fillStyle=css(lcT.map(function(v){return v*1.4}));x.fillRect(290,66,7,6);
+    x.restore();wx=[22,52,118,176].map(function(v){return 150+(v-150)*0.62});wx.push(150+(236-150)*0.62);
+  }else{
   // body
-  x.beginPath();x.moveTo(22,86);x.quadraticCurveTo(14,70,26,60);x.lineTo(70,52);x.quadraticCurveTo(100,26,140,24);x.lineTo(190,24);x.quadraticCurveTo(214,26,232,48);x.lineTo(270,54);x.quadraticCurveTo(288,58,284,84);x.lineTo(276,92);x.lineTo(30,92);x.closePath();x.fillStyle=bg;x.fill();
+  x.beginPath();
+  if(B==="bd_pickup"){x.moveTo(22,86);x.quadraticCurveTo(14,66,24,52);x.lineTo(132,50);x.lineTo(140,20);x.lineTo(196,20);x.quadraticCurveTo(214,24,232,46);x.lineTo(272,52);x.quadraticCurveTo(290,58,284,84);x.lineTo(276,92);x.lineTo(30,92)}
+  else if(B==="bd_coupe"){x.moveTo(22,86);x.quadraticCurveTo(14,72,26,62);x.lineTo(70,58);x.quadraticCurveTo(110,34,150,32);x.lineTo(180,32);x.quadraticCurveTo(212,36,236,54);x.lineTo(272,60);x.quadraticCurveTo(290,64,284,86);x.lineTo(276,92);x.lineTo(30,92)}
+  else if(B==="bd_wagon"){x.moveTo(22,86);x.quadraticCurveTo(14,66,22,52);x.lineTo(30,26);x.quadraticCurveTo(34,22,46,22);x.lineTo(190,22);x.quadraticCurveTo(214,26,232,48);x.lineTo(270,54);x.quadraticCurveTo(288,58,284,84);x.lineTo(276,92);x.lineTo(30,92)}
+  else{x.moveTo(22,86);x.quadraticCurveTo(14,70,26,60);x.lineTo(70,52);x.quadraticCurveTo(100,26,140,24);x.lineTo(190,24);x.quadraticCurveTo(214,26,232,48);x.lineTo(270,54);x.quadraticCurveTo(288,58,284,84);x.lineTo(276,92);x.lineTo(30,92)}
+  x.closePath();x.fillStyle=bg;x.fill();
   x.strokeStyle="rgba(0,0,0,.35)";x.lineWidth=1.2;x.stroke();
   // windows
-  x.beginPath();x.moveTo(84,52);x.quadraticCurveTo(108,32,140,30);x.lineTo(156,30);x.lineTo(156,52);x.closePath();x.moveTo(162,30);x.lineTo(188,30);x.quadraticCurveTo(206,32,222,50);x.lineTo(162,52);x.closePath();
+  x.beginPath();
+  if(B==="bd_pickup"){x.moveTo(146,26);x.lineTo(192,26);x.quadraticCurveTo(206,30,220,46);x.lineTo(146,48);x.closePath();x.fillStyle="#2a2a2e";x.fillRect(26,48,104,5)}
+  else if(B==="bd_coupe"){x.moveTo(96,56);x.quadraticCurveTo(118,38,150,37);x.lineTo(178,37);x.quadraticCurveTo(204,40,222,54);x.closePath()}
+  else if(B==="bd_wagon"){x.moveTo(36,48);x.lineTo(40,28);x.lineTo(96,28);x.lineTo(96,50);x.closePath();x.moveTo(102,28);x.lineTo(156,28);x.lineTo(156,52);x.lineTo(102,51);x.closePath();x.moveTo(162,28);x.lineTo(188,28);x.quadraticCurveTo(206,32,222,50);x.lineTo(162,52);x.closePath()}
+  else{x.moveTo(84,52);x.quadraticCurveTo(108,32,140,30);x.lineTo(156,30);x.lineTo(156,52);x.closePath();x.moveTo(162,30);x.lineTo(188,30);x.quadraticCurveTo(206,32,222,50);x.lineTo(162,52);x.closePath()}
   var wg=x.createLinearGradient(0,30,0,52);wg.addColorStop(0,"#9fb4c8");wg.addColorStop(1,"#1a2430");x.fillStyle=wg;x.fill();
-  if(S.col){var sc=css(S.col);x.fillStyle=sc;if(S.kurd){x.fillStyle=css([0.8,0.02,0.02]);x.fillRect(24,63,258,4);x.fillStyle="#fff";x.fillRect(24,67,258,4);x.fillStyle=css([0.02,0.4,0.1]);x.fillRect(24,71,258,4);x.fillStyle="#ffd400";x.beginPath();x.arc(150,69,4,0,7);x.fill()}
+  if(S.col&&B!=='bd_truck'){var sc=css(S.col);x.fillStyle=sc;if(S.kurd){x.fillStyle=css([0.8,0.02,0.02]);x.fillRect(24,63,258,4);x.fillStyle="#fff";x.fillRect(24,67,258,4);x.fillStyle=css([0.02,0.4,0.1]);x.fillRect(24,71,258,4);x.fillStyle="#ffd400";x.beginPath();x.arc(150,69,4,0,7);x.fill()}
     else{x.fillRect(24,64,258,4);x.fillRect(24,70,258,4)}}
   // door lines and handle
   x.strokeStyle="rgba(0,0,0,.3)";x.beginPath();x.moveTo(158,54);x.lineTo(158,90);x.moveTo(98,56);x.lineTo(96,90);x.stroke();x.fillStyle="rgba(0,0,0,.4)";x.fillRect(132,60,12,2.5);x.fillRect(190,60,12,2.5);
   // lights: front on the right, back on the left
-  var lc=Lt.rainbow?rainbow(t):Lt.col,lcs=css(lc.map(function(v){return v*1.4}));x.save();x.shadowColor=lcs;x.shadowBlur=hl==="light"?16:8;x.fillStyle=lcs;x.beginPath();x.ellipse(279,62,7,3.5,-0.3,0,7);x.fill();x.restore();
-  x.fillStyle="#e0101a";x.fillRect(16,60,8,6);
+  if(B!=="bd_truck"){var lc=Lt.rainbow?rainbow(t):Lt.col,lcs=css(lc.map(function(v){return v*1.4}));x.save();x.shadowColor=lcs;x.shadowBlur=hl==="light"?16:8;x.fillStyle=lcs;x.beginPath();x.ellipse(279,62,7,3.5,-0.3,0,7);x.fill();x.restore();}
+  x.fillStyle="#e0101a";x.fillRect(16,60,8,6);}
   // wing
-  if(Wg.t){var wc=Wg.carbon?"#1a1a1d":body;x.fillStyle=wc;x.strokeStyle="rgba(0,0,0,.4)";
+  if(Wg.t&&B!=='bd_truck'){var wc=Wg.carbon?"#1a1a1d":body;x.fillStyle=wc;x.strokeStyle="rgba(0,0,0,.4)";
     if(Wg.t===1){x.beginPath();x.moveTo(14,58);x.lineTo(40,55);x.lineTo(42,59);x.lineTo(14,62);x.closePath();x.fill();x.stroke()}
     else{var hh=Wg.t===3?26:16;x.fillRect(30,60-hh,4,hh);x.beginPath();x.moveTo(8,58-hh);x.lineTo(52,56-hh);x.lineTo(54,61-hh);x.lineTo(8,63-hh);x.closePath();x.fill();x.stroke();if(Wg.carbon){x.strokeStyle="rgba(255,255,255,.18)";for(var i=10;i<52;i+=4){x.beginPath();x.moveTo(i,58-hh);x.lineTo(i+2,62-hh);x.stroke()}}}}
   // wheels
-  [72,232].forEach(function(cx){x.fillStyle="#111";x.beginPath();x.arc(cx,90,19,0,7);x.fill();var rc=css(R.col),g2=x.createRadialGradient(cx-4,86,2,cx,90,13);g2.addColorStop(0,"#fff");g2.addColorStop(0.5,rc);g2.addColorStop(1,css(R.col.map(function(v){return v*0.4})));
+  if(B==='bd_truck'){x.restore();x.save();var s2=Math.min(w/300,h/120);x.translate(w/2-150*s2,h/2-60*s2+6*s2);x.scale(s2,s2)}
+  wx.forEach(function(cx){x.fillStyle="#111";x.beginPath();x.arc(cx,90,19,0,7);x.fill();var rc=css(R.col),g2=x.createRadialGradient(cx-4,86,2,cx,90,13);g2.addColorStop(0,"#fff");g2.addColorStop(0.5,rc);g2.addColorStop(1,css(R.col.map(function(v){return v*0.4})));
     x.fillStyle=g2;x.beginPath();x.arc(cx,90,12.5,0,7);x.fill();x.strokeStyle="rgba(0,0,0,.45)";x.lineWidth=2;for(var k=0;k<5;k++){var a=k*Math.PI*2/5+t*(hl==="rim"?2:0);x.beginPath();x.moveTo(cx+Math.cos(a)*4,90+Math.sin(a)*4);x.lineTo(cx+Math.cos(a)*11,90+Math.sin(a)*11);x.stroke()}
     x.fillStyle="#333";x.beginPath();x.arc(cx,90,3,0,7);x.fill()});
   // a shine along the body
+  if(B==='bd_truck'){x.restore();return}
   x.globalAlpha=0.25+(P.refl>1.3?0.25:0);x.strokeStyle="#fff";x.lineWidth=2;x.beginPath();x.moveTo(40,58);x.quadraticCurveTo(150,50,270,56);x.stroke();x.restore()}
 
-window.RCSK={sets:SETS,type:TYPE,def:DEF,paints:PAINTS,engines:ENGINES,lights:LIGHTS,rims:RIMS,wings:WINGS,glows:GLOWS,stripes:STRIPES,
+window.RCSK={sets:SETS,type:TYPE,def:DEF,bodies:BODIES,paints:PAINTS,engines:ENGINES,lights:LIGHTS,rims:RIMS,wings:WINGS,glows:GLOWS,stripes:STRIPES,
   look:look,css:css,rainbow:rainbow,Engine:Engine,rpmAt:rpmAt,preview:preview,draw2D:draw2D};
 if(!window.AG||!AG.addPack)return;
 // ---------- the shop ----------
@@ -164,6 +194,7 @@ function bars(k){var E=ENGINES[k],d=document.createElement("div");d.style.cssTex
   var p=document.createElement("button");p.type="button";p.textContent="🔊";p.style.cssText="align-self:center;border:0;border-radius:14px;padding:6px 16px;font-size:16px;background:linear-gradient(#ff6b3d,#e0341f);color:#fff;box-shadow:0 3px 0 #8a1a0a;cursor:pointer";
   p.onclick=function(e){e.stopPropagation();e.preventDefault();preview(k)};d.append(p);return d}
 var T4=function(a,b,c,d){return[a,b,c,d]};
+AG.addPack({type:"rcbody",def:"bd_sedan",items:BODIES,title:T4("🚗 جۆرێن ترومبێلان","🚗 جۆری ئۆتۆمبێل","🚗 أنواع السيارات","🚗 Car types"),desc:T4("سێدان، ستەیشن، سپۆرت، پیکاپ و تریلە. تریلە گرانە و هەمیان پاڵ ددەت!","سێدان، ستەیشن، سپۆرت، پیکاپ و تریلە.","سيدان، ستيشن، رياضية، بيك آب وتريلة. التريلة ثقيلة وتدفع الجميع!","Sedan, wagon, coupé, pickup and a semi truck — the truck is heavy and pushes everyone!"),preview:function(k){return cvs(170,80,function(x){draw2D(x,170,80,{body:k,paint:"pt_red"},"body")})}});
 AG.addPack({type:"rcpaint",def:"pt_white",items:PAINTS,title:T4("🎨 ڕەنگێن ترومبێلێ","🎨 ڕەنگی ئۆتۆمبێل","🎨 ألوان السيارة","🎨 Car paint"),desc:T4("ڕەنگێ ترومبێلا تە ل یاریا بەزینێ. هەمی یاریکەر دبینن!","ڕەنگی ئۆتۆمبێلەکەت لە یاری پێشبڕکێ.","لون سيارتك في لعبة السباق، ويراه الجميع!","Your car's colour in the race — everyone sees it!"),preview:car("paint")});
 AG.addPack({type:"rcengine",def:"en_i4",items:ENGINES,title:T4("🔊 مەکینێن ترومبێلێ","🔊 بزوێنەری ئۆتۆمبێل","🔊 محركات السيارة","🔊 Car engines"),desc:T4("هەر مەکینەکێ دەنگێ خۆ هەیە، و دژی ڕۆبۆتان بهێزترە. ل ئۆنلاین هەمی وەک ئێکن، تنێ دەنگ دگوهۆڕیت. 🔊 لێدە و گوهداری بکە!","هەر بزوێنەرێک دەنگی خۆی هەیە. لە ئۆنلاین هەموو وەک یەکن.","لكل محرك صوته، وهو أقوى ضد الروبوتات. في الأونلاين الجميع متساوون والصوت فقط يتغير. اضغط 🔊 واستمع!","Every engine has its own sound and more power against the robots. Online everyone is equal — only the sound changes. Tap 🔊 to listen!"),preview:bars});
 AG.addPack({type:"rclight",def:"li_white",items:LIGHTS,title:T4("💡 ڕەنگێن لایتان","💡 ڕەنگی گڵۆپەکان","💡 ألوان الأضواء","💡 Light colours"),desc:T4("ڕەنگێ لایتێن پێشیێ یێن ترومبێلێ.","ڕەنگی گڵۆپی پێشەوە.","لون الأضواء الأمامية.","The colour of the front lights."),preview:car("light",true)});
