@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="ku" dir="rtl" translate="no" class="notranslate">
+<head>
+<meta charset="utf-8">
+<meta name="google" content="notranslate">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>هۆکیا مێزێ · AG Classic Games</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#070b24">
+<style>
+/* Air hockey: two players push the puck into the other one's goal.
+   Two people on one phone, against the robot, or 1 vs 1 online. Four languages. */
+:root{--gold:#facc15;--line:rgba(165,180,252,.3);--red:#ff3d6e;--blue:#3fd2ff;--neon:#7b5cff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:#070b24;color:#fff;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Naskh Arabic",sans-serif;overscroll-behavior:none}
+button,input{font:inherit}button{cursor:pointer;border:0;border-radius:14px;color:#fff}
+[hidden]{display:none!important}
+#lobby{min-height:100vh;padding:14px 16px 30px;display:flex;flex-direction:column;gap:14px;max-width:560px;margin:0 auto;background:radial-gradient(ellipse at 50% 0,#1b2a6b,#070b24 70%)}
+.top{display:flex;align-items:center;gap:8px}
+.top a,.top>button{color:#fff;text-decoration:none;background:rgba(255,255,255,.08);border:1px solid var(--line);border-radius:12px;padding:8px 12px;font-weight:700;font-size:14px}
+.langs{margin-inline-start:auto;display:flex;gap:4px}.langs button{padding:6px 9px;font-size:12px;background:rgba(255,255,255,.08);border:1px solid var(--line)}.langs button.on{background:var(--neon);border-color:#a48bff}
+h1{margin:2px 0 0;text-align:center;font-size:30px;text-shadow:0 0 18px rgba(123,92,255,.8)}
+.sub{margin:0;text-align:center;color:#c7d2fe;font-size:14px;line-height:1.6}
+.hero{display:block;margin:0 auto;width:150px;height:150px}
+.card{background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.card h2{margin:0;font-size:17px;display:flex;align-items:center;gap:8px}
+.card p{margin:0;color:#c7d2fe;font-size:13px;line-height:1.6}
+.btn{padding:13px 16px;font-weight:900;font-size:16px;background:linear-gradient(#8b6dff,#5a3bdc);box-shadow:0 4px 0 #3a1fa8}
+.btn.red{background:linear-gradient(#ff6b8e,#e0234f);box-shadow:0 4px 0 #8a0026}.btn.blue{background:linear-gradient(#5fdcff,#1f9fe0);box-shadow:0 4px 0 #0b5a8a}
+.btn.ghost{background:rgba(255,255,255,.08);box-shadow:none;border:1px solid var(--line)}
+.seg{display:flex;gap:6px}.seg button{flex:1;padding:9px 4px;font-weight:800;font-size:13px;background:rgba(255,255,255,.07);border:1px solid var(--line)}.seg button.on{background:var(--neon);border-color:#c4b5fd}
+.row{display:flex;gap:8px;align-items:center}
+input#code{flex:1;min-width:0;padding:12px;border-radius:14px;border:1px solid var(--line);background:#0b1240;color:#fff;font-size:20px;font-weight:900;letter-spacing:4px;text-align:center;text-transform:uppercase;direction:ltr}
+.vs{display:flex;align-items:center;justify-content:space-around;gap:8px}.vs .p{display:flex;flex-direction:column;align-items:center;gap:6px;font-weight:800;font-size:14px;max-width:40%}
+.vs img{width:58px;height:58px;border-radius:50%;object-fit:cover;border:3px solid var(--red);background:#0b1240}.vs .p:last-child img{border-color:var(--blue)}.vs b{font-size:26px}
+.dcode{font:900 34px/1 monospace;letter-spacing:8px;text-align:center;direction:ltr;color:var(--gold);text-shadow:0 0 12px rgba(250,204,21,.5)}
+/* the game */
+#game{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 30%,#1b2a6b,#070b24 70%);touch-action:none;user-select:none;-webkit-user-select:none}
+.bar{width:100%;max-width:520px;display:flex;align-items:center;gap:8px;padding:6px 12px;height:58px}
+.bar.top2{padding-top:max(6px,env(safe-area-inset-top))}
+.who{display:flex;align-items:center;gap:8px;min-width:0;flex:1}
+.who img{width:40px;height:40px;border-radius:50%;object-fit:cover;border:3px solid var(--red);background:#0b1240;flex:none}
+.who.b img{border-color:var(--blue)}
+.who span{font-weight:800;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who b{font:900 30px/1 system-ui;color:var(--red);text-shadow:0 0 12px currentColor;margin-inline-start:auto;padding:0 6px}
+.who.b b{color:var(--blue)}
+.ib{width:42px;height:42px;border-radius:50%;font-size:18px;background:rgba(255,255,255,.1);border:1px solid var(--line);flex:none}
+#cv{display:block;touch-action:none}
+.flip{transform:rotate(180deg)}
+#msg{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);font-size:44px;font-weight:900;text-align:center;pointer-events:none;text-shadow:0 0 20px rgba(0,0,0,.6),0 0 30px currentColor;opacity:0;transition:opacity .25s,transform .25s;white-space:nowrap}
+#msg.on{opacity:1;transform:translate(-50%,-50%) scale(1.08)}
+.ov{position:fixed;inset:0;background:rgba(5,8,30,.78);display:flex;align-items:center;justify-content:center;z-index:20;padding:20px}
+.ov .card{background:linear-gradient(#1b2a6b,#0d1442);width:100%;max-width:360px;text-align:center;align-items:stretch}
+.ov h2{justify-content:center;font-size:26px}
+.big{font-size:40px;font-weight:900}
+#toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(20px);background:#111a4a;border:1px solid var(--line);padding:10px 16px;border-radius:14px;font-weight:700;opacity:0;transition:.25s;z-index:50;pointer-events:none}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<script src="games.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<main id="lobby">
+  <div class="top"><a href="./">↩ AG</a><div class="langs" id="langs"></div></div>
+  <svg class="hero" viewBox="0 0 100 100" aria-hidden="true"><defs><radialGradient id="hR" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#ff9ab4"/><stop offset=".5" stop-color="#ff2a5f"/><stop offset="1" stop-color="#8a0026"/></radialGradient><radialGradient id="hP" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#ffe98a"/><stop offset=".5" stop-color="#ffb300"/><stop offset="1" stop-color="#8a5a00"/></radialGradient></defs><rect x="14" y="4" width="72" height="92" rx="14" fill="#eaf6ff" stroke="#7b5cff" stroke-width="3"/><path d="M14 50h72" stroke="#7b5cff" stroke-width="2"/><circle cx="50" cy="50" r="12" fill="none" stroke="#7b5cff" stroke-width="2"/><rect x="36" y="2" width="28" height="5" rx="2.5" fill="#3fd2ff"/><rect x="36" y="93" width="28" height="5" rx="2.5" fill="#ff3d6e"/><circle cx="56" cy="40" r="7" fill="url(#hP)"/><circle cx="42" cy="72" r="11" fill="url(#hR)"/><circle cx="42" cy="71" r="5" fill="url(#hR)" stroke="#ffd6e1"/></svg>
+  <h1 data-t="title"></h1>
+  <p class="sub" data-t="tag"></p>
+
+  <section class="card">
+    <h2>🏁 <span data-t="goalsTo"></span></h2>
+    <div class="seg" id="segTo"></div>
+  </section>
+
+  <section class="card">
+    <h2>🤖 <span data-t="vsBot"></span></h2>
+    <p data-t="vsBotD"></p>
+    <div class="seg" id="segLv"></div>
+    <button class="btn" type="button" id="bBot" data-t="play"></button>
+  </section>
+
+  <section class="card">
+    <h2>👥 <span data-t="two"></span></h2>
+    <p data-t="twoD"></p>
+    <button class="btn red" type="button" id="bTwo" data-t="play"></button>
+  </section>
+
+  <section class="card" id="online"></section>
+
+  <section class="card">
+    <h2>🎨 <span data-t="looks"></span></h2>
+    <canvas id="lkCv" style="width:100%;max-width:320px;height:180px;margin:0 auto;display:block"></canvas>
+    <button class="btn blue" type="button" id="bShop" data-t="toShop"></button>
+  </section>
+</main>
+
+<div id="game" hidden>
+  <div class="bar top2"><button class="ib" type="button" id="gQuit">✕</button><div class="who b" id="whoB"><img alt=""><span></span><b>0</b></div><button class="ib" type="button" id="gSnd">🔊</button></div>
+  <canvas id="cv"></canvas>
+  <div class="bar"><div class="who" id="whoA"><img alt=""><span></span><b>0</b></div></div>
+  <div id="msg"></div>
+</div>
+
+<script>
+"use strict";
+// ---------- languages ----------
+const LANGS=["kmr","ckb","ar","en"],LBL={kmr:"بادینی",ckb:"سۆرانی",ar:"عربي",en:"EN"};
+let L=(()=>{try{const v=localStorage.getItem("lang");return LANGS.includes(v)?v:"kmr"}catch(e){return"kmr"}})();
+const LI=()=>LANGS.indexOf(L);
+const S={
+ title:["🏒 هۆکیا مێزێ","🏒 هۆکی مێز","🏒 هوكي الهواء","🏒 Air Hockey"],
+ tag:["دەستکێ خۆ ب تبلا خۆ بلڤینە و تەپێ بهاڤێژە ناف گۆلا هەڤڕکی!","دەسکەکەت بە پەنجە بجوڵێنە و تۆپەکە بخە ناو گۆڵی بەرامبەر!","حرّك المضرب بإصبعك وأدخل القرص في مرمى خصمك!","Move your mallet with your finger and shoot the puck into the other goal!"],
+ goalsTo:["یاری دگەهیتە چەند گۆلان؟","یاری تا چەند گۆڵ؟","اللعب حتى كم هدفاً؟","First to how many goals?"],
+ vsBot:["دژی ڕۆبۆتی","دژی ڕۆبۆت","ضد الروبوت","Against the robot"],vsBotD:["ب تنێ یاری بکە دژی ڕۆبۆتەکێ زیرەک.","بە تەنها یاری بکە دژی ڕۆبۆتێکی زیرەک.","العب وحدك ضد روبوت ذكي.","Play alone against a smart robot."],
+ easy:["😊 ب ساناهی","😊 ئاسان","😊 سهل","😊 Easy"],normal:["😐 ناڤنجی","😐 مامناوەند","😐 متوسط","😐 Normal"],hard:["😈 ب زەحمەت","😈 قورس","😈 صعب","😈 Hard"],
+ two:["دوو کەس ل سەر ئێک مۆبایلێ","دوو کەس لەسەر یەک مۆبایل","شخصان على هاتف واحد","Two players, one phone"],
+ twoD:["مۆبایلێ دانە سەر مێزێ. هەر ئێک ژ لایەکێ ڤە یاری دکەت.","مۆبایلەکە دابنێ لەسەر مێز. هەریەکە لە لایەکەوە یاری دەکات.","ضع الهاتف على الطاولة، وكل لاعب يلعب من جهته.","Put the phone on a table. Each player plays from one end."],
+ play:["▶ یاری بکە","▶ یاری بکە","▶ العب","▶ Play"],
+ online:["ئۆنلاین ١ ب ١","ئۆنلاین ١ بە ١","أونلاين ١ ضد ١","Online 1 vs 1"],onlineD:["ژوورەکێ چێکە و کۆدی بۆ هەڤالێ خۆ بهنێرە، یان کۆدێ وی بنڤیسە.","ژوورێک دروست بکە و کۆدەکە بنێرە بۆ هاوڕێکەت، یان کۆدەکەی بنووسە.","أنشئ غرفة وأرسل الرمز لصديقك، أو اكتب رمزه.","Create a room and send the code to your friend, or type their code."],
+ login:["بۆ یاریا ئۆنلاین، ل ڕووپەلێ سەرەکی ب هەژمارا خۆ بچە ژوور.","بۆ یاری ئۆنلاین، لە پەڕەی سەرەکی بچۆ ژوورەوە.","للعب أونلاين، سجّل الدخول من الصفحة الرئيسية.","To play online, sign in on the main page."],
+ mkRoom:["➕ ژوورەکێ چێکە","➕ ژوورێک دروست بکە","➕ أنشئ غرفة","➕ Create a room"],joinR:["چوونا ژوورێ","چوونە ژوورەوە","دخول","Join"],
+ shareR:["📤 کۆدی بۆ هەڤالێ خۆ بهنێرە","📤 کۆدەکە بنێرە بۆ هاوڕێکەت","📤 أرسل الرمز لصديقك","📤 Send the code to your friend"],
+ waitF:["⏳ چاڤەڕێی هەڤالێ خۆ بە…","⏳ چاوەڕێی هاوڕێکەت بە…","⏳ بانتظار صديقك…","⏳ Waiting for your friend…"],
+ startD:["▶ دەست پێ بکە","▶ دەست پێبکە","▶ ابدأ","▶ Start"],ready:["چاڤەڕێی دەستپێکرنێ بە…","چاوەڕێی دەستپێکردن بە…","بانتظار البدء…","Waiting for the start…"],
+ leave:["🚪 دەرکەفتن","🚪 دەرچوون","🚪 خروج","🚪 Leave"],noRoom:["ئەڤ ژوورە نینە","ئەم ژوورە نییە","الغرفة غير موجودة","No such room"],full:["ژوور تژی یە","ژوورەکە پڕە","الغرفة ممتلئة","The room is full"],
+ copied:["کۆد هاتە کۆپیکرن","کۆدەکە کۆپی کرا","تم نسخ الرمز","Code copied"],
+ goal:["گۆل! 🎉","گۆڵ! 🎉","هدف! 🎉","GOAL! 🎉"],go:["دەست پێ بکە!","دەست پێبکە!","انطلق!","Go!"],
+ youWin:["🏆 تە بر!","🏆 بردتەوە!","🏆 فزت!","🏆 You won!"],youLose:["😢 تە دۆڕاند","😢 دۆڕاندت","😢 خسرت","😢 You lost"],
+ redWin:["🔴 سۆر بر!","🔴 سوور بردییەوە!","🔴 فاز الأحمر!","🔴 Red wins!"],blueWin:["🔵 شین بر!","🔵 شین بردییەوە!","🔵 فاز الأزرق!","🔵 Blue wins!"],
+ again:["🔄 دووبارە","🔄 دووبارە","🔄 مرة أخرى","🔄 Again"],menu:["🏠 لیستا سەرەکی","🏠 لیستی سەرەکی","🏠 القائمة","🏠 Menu"],
+ robot:["ڕۆبۆت","ڕۆبۆت","الروبوت","Robot"],red:["سۆر","سوور","الأحمر","Red"],blue:["شین","شین","الأزرق","Blue"],you:["تو","تۆ","أنت","You"],
+ looks:["شێوازێن من","شێوازەکانم","أشكالي","My looks"],toShop:["🛒 دەستک، تەپ و مێزێن نوو ل دکانێ","🛒 دەسک، تۆپ و مێزی نوێ لە دووکان","🛒 مضارب وأقراص وطاولات جديدة في المتجر","🛒 New mallets, pucks and tables in the shop"],
+ left:["هەڤالێ تە دەرکەفت","هاوڕێکەت دەرچوو","غادر صديقك","Your friend left"],paused:["⏸ ڕاوەستیای","⏸ وەستاو","⏸ متوقف","⏸ Paused"],resume:["▶ بەردەوام بە","▶ بەردەوام بە","▶ تابع","▶ Resume"]
+};
+const t=k=>{const v=S[k];return v?(v[LI()]||v[0]):k};
+const $=id=>document.getElementById(id);
+const num=n=>L==="en"?String(n):String(n).replace(/\d/g,d=>"٠١٢٣٤٥٦٧٨٩"[d]);
+const ls=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}};
+let toastT;function toast(x){let e=$("toast");if(!e){e=document.createElement("div");e.id="toast";document.body.append(e)}e.textContent=x;e.classList.add("on");clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove("on"),2400)}
+function txt(){document.documentElement.lang=L==="kmr"||L==="ckb"?"ku":L;document.documentElement.dir=L==="en"?"ltr":"rtl";
+  document.querySelectorAll("[data-t]").forEach(e=>e.textContent=t(e.dataset.t));
+  const lg=$("langs");lg.textContent="";LANGS.forEach(k=>{const b=document.createElement("button");b.type="button";b.textContent=LBL[k];if(k===L)b.className="on";b.onclick=()=>{L=k;ls("lang",k);txt()};lg.append(b)});
+  drawSeg();drawOnline()}
+
+// ---------- choices ----------
+let TO=+ls("hk.to")||7,LV=ls("hk.lv")||"normal";
+function drawSeg(){const a=$("segTo");a.textContent="";[5,7,10].forEach(n=>{const b=document.createElement("button");b.type="button";b.textContent=num(n);if(n===TO)b.className="on";b.onclick=()=>{TO=n;ls("hk.to",n);drawSeg()};a.append(b)});
+  const c=$("segLv");c.textContent="";["easy","normal","hard"].forEach(k=>{const b=document.createElement("button");b.type="button";b.textContent=t(k);if(k===LV)b.className="on";b.onclick=()=>{LV=k;ls("hk.lv",k);drawSeg()};c.append(b)})}
+
+// ---------- sounds, made by the phone ----------
+let AC=null;const SND={};const sOn=()=>ls("ag.sfx")!=="0";
+function snd(){if(!sOn())return null;try{if(!AC){AC=new (window.AudioContext||window.webkitAudioContext)();const c=AC.createDynamicsCompressor();c.connect(AC.destination);const g=AC.createGain();g.gain.value=2;g.connect(c);SND.out=g;
+    const nb=AC.createBuffer(1,AC.sampleRate,AC.sampleRate),nd=nb.getChannelData(0);for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;SND.noise=nb}if(AC.state==="suspended")AC.resume();return AC}catch(e){return null}}
+function vo(f,f2,d,type,v,delay){const a=snd();if(!a)return;const t0=a.currentTime+(delay||0),o=a.createOscillator(),g=a.createGain();o.type=type||"sine";o.frequency.setValueAtTime(f,t0);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t0+d);
+  g.gain.setValueAtTime(.0001,t0);g.gain.exponentialRampToValueAtTime(v,t0+.005);g.gain.exponentialRampToValueAtTime(.0001,t0+d);o.connect(g);g.connect(SND.out);o.start(t0);o.stop(t0+d+.03)}
+function nz(ft,f,q,d,v,delay){const a=snd();if(!a)return;const t0=a.currentTime+(delay||0),s=a.createBufferSource(),fl=a.createBiquadFilter(),g=a.createGain();s.buffer=SND.noise;fl.type=ft;fl.frequency.value=f;fl.Q.value=q;
+  g.gain.setValueAtTime(.0001,t0);g.gain.exponentialRampToValueAtTime(v,t0+.004);g.gain.exponentialRampToValueAtTime(.0001,t0+d);s.connect(fl);fl.connect(g);g.connect(SND.out);s.start(t0,Math.random()*.5);s.stop(t0+d+.03)}
+let lastHit=0;
+const sfx={
+ hit:p=>{const n=performance.now();if(n-lastHit<60)return;lastHit=n;const k=Math.min(1,p/1400);vo(260+k*260,120,.09,"triangle",.12+k*.2);nz("bandpass",1800+k*1800,2,.06,.12+k*.25)},
+ wall:p=>{if(p<120)return;const k=Math.min(1,p/1400);nz("bandpass",3200,4,.04,.04+k*.12);vo(900,500,.04,"sine",.03+k*.06)},
+ goal:()=>{vo(196,0,.5,"sawtooth",.08);vo(247,0,.5,"sawtooth",.07);vo(294,0,.5,"sawtooth",.07);[523,659,784,1047].forEach((f,i)=>vo(f,0,.3,"triangle",.12,.15+i*.08));nz("highpass",5000,1,.7,.05,.15)},
+ tap:()=>vo(900,600,.05,"triangle",.1),
+ win:()=>[523,659,784,1047,1319].forEach((f,i)=>{vo(f,0,.35,"triangle",.14,i*.12);vo(f*2,0,.2,"sine",.04,i*.12)}),
+ lose:()=>[392,330,262].forEach((f,i)=>vo(f,0,.35,"triangle",.1,i*.18)),
+ beep:hi=>vo(hi?1046:660,0,hi?.35:.15,"square",.06)};
+const vib=ms=>{try{if(ls("ag.vib")!=="0"&&navigator.vibrate)navigator.vibrate(ms)}catch(e){}};
+
+// ================= the table and the physics =================
+// the world: a table W x H; player A plays at the bottom (y big), player B at the top
+const W=360,H=640,PR=17,MR=29,GW=130,MAXV=1700;
+let G=null; // the running game
+// my looks from the shop: mallet, puck, table
+let SK=Object.assign({m:"mk_red",p:"pk_gold",t:"tb_neon"},(()=>{try{return JSON.parse(localStorage.getItem("hk.skin"))||{}}catch(e){return{}}})());
+const oppMal=()=>{const o=N.d&&Object.entries(N.d.p||{}).find(([u])=>u!==me),k=o&&o[1].mal;return k&&window.HKSK&&HKSK.mallets[k]?k:"mk_blue"};
+function newGame(mode,opt){return Object.assign({mode,                // "bot" | "two" | "net"
+  pk:{x:W/2,y:H/2+90,vx:0,vy:0},
+  a:{x:W/2,y:H-80,vx:0,vy:0,tx:W/2,ty:H-80},
+  b:{x:W/2,y:80,vx:0,vy:0,tx:W/2,ty:80},
+  sa:0,sb:0,to:TO,pause:0,over:false,trail:[],flip:false,frozen:0},opt||{})}
+const clampM=(m,top)=>{m.tx=Math.max(MR,Math.min(W-MR,m.tx));m.ty=top?Math.max(MR,Math.min(H/2-MR*.6,m.ty)):Math.max(H/2+MR*.6,Math.min(H-MR,m.ty))};
+// a mallet follows the finger (or the robot's wish) and remembers its speed
+function moveM(m,dt,maxSp){let dx=m.tx-m.x,dy=m.ty-m.y;const d=Math.hypot(dx,dy),lim=(maxSp||5000)*dt;if(d>lim){dx*=lim/d;dy*=lim/d}
+  const vx=dx/dt,vy=dy/dt;m.vx=m.vx*.4+vx*.6;m.vy=m.vy*.4+vy*.6;m.x+=dx;m.y+=dy}
+function hitM(m,p){const dx=p.x-m.x,dy=p.y-m.y,d=Math.hypot(dx,dy),mn=PR+MR;if(d>=mn||d===0)return false;
+  const nx=dx/d,ny=dy/d;p.x=m.x+nx*mn;p.y=m.y+ny*mn;const rvx=p.vx-m.vx,rvy=p.vy-m.vy,vn=rvx*nx+rvy*ny;
+  if(vn<0){p.vx-=1.9*vn*nx;p.vy-=1.9*vn*ny}
+  // always leave with a little push away from the mallet
+  const away=p.vx*nx+p.vy*ny;if(away<120){p.vx+=(120-away)*nx;p.vy+=(120-away)*ny}
+  const sp=Math.hypot(p.vx,p.vy);if(sp>MAXV){p.vx*=MAXV/sp;p.vy*=MAXV/sp}
+  sfx.hit(Math.hypot(rvx,rvy));vib(12);return true}
+// one step of the puck; returns "a" or "b" when someone scored
+function stepPuck(dt,hitList){const p=G.pk,n=4,h=dt/n;let scored=null;
+  for(let i=0;i<n&&!scored;i++){p.x+=p.vx*h;p.y+=p.vy*h;
+    hitList.forEach(m=>{if(hitM(m,p))G.lastHit=m});
+    const inGoal=Math.abs(p.x-W/2)<GW/2-PR*.4;
+    if(p.x<PR){p.x=PR;sfx.wall(Math.abs(p.vx));p.vx=Math.abs(p.vx)*.88}
+    if(p.x>W-PR){p.x=W-PR;sfx.wall(Math.abs(p.vx));p.vx=-Math.abs(p.vx)*.88}
+    if(!inGoal){if(p.y<PR){p.y=PR;sfx.wall(Math.abs(p.vy));p.vy=Math.abs(p.vy)*.88}if(p.y>H-PR){p.y=H-PR;sfx.wall(Math.abs(p.vy));p.vy=-Math.abs(p.vy)*.88}}
+    else{ // the goal posts: keep the puck inside the mouth of the goal
+      if(p.y<PR||p.y>H-PR){const lo=W/2-GW/2+PR,hi=W/2+GW/2-PR;if(p.x<lo){p.x=lo;p.vx=Math.abs(p.vx)}if(p.x>hi){p.x=hi;p.vx=-Math.abs(p.vx)}}
+      if(p.y<-PR)scored="a";else if(p.y>H+PR)scored="b"}}
+  const f=Math.pow(.72,dt);p.vx*=f;p.vy*=f;if(Math.hypot(p.vx,p.vy)<4){p.vx=0;p.vy=0}
+  return scored}
+
+// ---------- the robot ----------
+const BOT={easy:{sp:420,react:.16,aim:60},normal:{sp:700,react:.08,aim:30},hard:{sp:1050,react:.03,aim:10}};
+function botThink(dt){const m=G.b,p=G.pk,B=BOT[LV]||BOT.normal;G.bt=(G.bt||0)-dt;if(G.bt>0){moveM(m,dt,B.sp);return}G.bt=B.react;
+  const myHalf=p.y<H/2+PR;
+  if(myHalf&&p.y>m.y-6){ // the puck is in front of me: hit it toward the red goal
+    const gx=W/2+(Math.random()-.5)*B.aim*2,gy=H+40,dx=gx-p.x,dy=gy-p.y,d=Math.hypot(dx,dy)||1;
+    const slow=Math.hypot(p.vx,p.vy)<500||p.vy<0;
+    if(slow){m.tx=p.x+dx/d*30;m.ty=p.y+dy/d*30}else{m.tx=p.x;m.ty=Math.max(MR,p.y-PR-MR)}}
+  else if(myHalf){ // the puck got behind me: go round it
+    m.tx=p.x+(p.x<W/2?MR*2.2:-MR*2.2);m.ty=p.y-MR*1.6}
+  else{ // defend: stand between the puck and my goal
+    const k=LV==="easy"?.35:.6;m.tx=W/2+(p.x-W/2)*k;m.ty=60+(LV==="hard"?Math.max(0,(p.y-H/2)*.1):0)}
+  clampM(m,true);moveM(m,dt,B.sp)}
+
+// ================= drawing =================
+const cv=$("cv"),cx=cv.getContext("2d");let SC=1,DPR=1,TBL=null;
+function layout(){const ah=innerHeight-120,aw=Math.min(innerWidth,520)-8;SC=Math.min(aw/W,ah/H);DPR=Math.min(2.5,devicePixelRatio||1);
+  cv.style.width=W*SC+"px";cv.style.height=H*SC+"px";cv.width=Math.round(W*SC*DPR);cv.height=Math.round(H*SC*DPR);TBL=null}
+function table(){const c=document.createElement("canvas");c.width=cv.width;c.height=cv.height;const x=c.getContext("2d");x.scale(SC*DPR,SC*DPR);
+  ((window.HKSK&&(HKSK.tables[SK.t]||HKSK.tables.tb_neon))||{draw:()=>{}}).draw(x,W,H,GW);return c}
+function disc(x0,y0,r,c1,c2,c3,glow){const x=cx;x.save();if(glow){x.shadowColor=glow;x.shadowBlur=18}
+  const g=x.createRadialGradient(x0-r*.3,y0-r*.35,r*.1,x0,y0,r);g.addColorStop(0,c1);g.addColorStop(.5,c2);g.addColorStop(1,c3);x.fillStyle=g;x.beginPath();x.arc(x0,y0,r,0,7);x.fill();x.restore()}
+function mallet(m,key){const X=V(m.x,m.y);const M=window.HKSK&&(HKSK.mallets[key]||HKSK.mallets.mk_red);if(M)M.draw(cx,X[0],X[1],MR,performance.now()/1000)}
+// the guest online sees the table turned round, so they always play at the bottom
+const V=(x,y)=>G&&G.flip?[W-x,H-y]:[x,y];
+function draw(){if(!TBL)TBL=table();cx.setTransform(1,0,0,1,0,0);cx.clearRect(0,0,cv.width,cv.height);cx.drawImage(TBL,0,0);cx.setTransform(SC*DPR,0,0,SC*DPR,0,0);
+  // big faint scores in each half
+  cx.save();cx.globalAlpha=.1;cx.font="900 110px system-ui";cx.textAlign="center";cx.textBaseline="middle";
+  const top=G.flip?G.sa:G.sb,bot=G.flip?G.sb:G.sa;cx.fillStyle=G.flip?"#ff3d6e":"#3fd2ff";cx.fillText(num(top),W/2,H/4);cx.fillStyle=G.flip?"#3fd2ff":"#ff3d6e";cx.fillText(num(bot),W/2,H*3/4);cx.restore();
+  // the puck's tail
+  const PK=window.HKSK&&(HKSK.pucks[SK.p]||HKSK.pucks.pk_gold),tl=PK?PK.tail:"255,179,0",tm=performance.now()/1000;
+  G.trail.forEach((q,i)=>{const X=V(q[0],q[1]);cx.fillStyle=tl==="rainbow"?"hsla("+(i*45+tm*200)%360+",100%,60%,"+(i/G.trail.length*.3)+")":"rgba("+tl+","+(i/G.trail.length*.22)+")";cx.beginPath();cx.arc(X[0],X[1],PR*(.5+i/G.trail.length*.5),0,7);cx.fill()});
+  const P=V(G.pk.x,G.pk.y);if(PK)PK.draw(cx,P[0],P[1],PR,tm,Math.hypot(G.pk.vx,G.pk.vy)>600);
+  // I am always red at the bottom; online the guest sees the table turned round
+  const mineK=SK.m,othK=G.mode==="net"?oppMal():"mk_blue";mallet(G.b,G.mode==="two"?"mk_blue":G.me==="b"?mineK:othK);mallet(G.a,G.mode==="net"&&G.me==="b"?othK:mineK)}
+
+// ================= touch: every finger moves the mallet of its half =================
+const fingers=new Map();
+function toWorld(e){const r=cv.getBoundingClientRect();let x=(e.clientX-r.left)/SC,y=(e.clientY-r.top)/SC;if(G&&G.flip){x=W-x;y=H-y}return[x,y]}
+function grab(e){if(!G||G.over)return;const[x,y]=toWorld(e);let who;
+  if(G.mode==="two")who=y<H/2?"b":"a";else who=G.mode==="net"?G.me:"a";
+  fingers.set(e.pointerId,who);aim(who,x,y)}
+// the mallet sits a little in front of the finger, so the finger does not hide it
+function aim(who,x,y){const m=G[who];let off=26;if(G.mode==="two"&&who==="b")off=-off;if(G.flip)off=-off;m.tx=x;m.ty=y-off;clampM(m,who==="b")}
+cv.addEventListener("pointerdown",e=>{e.preventDefault();try{cv.setPointerCapture(e.pointerId)}catch(_){}grab(e)});
+cv.addEventListener("pointermove",e=>{if(!G)return;const who=fingers.get(e.pointerId);if(!who)return;const[x,y]=toWorld(e);aim(who,x,y)});
+const lift=e=>fingers.delete(e.pointerId);cv.addEventListener("pointerup",lift);cv.addEventListener("pointercancel",lift);
+
+// ================= the loop =================
+let raf=0,lastT=0;
+function loop(ts){raf=requestAnimationFrame(loop);if(!G)return;let dt=Math.min(.033,(ts-(lastT||ts))/1000);lastT=ts;if(dt<=0)return;
+  if(G.mode==="bot")botThink(dt);
+  // my mallets follow the fingers
+  if(G.mode!=="net"){moveM(G.a,dt);if(G.mode==="two")moveM(G.b,dt)}
+  else{moveM(G[G.me],dt);netFollow(dt)}
+  if(G.pause>0){G.pause-=dt;if(G.pause<=0)msg("")}
+  else if(!G.over&&!G.frozen){
+    if(G.mode==="net")netStep(dt);
+    else{const s=stepPuck(dt,[G.a,G.b]);if(s)scored(s)}}
+  G.trail.push([G.pk.x,G.pk.y]);if(G.trail.length>8)G.trail.shift();
+  draw()}
+function msg(x,col){const e=$("msg");e.textContent=x;e.style.color=col||"#fff";e.classList.toggle("on",!!x);e.className=x?"on"+(G&&G.mode==="two"&&col==="#3fd2ff"?" flip":""):""}
+function serveTo(side){G.pk={x:W/2,y:side==="a"?H/2+90:H/2-90,vx:0,vy:0};G.trail=[]}
+function scored(s){if(s==="a")G.sa++;else G.sb++;sfx.goal();vib(80);hud();
+  const col=s==="a"?"#ff3d6e":"#3fd2ff";msg(t("goal"),col);
+  if(G.sa>=G.to||G.sb>=G.to){G.over=true;setTimeout(endGame,1200);return}
+  serveTo(s==="a"?"b":"a");G.pause=1.1}
+function hud(){$("whoA").querySelector("b").textContent=num(G.flip?G.sb:G.sa);$("whoB").querySelector("b").textContent=num(G.flip?G.sa:G.sb)}
+function setWho(el,name,photo,uid){const im=el.querySelector("img");im.src=face(photo,name);if(uid)im.dataset.fr=uid;else delete im.dataset.fr;el.querySelector("span").textContent=name}
+function begin(mode,opt){G=newGame(mode,opt);$("lobby").hidden=true;$("game").hidden=false;layout();
+  $("whoB").classList.toggle("flip",mode==="two");hud();
+  if(mode==="bot"){setWho($("whoA"),myName(),myPhoto(),me);setWho($("whoB"),t("robot")+" · "+t(LV),"data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect width="40" height="40" fill="#0b3b5a"/><text x="20" y="28" font-size="22" text-anchor="middle">🤖</text></svg>'))}
+  if(mode==="two"){setWho($("whoA"),"🔴 "+t("red"),dot("#ff2a5f"));setWho($("whoB"),"🔵 "+t("blue"),dot("#1fb4ff"))}
+  G.pause=1.2;msg(t("go"),"#facc15");sfx.beep(true);lastT=0;if(!raf)raf=requestAnimationFrame(loop)}
+const dot=c=>"data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><circle cx="20" cy="20" r="20" fill="'+c+'"/></svg>');
+function endGame(){if(!G)return;msg("");let title,good=true;
+  if(G.mode==="two")title=G.sa>G.sb?t("redWin"):t("blueWin");
+  else{const mine=G.mode==="net"&&G.me==="b"?G.sb:G.sa,oth=G.mode==="net"&&G.me==="b"?G.sa:G.sb;good=mine>oth;title=good?t("youWin"):t("youLose")}
+  good?sfx.win():sfx.lose();
+  const o=document.createElement("div");o.className="ov";o.id="ovEnd";o.innerHTML='<div class="card"><h2></h2><div class="big"></div><button class="btn" type="button" id="eAgain"></button><button class="btn ghost" type="button" id="eMenu"></button></div>';
+  o.querySelector("h2").textContent=title;const sa=num(G.flip?G.sb:G.sa),sb=num(G.flip?G.sa:G.sb);o.querySelector(".big").innerHTML='<span style="color:#ff3d6e">'+sa+'</span> : <span style="color:#3fd2ff">'+sb+'</span>';
+  document.body.append(o);const again=$("eAgain");again.textContent=t("again");$("eMenu").textContent=t("menu");
+  if(G.mode==="net"){if(N.d&&N.d.host===me)again.onclick=()=>{o.remove();nStart()};else{again.textContent=t("ready");again.disabled=true}}
+  else{const m=G.mode;again.onclick=()=>{o.remove();begin(m)}}
+  $("eMenu").onclick=()=>{o.remove();quit()}}
+function quit(){if(G&&G.mode==="net")nLeave();G=null;fingers.clear();msg("");document.querySelectorAll(".ov").forEach(e=>e.remove());$("game").hidden=true;$("lobby").hidden=false;drawOnline()}
+$("gQuit").onclick=()=>{sfx.tap();if(!G)return;if(G.mode==="net"||G.over){quit();return}
+  G.frozen=1;const o=document.createElement("div");o.className="ov";o.innerHTML='<div class="card"><h2></h2><button class="btn" type="button" id="pRes"></button><button class="btn ghost" type="button" id="pOut"></button></div>';
+  o.querySelector("h2").textContent=t("paused");document.body.append(o);$("pRes").textContent=t("resume");$("pOut").textContent=t("menu");$("pRes").onclick=()=>{o.remove();G.frozen=0};$("pOut").onclick=()=>{o.remove();quit()}};
+$("gSnd").onclick=()=>{ls("ag.sfx",sOn()?"0":"1");$("gSnd").textContent=sOn()?"🔊":"🔇";sfx.tap()};
+function drawLooks(){const c=$("lkCv");if(!c||!window.HKSK)return;const w=c.clientWidth||320,h=180,d=Math.min(2,devicePixelRatio||1);c.width=w*d;c.height=h*d;const x=c.getContext("2d");x.scale(d,d);
+  x.save();x.translate(w,0);x.rotate(Math.PI/2);x.scale(h/360,w/640);(HKSK.tables[SK.t]||HKSK.tables.tb_neon).draw(x,360,640,130);x.restore();
+  const r=Math.min(26,h*.15),tm=performance.now()/1000;HKSK.mallets.mk_blue.draw(x,w*.2,h*.45,r,tm);(HKSK.pucks[SK.p]||HKSK.pucks.pk_gold).draw(x,w*.5,h*.55,r*.55,tm,true);(HKSK.mallets[SK.m]||HKSK.mallets.mk_red).draw(x,w*.78,h*.5,r,tm)}
+$("bShop").onclick=()=>{location.href="./#pack_hkmallet"};
+$("bBot").onclick=()=>{sfx.tap();begin("bot")};$("bTwo").onclick=()=>{sfx.tap();begin("two")};
+addEventListener("resize",()=>{if(G)layout()});
+
+// ================= firebase: who I am, and the online rooms =================
+const firebaseConfig={apiKey:"AIzaSyAy7OuYhyVPF2ek7EUY3Uh8e4NfEO08jZs",authDomain:"chess-zeravan.firebaseapp.com",
+  databaseURL:"https://chess-zeravan-default-rtdb.europe-west1.firebasedatabase.app",projectId:"chess-zeravan",appId:"1:269435267387:web:b9a20392e4d3d0f6826f1e"};
+let fdb=null,user=null,me=null,prof={},OFF=0;
+const myName=()=>prof.name||(user&&user.displayName)||t("you");
+const myPhoto=()=>prof.photo||(user&&user.photoURL)||"";
+const face=(ph,name)=>ph||("data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect width="40" height="40" fill="#2b3a8a"/><text x="20" y="27" font-size="18" font-weight="700" fill="#fff" text-anchor="middle" font-family="sans-serif">'+String(name||"?").slice(0,1).replace(/[<&>"]/g,"")+'</text></svg>'));
+const now=()=>Date.now()+OFF;
+function fbBoot(){if(typeof firebase==="undefined")return;try{firebase.initializeApp(firebaseConfig);fdb=firebase.database();
+  fdb.ref(".info/serverTimeOffset").on("value",s=>{OFF=Number(s.val())||0});
+  firebase.auth().onAuthStateChanged(u=>{user=u;me=u?u.uid:null;drawOnline();if(!u)return;fdb.ref("profiles/"+me+"/public").on("value",s=>{prof=s.val()||{};drawOnline()},()=>{});
+    fdb.ref("profiles/"+me+"/private").on("value",s=>{const v=s.val()||{};SK={m:v.hkmallet||"mk_red",p:v.hkpuck||"pk_gold",t:v.hktable||"tb_neon"};ls("hk.skin",JSON.stringify(SK));TBL=null;drawLooks();
+      if(N.ref&&N.d&&(N.d.p||{})[me]&&N.d.p[me].mal!==SK.m)N.ref.child("p/"+me+"/mal").set(SK.m).catch(()=>{})},()=>{})})}catch(e){}}
+
+// hockey/<code> = {host, status: wait|play|over, round, to, startAt, p:{uid:{name,photo,side,left}}, m:{uid:{x,y}}, pk:{x,y,vx,vy,ts,n,by}, sc:{a,b}}
+// the host plays "a" (bottom of the world), the guest plays "b" and sees the table turned round.
+// The puck is moved by the player in whose half it is; that player sends it to the other.
+const N={code:null,ref:null,d:null,lastSend:0,lastM:0,mine:0,n:0,opp:{x:W/2,y:80,ok:false}};
+const nNew=()=>{const a="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";let s="";for(let i=0;i<5;i++)s+=a[Math.floor(Math.random()*a.length)];return s};
+const nMe=side=>({name:myName().slice(0,30),photo:myPhoto().length<1500?myPhoto():"",side,mal:SK.m});
+function drawOnline(){const box=$("online");if(!box)return;box.textContent="";
+  const h=document.createElement("h2");h.textContent="🌐 "+t("online");box.append(h);
+  if(!fdb||!me){const p=document.createElement("p");p.textContent=t("login");box.append(p);return}
+  const d=N.d;
+  if(!N.code||!d){const p=document.createElement("p");p.textContent=t("onlineD");const mk=document.createElement("button");mk.className="btn blue";mk.type="button";mk.textContent=t("mkRoom");mk.onclick=nCreate;
+    const r=document.createElement("div");r.className="row";const inp=document.createElement("input");inp.id="code";inp.maxLength=5;inp.placeholder="ABCDE";inp.autocomplete="off";
+    const j=document.createElement("button");j.className="btn";j.type="button";j.textContent=t("joinR");j.onclick=()=>{const v=(inp.value||"").trim().toUpperCase();if(v.length===5)nJoin(v)};r.append(inp,j);box.append(p,mk,r);return}
+  const ps=Object.entries(d.p||{}).sort((x,y)=>x[1].side<y[1].side?-1:1);
+  const vs=document.createElement("div");vs.className="vs";
+  const pl=(e)=>{const x=e&&e[1];const p=document.createElement("div");p.className="p";const im=document.createElement("img");im.alt="";im.src=face(x&&x.photo,x&&x.name);if(e)im.dataset.fr=e[0];const n=document.createElement("span");n.textContent=x?x.name:"…";p.append(im,n);return p};
+  const v=document.createElement("b");v.textContent="⚔️";vs.append(pl(ps[0]),v,pl(ps[1]));box.append(vs);
+  const k=document.createElement("div");k.className="dcode";k.textContent=N.code;box.append(k);
+  if(ps.length<2){const sh=document.createElement("button");sh.className="btn blue";sh.type="button";sh.textContent=t("shareR");sh.onclick=nShare;const w=document.createElement("p");w.textContent=t("waitF");box.append(sh,w)}
+  else if(d.host===me){const st=document.createElement("button");st.className="btn";st.type="button";st.textContent=t("startD")+" · 🏁 "+num(TO);st.onclick=nStart;box.append(st)}
+  else{const w=document.createElement("p");w.textContent=t("ready");box.append(w)}
+  const lv=document.createElement("button");lv.className="btn ghost";lv.type="button";lv.textContent=t("leave");lv.onclick=nLeave;box.append(lv)}
+async function nCreate(){sfx.tap();const c=nNew();try{await fdb.ref("hockey/"+c).set({host:me,status:"wait",round:0,to:TO,createdAt:firebase.database.ServerValue.TIMESTAMP,p:{[me]:nMe("a")}});nOpen(c)}catch(e){toast("✖")}}
+async function nJoin(c){sfx.tap();try{const r=(await fdb.ref("hockey/"+c).once("value")).val();if(!r){toast(t("noRoom"));return}const ps=r.p||{};
+  if(!ps[me]&&Object.keys(ps).length>=2){toast(t("full"));return}if(!ps[me])await fdb.ref("hockey/"+c+"/p/"+me).set(nMe("b"));nOpen(c)}catch(e){toast("✖")}}
+function nOpen(c){if(N.ref)N.ref.off();N.code=c;N.ref=fdb.ref("hockey/"+c);N.ref.child("p/"+me+"/left").onDisconnect().set(true);
+  N.ref.on("value",s=>{const prev=N.d;N.d=s.val();const d=N.d;
+    if(!d){N.code=null;N.ref.off();N.ref=null;if(G&&G.mode==="net"){G=null;document.querySelectorAll(".ov").forEach(e=>e.remove());$("game").hidden=true;$("lobby").hidden=false;toast(t("left"))}drawOnline();return}
+    if(d.status==="play"&&(!prev||prev.status!=="play"||prev.round!==d.round))nBegin();
+    if(G&&G.mode==="net")nSync(d);
+    drawOnline()})}
+function nShare(){const x=t("title")+" 🏒 "+N.code;if(navigator.share)navigator.share({title:t("title"),text:x,url:location.origin+location.pathname}).catch(()=>{});else{try{navigator.clipboard.writeText(x)}catch(e){}toast(t("copied"))}}
+function nStart(){const d=N.d;if(!d||d.host!==me||Object.keys(d.p||{}).length<2)return;sfx.tap();
+  const up={status:"play",round:(d.round||0)+1,to:TO,startAt:now()+2500,sc:{a:0,b:0},pk:{x:W/2,y:H/2+90,vx:0,vy:0,ts:now(),n:0,by:me},m:null};
+  Object.keys(d.p).forEach(u=>{up["p/"+u+"/left"]=null});N.ref.update(up)}
+async function nLeave(){const d=N.d,c=N.code;if(N.ref){N.ref.child("p/"+me+"/left").onDisconnect().cancel();N.ref.off()}N.ref=null;N.code=null;N.d=null;
+  try{if(d&&d.host===me)await fdb.ref("hockey/"+c).remove();else if(c)await fdb.ref("hockey/"+c+"/p/"+me).remove()}catch(e){}
+  if(G&&G.mode==="net"){G=null;document.querySelectorAll(".ov").forEach(e=>e.remove());$("game").hidden=true;$("lobby").hidden=false}drawOnline()}
+function nBegin(){const d=N.d;document.querySelectorAll(".ov").forEach(e=>e.remove());const side=(d.p[me]||{}).side||"b";
+  TO=d.to||7;begin("net",{me:side,flip:side==="b",to:d.to||7});G.frozen=1;N.mine=0;N.n=0;N.opp={x:W/2,y:side==="a"?80:H-80,ok:false};
+  const o=Object.entries(d.p).find(([u])=>u!==me),oth=o?o[1]:{};
+  setWho($("whoA"),myName(),myPhoto(),me);setWho($("whoB"),oth.name||"…",oth.photo,o&&o[0]);
+  const wait=Math.max(0,(d.startAt||0)-now());msg("⏳","#facc15");
+  setTimeout(()=>{if(G&&G.mode==="net"){G.frozen=0;G.pause=.8;msg(t("go"),"#facc15");sfx.beep(true)}},Math.min(4000,wait))}
+// what the room says: the score, the other mallet, and the puck when the other player has it
+function nSync(d){const o=Object.entries(d.p||{}).find(([u])=>u!==me);
+  if((!o||o[1].left)&&!G.over&&d.status==="play"){G.over=true;msg("");toast(t("left"));G.sa=G.me==="a"?G.to:0;G.sb=G.me==="b"?G.to:0;hud();setTimeout(endGame,600)}
+  const sc=d.sc||{a:0,b:0};if(sc.a!==G.sa||sc.b!==G.sb){const who=sc.a>G.sa?"a":sc.b>G.sb?"b":null;G.sa=sc.a||0;G.sb=sc.b||0;hud();
+    if(who&&!G.over){sfx.goal();vib(60);msg(t("goal"),(who===G.me)?"#ff3d6e":"#3fd2ff");G.pause=1.1;if(G.sa>=G.to||G.sb>=G.to){G.over=true;setTimeout(endGame,1200)}}}
+  const om=o&&(d.m||{})[o[0]];if(om){N.opp.x=+om.x;N.opp.y=+om.y;N.opp.ok=true}
+  const pk=d.pk;if(pk&&pk.by!==me){const fresh=(pk.n||0)>N.n||(pk.ts||0)>N.mine;
+    if(fresh){N.n=Math.max(N.n,pk.n||0);G.pk={x:+pk.x,y:+pk.y,vx:+pk.vx,vy:+pk.vy};
+      // move it on by the time the message took to come
+      let lag=Math.min(.25,Math.max(0,(now()-(pk.ts||now()))/1000));while(lag>0){const h=Math.min(.016,lag);stepPuck(h,[]);lag-=h}}}
+  if(pk&&(pk.n||0)>N.n)N.n=pk.n||0}
+// the other mallet glides toward where it was last seen
+function netFollow(dt){const om=G[G.me==="a"?"b":"a"];if(!N.opp.ok)return;om.tx=N.opp.x;om.ty=N.opp.y;const k=1-Math.pow(.0005,dt);const ox=om.x,oy=om.y;
+  om.x+=(om.tx-om.x)*k;om.y+=(om.ty-om.y)*k;om.vx=(om.x-ox)/dt;om.vy=(om.y-oy)/dt}
+function inMyHalf(y){return G.me==="a"?y>=H/2:y<H/2}
+function netStep(dt){const mine=G[G.me],oth=G[G.me==="a"?"b":"a"];const had=inMyHalf(G.pk.y);
+  const s=stepPuck(dt,[mine,oth]);
+  // my mallet: send it 20 times a second
+  const t0=performance.now();if(N.ref&&t0-N.lastM>50){N.lastM=t0;N.ref.child("m/"+me).set({x:Math.round(mine.x*10)/10,y:Math.round(mine.y*10)/10}).catch(()=>{})}
+  if(s){ // a goal can only happen in the half of the one who let it in: that player writes it
+    if(s!==G.me&&N.ref){const n=N.n+1;N.n=n;const serve={x:W/2,y:G.me==="a"?H/2+90:H/2-90,vx:0,vy:0};G.pk=Object.assign({},serve);G.trail=[];
+      N.ref.child("sc/"+s).transaction(v=>(v||0)+1).catch(()=>{});N.mine=now();N.ref.child("pk").set(Object.assign({ts:N.mine,n,by:me},serve)).catch(()=>{})}
+    else{G.pk={x:W/2,y:H/2,vx:0,vy:0}}return}
+  // the puck is mine while it is in my half: send it often, and right away when I hit it
+  const hitNow=G.lastHit===mine;G.lastHit=null;
+  if(inMyHalf(G.pk.y)||had){if(N.ref&&(hitNow||t0-N.lastSend>50||(had&&!inMyHalf(G.pk.y)))){N.lastSend=t0;N.mine=now();const p=G.pk;
+      N.ref.child("pk").set({x:Math.round(p.x*10)/10,y:Math.round(p.y*10)/10,vx:Math.round(p.vx),vy:Math.round(p.vy),ts:N.mine,n:N.n,by:me}).catch(()=>{})}}}
+
+fbBoot();txt();drawLooks();addEventListener("resize",drawLooks);
+</script>
+</body>
+</html>

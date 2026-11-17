@@ -38,6 +38,8 @@ var GAMES=[
    icon:"<svg viewBox=\"0 0 40 40\" aria-hidden=\"true\"><path d=\"M6 17h28l-3-2-3-9-8 2-8-2-3 9z\" fill=\"currentColor\"/><circle cx=\"14\" cy=\"26\" r=\"5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\"/><circle cx=\"26\" cy=\"26\" r=\"5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\"/><path d=\"M19 26h2\" stroke=\"currentColor\" stroke-width=\"2.6\"/></svg>"},
   {id:"fruit", page:"fruit.html", skins:"fruitskins.js", name:["میوێن کوردستانێ", "میوەکانی کوردستان", "فواكه كردستان", "Kurdistan Fruits"],
    icon:"<svg viewBox=\"0 0 40 40\" aria-hidden=\"true\"><circle cx=\"14\" cy=\"24\" r=\"9\" fill=\"#ef3b2c\"/><circle cx=\"27\" cy=\"22\" r=\"6\" fill=\"#9b3fd6\"/><circle cx=\"31\" cy=\"30\" r=\"6\" fill=\"#9b3fd6\"/><circle cx=\"23\" cy=\"31\" r=\"6\" fill=\"#9b3fd6\"/><path d=\"M14 15c0-4 2-7 5-8\" stroke=\"currentColor\" stroke-width=\"2.4\" fill=\"none\"/><path d=\"M17 10c4-3 8-2 9 0-4 2-7 2-9 0z\" fill=\"#46b04a\"/></svg>"},
+  {id:"hockey", page:"hockey.html", skins:"hockeyskins.js", name:["هۆکیا مێزێ", "هۆکی مێز", "هوكي الهواء", "Air Hockey"],
+   icon:"<svg viewBox=\"0 0 40 40\" aria-hidden=\"true\"><rect x=\"8\" y=\"3\" width=\"24\" height=\"34\" rx=\"6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\"/><path d=\"M8 20h24\" stroke=\"currentColor\" stroke-width=\"2\"/><circle cx=\"23\" cy=\"14\" r=\"3.5\" fill=\"currentColor\"/><circle cx=\"17\" cy=\"28\" r=\"5.5\" fill=\"currentColor\"/></svg>"},
 ];
 var LI={kmr:0,ckb:1,ar:2,en:3};
 function lang(){try{var v=LI[localStorage.getItem("lang")];return v==null?0:v}catch(e){return 0}}
@@ -105,7 +107,7 @@ function fzWatchAll(){var tries=0;(function go(){try{if(!window.firebase||!fireb
 /* ---- the game picker on every lobby: big cards under the title that you swipe one by one (the old icon row is hidden) ---- */
 var THEME={chess:["#7c3aed","#2e1065","♟️"],domino:["#16a34a","#064e3b","🁣"],snakes:["#f97316","#7c2d12","🐍"],tawla:["#b45309","#451a03","🎲"],
   dama:["#2563eb","#172554","⚫"],ludo:["#db2777","#500724","🎯"],zar:["#0d9488","#042f2e","🃏"],kon:["#dc2626","#450a0a","♠️"],
-  worms:["#0ea5e9","#082f49","🪱"],xo:["#4f46e5","#1e1b4b","❌"],dots:["#d97706","#451a03","▦"],kustirk:["#be185d","#4a0420","💍"],pool:["#0f766e","#042f2e","🎱"],quiz:["#7c3aed","#2e1065","🧠"],spy:["#dc2626","#1e1b4b","🕵️"],fruit:["#16a34a","#0f3d2e","🍎"]};
+  worms:["#0ea5e9","#082f49","🪱"],xo:["#4f46e5","#1e1b4b","❌"],dots:["#d97706","#451a03","▦"],kustirk:["#be185d","#4a0420","💍"],pool:["#0f766e","#042f2e","🎱"],quiz:["#7c3aed","#2e1065","🧠"],spy:["#dc2626","#1e1b4b","🕵️"],fruit:["#16a34a","#0f3d2e","🍎"],hockey:["#7b5cff","#070b24","🏒"]};
 AG.theme=THEME;
 var PLAY=["▶ یاری بکە","▶ یاری بکە","▶ العب","▶ Play"],HERE=["✓ تو ل ڤێرێ یی","✓ تۆ لێرەی","✓ أنت هنا","✓ You are here"];
 function carCss(){if(document.getElementById("agCarCss"))return;var st=document.createElement("style");st.id="agCarCss";st.textContent=
