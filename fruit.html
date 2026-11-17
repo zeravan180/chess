@@ -85,6 +85,7 @@ html[dir=rtl] .sbar>em{transform:translate(50%,-50%)}
 @keyframes hint{to{transform:scale(1.18)}}
 .burst{position:absolute;pointer-events:none;border-radius:50%;background:radial-gradient(circle,#fff,rgba(255,230,120,.8) 40%,transparent 70%);animation:burst .35s ease-out forwards}
 @keyframes burst{from{transform:scale(.3);opacity:1}to{transform:scale(1.6);opacity:0}}
+.crack{position:absolute;pointer-events:none;border-radius:10px;background:radial-gradient(circle,rgba(255,255,255,.95),rgba(170,225,255,.6) 45%,transparent 70%);animation:burst .4s ease-out forwards}
 .beam{position:absolute;pointer-events:none;background:linear-gradient(90deg,transparent,#fff,transparent);animation:beam .35s ease-out forwards;border-radius:6px}
 @keyframes beam{from{opacity:1}to{opacity:0}}
 .float{position:absolute;pointer-events:none;font-weight:900;font-size:18px;color:#fff;text-shadow:0 2px 0 #b06500,0 0 6px #000;animation:fl .8s ease-out forwards;z-index:9}
@@ -335,8 +336,12 @@ function place(f,x,y,now){const e=f.el;if(now){e.style.transition="none";e.style
 function mkEl(f,x,y,fromY){const e=document.createElement("div");e.className="fr";e.style.width=e.style.height=CS+"px";e.innerHTML=fsvg(f.t,f.sp);f.el=e;$("board").append(e);
   if(fromY!=null){place(f,x,fromY,true);requestAnimationFrame(()=>requestAnimationFrame(()=>place(f,x,y)))}else place(f,x,y,true)}
 const redraw=f=>{f.el.innerHTML=fsvg(f.t,f.sp)};
-function drawCells(){const b=$("board");[...b.querySelectorAll(".cell")].forEach(c=>c.remove());for(let y=0;y<N;y++)for(let x=0;x<N;x++){const c=document.createElement("div");c._x=x;c._y=y;const ic=G.ice[y][x];
-  c.className="cell"+((x+y)%2?" alt":"")+(ic===1?" ice":ic>=2?" ice2":"");b.prepend(c)}layout()}
+let cellEl=[];
+const iceCls=(x,y)=>{const ic=G.ice[y][x];return"cell"+((x+y)%2?" alt":"")+(ic===1?" ice":ic>=2?" ice2":"")};
+function drawCells(){const b=$("board");[...b.querySelectorAll(".cell")].forEach(c=>c.remove());cellEl=[...Array(N)].map(()=>Array(N));for(let y=0;y<N;y++)for(let x=0;x<N;x++){const c=document.createElement("div");c._x=x;c._y=y;
+  c.className=iceCls(x,y);cellEl[y][x]=c;b.prepend(c)}layout()}
+// the ice under a fruit cracks: one layer less, with a little crack and sound
+function crackIce(x,y){const c=cellEl[y]&&cellEl[y][x];if(c)c.className=iceCls(x,y);fx("crack",4+x*CS,4+y*CS,CS,CS);tone(1800,900,.12,"triangle",.07)}
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 function startLevel(n){const lv=level(n);G={lv,n,moves:lv.moves,score:0,got:{},iceLeft:0,boost:{ham:1,shuf:1},over:false,combo:0};
   G.ice=[...Array(N)].map(()=>Array(N).fill(0));lv.ice.forEach(([x,y,k])=>{G.ice[y][x]=k});G.iceLeft=lv.ice.reduce((a,v)=>a+v[2],0);
@@ -371,7 +376,7 @@ async function clearCells(set,made){const q=[...set.keys()],done=new Set();let p
       if(f.sp==="b"){const tp=mostType();for(let yy=0;yy<N;yy++)for(let xx=0;xx<N;xx++){const o=G.g[yy][xx];if(o&&o.t===tp)add.push([xx,yy])}sfx.zap()}
       add.forEach(([ax,ay])=>{if(inB(ax,ay)&&G.g[ay][ax]){const kk=ax+","+ay;if(!done.has(kk)){q.push(kk);set.set(kk,1)}}})}}
   for(const k of done){const[x,y]=k.split(",").map(Number),f=G.g[y][x];if(!f)continue;
-    if(G.ice[y][x]>0){G.ice[y][x]--;G.iceLeft--}
+    if(G.ice[y][x]>0){G.ice[y][x]--;G.iceLeft--;crackIce(x,y)}
     if(made&&made.has(k)){const m=made.get(k);f.sp=m.sp;if(m.sp==="b")f.t=-1;redraw(f);continue}
     if(f.t>=0)G.got[f.t]=(G.got[f.t]||0)+1;pts+=20;
     f.el.classList.add("pop");f.el.style.transform+=" scale(.2)";const el=f.el;setTimeout(()=>el.remove(),240);G.g[y][x]=null}
