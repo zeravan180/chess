@@ -75,6 +75,8 @@ input#code{flex:1;min-width:0;padding:12px;border-radius:14px;border:1px solid v
     <div class="seg" id="segTo"></div>
   </section>
 
+  <section class="card" id="online"></section>
+
   <section class="card">
     <h2>🤖 <span data-t="vsBot"></span></h2>
     <p data-t="vsBotD"></p>
@@ -88,7 +90,6 @@ input#code{flex:1;min-width:0;padding:12px;border-radius:14px;border:1px solid v
     <button class="btn red" type="button" id="bTwo" data-t="play"></button>
   </section>
 
-  <section class="card" id="online"></section>
 
   <section class="card">
     <h2>🎨 <span data-t="looks"></span></h2>
@@ -132,6 +133,8 @@ const S={
  redWin:["🔴 سۆر بر!","🔴 سوور بردییەوە!","🔴 فاز الأحمر!","🔴 Red wins!"],blueWin:["🔵 شین بر!","🔵 شین بردییەوە!","🔵 فاز الأزرق!","🔵 Blue wins!"],
  again:["🔄 دووبارە","🔄 دووبارە","🔄 مرة أخرى","🔄 Again"],menu:["🏠 لیستا سەرەکی","🏠 لیستی سەرەکی","🏠 القائمة","🏠 Menu"],
  robot:["ڕۆبۆت","ڕۆبۆت","الروبوت","Robot"],red:["سۆر","سوور","الأحمر","Red"],blue:["شین","شین","الأزرق","Blue"],you:["تو","تۆ","أنت","You"],
+ random:["🎲 یاریکەرەکێ کەیفی","🎲 یاریزانێکی هەڕەمەکی","🎲 لاعب عشوائي","🎲 Random player"],randomD:["دێ یاریکەرەکێ دی ل هەر جهەکی بۆ تە ببینین.","یاریزانێکی تر لە هەر شوێنێک دەدۆزینەوە.","سنجد لك لاعباً آخر من أي مكان.","We find you another player from anywhere."],
+ searching:["ل یاریکەرەکی دگەڕێین…","بە دوای یاریزانێکدا دەگەڕێین…","نبحث عن لاعب…","Looking for a player…"],
  looks:["شێوازێن من","شێوازەکانم","أشكالي","My looks"],toShop:["🛒 دەستک، تەپ و مێزێن نوو ل دکانێ","🛒 دەسک، تۆپ و مێزی نوێ لە دووکان","🛒 مضارب وأقراص وطاولات جديدة في المتجر","🛒 New mallets, pucks and tables in the shop"],
  left:["هەڤالێ تە دەرکەفت","هاوڕێکەت دەرچوو","غادر صديقك","Your friend left"],paused:["⏸ ڕاوەستیای","⏸ وەستاو","⏸ متوقف","⏸ Paused"],resume:["▶ بەردەوام بە","▶ بەردەوام بە","▶ تابع","▶ Resume"]
 };
@@ -298,7 +301,7 @@ $("gQuit").onclick=()=>{sfx.tap();if(!G)return;if(G.mode==="net"||G.over){quit()
 $("gSnd").onclick=()=>{ls("ag.sfx",sOn()?"0":"1");$("gSnd").textContent=sOn()?"🔊":"🔇";sfx.tap()};
 function drawLooks(){const c=$("lkCv");if(!c||!window.HKSK)return;const w=c.clientWidth||320,h=180,d=Math.min(2,devicePixelRatio||1);c.width=w*d;c.height=h*d;const x=c.getContext("2d");x.scale(d,d);
   x.save();x.translate(w,0);x.rotate(Math.PI/2);x.scale(h/360,w/640);(HKSK.tables[SK.t]||HKSK.tables.tb_neon).draw(x,360,640,130);x.restore();
-  const r=Math.min(26,h*.15),tm=performance.now()/1000;HKSK.mallets.mk_blue.draw(x,w*.2,h*.45,r,tm);(HKSK.pucks[SK.p]||HKSK.pucks.pk_gold).draw(x,w*.5,h*.55,r*.55,tm,true);(HKSK.mallets[SK.m]||HKSK.mallets.mk_red).draw(x,w*.78,h*.5,r,tm)}
+  const r=Math.min(26,h*.15),tm=performance.now()/1000;HKSK.mallets.mk_blue.draw(x,w*.8,h*.45,r,tm);(HKSK.pucks[SK.p]||HKSK.pucks.pk_gold).draw(x,w*.5,h*.55,r*.55,tm,true);(HKSK.mallets[SK.m]||HKSK.mallets.mk_red).draw(x,w*.22,h*.5,r,tm)}
 $("bShop").onclick=()=>{location.href="./#pack_hkmallet"};
 $("bBot").onclick=()=>{sfx.tap();begin("bot")};$("bTwo").onclick=()=>{sfx.tap();begin("two")};
 addEventListener("resize",()=>{if(G)layout()});
@@ -327,15 +330,20 @@ function drawOnline(){const box=$("online");if(!box)return;box.textContent="";
   const h=document.createElement("h2");h.textContent="🌐 "+t("online");box.append(h);
   if(!fdb||!me){const p=document.createElement("p");p.textContent=t("login");box.append(p);return}
   const d=N.d;
-  if(!N.code||!d){const p=document.createElement("p");p.textContent=t("onlineD");const mk=document.createElement("button");mk.className="btn blue";mk.type="button";mk.textContent=t("mkRoom");mk.onclick=nCreate;
+  if(!N.code||!d){const rn=document.createElement("button");rn.className="btn red";rn.type="button";rn.textContent=t("random");rn.onclick=nRandom;const rp=document.createElement("p");rp.textContent=t("randomD");box.append(rn,rp);
+    const hr=document.createElement("div");hr.style.cssText="height:1px;background:var(--line);margin:4px 0";box.append(hr);
+    const p=document.createElement("p");p.textContent=t("onlineD");const mk=document.createElement("button");mk.className="btn blue";mk.type="button";mk.textContent=t("mkRoom");mk.onclick=nCreate;
     const r=document.createElement("div");r.className="row";const inp=document.createElement("input");inp.id="code";inp.maxLength=5;inp.placeholder="ABCDE";inp.autocomplete="off";
     const j=document.createElement("button");j.className="btn";j.type="button";j.textContent=t("joinR");j.onclick=()=>{const v=(inp.value||"").trim().toUpperCase();if(v.length===5)nJoin(v)};r.append(inp,j);box.append(p,mk,r);return}
   const ps=Object.entries(d.p||{}).sort((x,y)=>x[1].side<y[1].side?-1:1);
   const vs=document.createElement("div");vs.className="vs";
   const pl=(e)=>{const x=e&&e[1];const p=document.createElement("div");p.className="p";const im=document.createElement("img");im.alt="";im.src=face(x&&x.photo,x&&x.name);if(e)im.dataset.fr=e[0];const n=document.createElement("span");n.textContent=x?x.name:"…";p.append(im,n);return p};
   const v=document.createElement("b");v.textContent="⚔️";vs.append(pl(ps[0]),v,pl(ps[1]));box.append(vs);
-  const k=document.createElement("div");k.className="dcode";k.textContent=N.code;box.append(k);
-  if(ps.length<2){const sh=document.createElement("button");sh.className="btn blue";sh.type="button";sh.textContent=t("shareR");sh.onclick=nShare;const w=document.createElement("p");w.textContent=t("waitF");box.append(sh,w)}
+  if(d.rnd&&ps.length<2){const w=document.createElement("div");w.className="dcode";w.style.fontSize="40px";w.textContent="🔍";w.animate&&w.animate([{transform:"scale(1)"},{transform:"scale(1.2)"},{transform:"scale(1)"}],{duration:1200,iterations:Infinity});
+    const p=document.createElement("p");p.style.textAlign="center";p.textContent=t("searching");box.append(w,p)}
+  else{const k=document.createElement("div");k.className="dcode";k.textContent=N.code;box.append(k)}
+  if(ps.length<2&&d.rnd){}
+  else if(ps.length<2){const sh=document.createElement("button");sh.className="btn blue";sh.type="button";sh.textContent=t("shareR");sh.onclick=nShare;const w=document.createElement("p");w.textContent=t("waitF");box.append(sh,w)}
   else if(d.host===me){const st=document.createElement("button");st.className="btn";st.type="button";st.textContent=t("startD")+" · 🏁 "+num(TO);st.onclick=nStart;box.append(st)}
   else{const w=document.createElement("p");w.textContent=t("ready");box.append(w)}
   const lv=document.createElement("button");lv.className="btn ghost";lv.type="button";lv.textContent=t("leave");lv.onclick=nLeave;box.append(lv)}
@@ -347,12 +355,27 @@ function nOpen(c){if(N.ref)N.ref.off();N.code=c;N.ref=fdb.ref("hockey/"+c);N.ref
     if(!d){N.code=null;N.ref.off();N.ref=null;if(G&&G.mode==="net"){G=null;document.querySelectorAll(".ov").forEach(e=>e.remove());$("game").hidden=true;$("lobby").hidden=false;toast(t("left"))}drawOnline();return}
     if(d.status==="play"&&(!prev||prev.status!=="play"||prev.round!==d.round))nBegin();
     if(G&&G.mode==="net")nSync(d);
+    if(d.rnd&&d.host===me&&d.status==="wait"&&Object.keys(d.p||{}).length>=2&&!(prev&&Object.keys(prev.p||{}).length>=2&&prev.status==="wait")){clearInterval(RND);setTimeout(nStart,600)}
     drawOnline()})}
 function nShare(){const x=t("title")+" 🏒 "+N.code;if(navigator.share)navigator.share({title:t("title"),text:x,url:location.origin+location.pathname}).catch(()=>{});else{try{navigator.clipboard.writeText(x)}catch(e){}toast(t("copied"))}}
 function nStart(){const d=N.d;if(!d||d.host!==me||Object.keys(d.p||{}).length<2)return;sfx.tap();
   const up={status:"play",round:(d.round||0)+1,to:TO,startAt:now()+2500,sc:{a:0,b:0},pk:{x:W/2,y:H/2+90,vx:0,vy:0,ts:now(),n:0,by:me},m:null};
   Object.keys(d.p).forEach(u=>{up["p/"+u+"/left"]=null});N.ref.update(up)}
-async function nLeave(){const d=N.d,c=N.code;if(N.ref){N.ref.child("p/"+me+"/left").onDisconnect().cancel();N.ref.off()}N.ref=null;N.code=null;N.d=null;
+// ---------- a random player: join someone who is waiting, or wait for someone ----------
+let RND=null;
+async function findOpen(){const s=await fdb.ref("hockey").orderByChild("open").startAt(now()-90000).limitToFirst(10).once("value");const out=[];s.forEach(c=>{const v=c.val();if(v&&v.open&&v.host!==me&&v.status==="wait"&&Object.keys(v.p||{}).length<2)out.push([c.key,v.open])});return out.sort((a,b)=>a[1]-b[1])}
+async function claim(c){let ok=false;const ref=fdb.ref("hockey/"+c+"/open"),keep=()=>{};
+  // listen first, so the transaction starts from the real value and not from an empty guess
+  try{ref.on("value",keep);await ref.once("value");const r=await ref.transaction(v=>{if(v===null)return;return null});ok=r.committed&&!r.snapshot.exists()}catch(e){}ref.off("value",keep);
+  if(!ok)return false;try{await fdb.ref("hockey/"+c+"/p/"+me).set(nMe("b"));nOpen(c);return true}catch(e){return false}}
+async function nRandom(){sfx.tap();if(!fdb||!me)return;try{for(const [c] of await findOpen())if(await claim(c))return;
+  const c=nNew();await fdb.ref("hockey/"+c).set({host:me,status:"wait",round:0,to:TO,rnd:true,open:now(),createdAt:firebase.database.ServerValue.TIMESTAMP,p:{[me]:nMe("a")}});
+  fdb.ref("hockey/"+c).onDisconnect().remove();nOpen(c);
+  // while I wait: keep my room fresh, and if someone else is waiting longer, join them instead
+  clearInterval(RND);RND=setInterval(async()=>{const d=N.d;if(!d||!d.rnd||N.code!==c||Object.keys(d.p||{}).length>=2){clearInterval(RND);return}
+    const mine=d.open||now();for(const [o,ts] of await findOpen()){if(o!==c&&ts<mine){clearInterval(RND);await nLeave();if(await claim(o))return;nRandom();return}}
+    N.ref.child("open").set(now()).catch(()=>{})},4000)}catch(e){toast("✖")}}
+async function nLeave(){clearInterval(RND);if(N.ref&&N.d&&N.d.rnd&&N.d.host===me)N.ref.onDisconnect().cancel();const d=N.d,c=N.code;if(N.ref){N.ref.child("p/"+me+"/left").onDisconnect().cancel();N.ref.off()}N.ref=null;N.code=null;N.d=null;
   try{if(d&&d.host===me)await fdb.ref("hockey/"+c).remove();else if(c)await fdb.ref("hockey/"+c+"/p/"+me).remove()}catch(e){}
   if(G&&G.mode==="net"){G=null;document.querySelectorAll(".ov").forEach(e=>e.remove());$("game").hidden=true;$("lobby").hidden=false}drawOnline()}
 function nBegin(){const d=N.d;document.querySelectorAll(".ov").forEach(e=>e.remove());const side=(d.p[me]||{}).side||"b";
