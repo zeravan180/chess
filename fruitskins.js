@@ -65,7 +65,7 @@ AG.addPack({type:"m3fruit",def:"fs_classic",items:SETS,
 AG.addPack({type:"m3bg",def:"fb_green",items:BGS,
   title:["🏞 پشتەڤانێن تەختی","🏞 پاشبنەمای تەختە","🏞 خلفيات اللوحة","🏞 Board backgrounds"],
   desc:["وێنەیێ جهێن کوردستانێ ل پشت تەختێ یاریا میوان.","وێنەی شوێنەکانی کوردستان لە پشت تەختەکە.","صور أماكن كردستان خلف لوحة لعبة الفواكه.","Places of Kurdistan behind the fruit board."],
-  preview:function(k){return box("",M3SK.bgUrl(k)||"linear-gradient(#3aa36b,#145a3c)")}});
+  preview:function(k){var d=box("",M3SK.bgUrl(k)||"linear-gradient(#3aa36b,#145a3c)");d.style.backgroundPosition="50% 22%";return d}});
 AG.addPack({type:"m3map",def:"fm_spring",items:MAPS,
   title:["🗺️ وەرزێن نەخشێ","🗺️ وەرزەکانی نەخشە","🗺️ فصول الخريطة","🗺️ Map seasons"],
   desc:["وەرزێ نەخشا ئاستان ل یاریا میوان.","وەرزی نەخشەی ئاستەکان.","فصل خريطة المستويات في لعبة الفواكه.","The season of the level map in Kurdistan Fruits."],

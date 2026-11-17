@@ -156,6 +156,11 @@ html.land.rot .promo-box{transform:rotate(-90deg)}
 .me-chip{flex-wrap:wrap}
 .balance{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-radius:10px;background:var(--bg)}
 .balance b{font-size:20px;font-variant-numeric:tabular-nums}
+.shopg{display:flex;gap:8px;overflow-x:auto;margin:-6px -10px 14px;padding:8px 10px 10px;position:sticky;top:calc(var(--topbarH,78px) + 4px);z-index:5;background:linear-gradient(#0f3d2c,#0b3122);border-radius:16px;box-shadow:0 6px 12px rgba(0,0,0,.25);scrollbar-width:none;scroll-snap-type:x proximity}.shopg::-webkit-scrollbar{display:none}
+.shopg button{flex:none;scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:74px;padding:10px 8px 8px;border-radius:18px;border:2px solid var(--line);color:#fff;font-size:12px;font-weight:800;line-height:1.2;background:linear-gradient(160deg,var(--g1),var(--g2));box-shadow:0 3px 0 rgba(0,0,0,.35);filter:saturate(.75) brightness(.85);transition:transform .15s,opacity .15s}
+.shopg button i{font-style:normal;font-size:26px;width:44px;height:44px;display:grid;place-items:center;border-radius:50%;background:rgba(255,255,255,.18);box-shadow:inset 0 -3px 6px rgba(0,0,0,.2)}
+.shopg button small{font-size:10px;opacity:.85;font-weight:700}
+.shopg button.on{filter:none;border-color:#ffd54f;transform:translateY(-2px);box-shadow:0 0 0 3px rgba(255,213,79,.35),0 4px 0 rgba(0,0,0,.35)}
 .tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
 .tabs .tab{font-size:12px;padding:9px 2px}
 .tab{font-size:13px;padding:10px 4px}
@@ -885,9 +890,10 @@ html,body{touch-action:pan-y;overscroll-behavior-x:none;-webkit-text-size-adjust
     </div>
 
     <div class="panel tabp" id="tab-items" style="margin-top:16px" hidden>
-      <h2 style="margin:0">شێوەیێ پارچان</h2>
+      <div class="shopg" id="shopGames" role="tablist"></div>
+      <h2 style="margin:0">♟️ شێوەیێ پارچان</h2>
       <div class="styles" id="pieceStyles"></div>
-      <h2 style="margin:8px 0 0">ڕەنگێن تەختەی</h2>
+      <h2 style="margin:8px 0 0">♟️ ڕەنگێن تەختەی</h2>
       <div class="items" id="itemsBoard"></div>
       <h2 style="margin:8px 0 0">🁫 مێزا دۆمینۆیێ</h2>
       <span class="muted">ڕەنگێ مێز و پارچێن دۆمینۆیێ ل سەر شاشا تە.</span>
@@ -920,7 +926,7 @@ html,body{touch-action:pan-y;overscroll-behavior-x:none;-webkit-text-size-adjust
       <span class="muted">کارتێن تە ب ڤی شێوازی دیار دبن، و هەڤرک ژی دبینیت.</span>
       <div class="items" id="itemsZcard"></div>
       <div id="itemsPacks"></div>
-      <h2 style="margin:8px 0 0">نیشان ل ڕەخێ ناڤێ تە</h2>
+      <h2 style="margin:8px 0 0">🏅 نیشان ل ڕەخێ ناڤێ تە</h2>
       <span class="muted">هەمی یاریکەر دبینن: ل یاریێ، ل لیستا ئۆنلاین و ل ١٠ یاریکەرێن ئێکێ.</span>
       <div class="items" id="itemsBadge"></div>
       <h2 style="margin:8px 0 0" id="rthemeHead">🎙 شێوازێ غورفێ ل مەجلیسێ</h2>
@@ -1478,13 +1484,13 @@ function boot(){
     if(location.hash==="#shop")setTimeout(()=>openShop(),300);
     if(location.hash==="#coins")setTimeout(()=>openShop("coins"),300);
     if(location.hash==="#sell")setTimeout(()=>openShop("items"),300);
-    if(/^#pack_/.test(location.hash))setTimeout(()=>{openShop("items");setTimeout(()=>{const h=document.getElementById(location.hash.slice(1));if(h)h.scrollIntoView({behavior:"smooth",block:"start"})},400)},300);
-    if(location.hash==="#zar")setTimeout(()=>{openShop("items");setTimeout(()=>{const h=$("zarHead");if(h)h.scrollIntoView({behavior:"smooth",block:"start"})},300)},300);
-    if(location.hash==="#dama")setTimeout(()=>{openShop("items");setTimeout(()=>{const h=$("damaHead");if(h)h.scrollIntoView({behavior:"smooth",block:"start"})},300)},300);
-    if(location.hash==="#tawla")setTimeout(()=>{openShop("items");setTimeout(()=>{const h=$("diceHead");if(h)h.scrollIntoView({behavior:"smooth",block:"start"})},300)},300);
-    if(location.hash==="#tokens")setTimeout(()=>{openShop("items");setTimeout(()=>{const h=$("tokHead");if(h)h.scrollIntoView({behavior:"smooth",block:"start"})},300)},300);
-    if(location.hash==="#dice")setTimeout(()=>{openShop("items");setTimeout(()=>{const h=$("diceHead");if(h)h.scrollIntoView({behavior:"smooth",block:"start"})},300)},300);
-    if(location.hash==="#rtheme")setTimeout(()=>{openShop("items");setTimeout(()=>{const h=$("rthemeHead");if(h)h.scrollIntoView({behavior:"smooth",block:"start"})},300)},300);
+    if(/^#pack_/.test(location.hash))setTimeout(()=>{openShop("items");setTimeout(()=>{const h=document.getElementById(location.hash.slice(1));if(h){shopFocus(h);h.scrollIntoView({behavior:"smooth",block:"start"})}},400)},300);
+    if(location.hash==="#zar")setTimeout(()=>{openShop("items");setTimeout(()=>{const h=$("zarHead");if(h){shopFocus(h);h.scrollIntoView({behavior:"smooth",block:"start"})}},300)},300);
+    if(location.hash==="#dama")setTimeout(()=>{openShop("items");setTimeout(()=>{const h=$("damaHead");if(h){shopFocus(h);h.scrollIntoView({behavior:"smooth",block:"start"})}},300)},300);
+    if(location.hash==="#tawla")setTimeout(()=>{openShop("items");setTimeout(()=>{const h=$("diceHead");if(h){shopFocus(h);h.scrollIntoView({behavior:"smooth",block:"start"})}},300)},300);
+    if(location.hash==="#tokens")setTimeout(()=>{openShop("items");setTimeout(()=>{const h=$("tokHead");if(h){shopFocus(h);h.scrollIntoView({behavior:"smooth",block:"start"})}},300)},300);
+    if(location.hash==="#dice")setTimeout(()=>{openShop("items");setTimeout(()=>{const h=$("diceHead");if(h){shopFocus(h);h.scrollIntoView({behavior:"smooth",block:"start"})}},300)},300);
+    if(location.hash==="#rtheme")setTimeout(()=>{openShop("items");setTimeout(()=>{const h=$("rthemeHead");if(h){shopFocus(h);h.scrollIntoView({behavior:"smooth",block:"start"})}},300)},300);
     if(location.hash==="#settings")setTimeout(()=>openMenu(),300);
     if(location.hash==="#messages")setTimeout(()=>dmOpen(),300);
     ensurePid();
@@ -2820,7 +2826,25 @@ function renderSkinPacks(){const host=$("itemsPacks");if(!host)return;host.textC
       else{btn.className="primary";btn.textContent="بکڕە";btn.onclick=()=>buy(k,btn)}
       d.append(n,pr,btn);box.append(d)});
     host.append(h,m,box)})}
-function renderItems(){renderPieceStyles();renderCoinPacks();renderSkinPacks();
+// one button for every game in the shop: it shows only that game's things
+const SHOPG={pieceStyles:"chess",itemsBoard:"chess",itemsDtable:"domino",itemsDice:"snakes tawla ludo",itemsToken:"snakes ludo",itemsSboard:"snakes",itemsBgpiece:"tawla",itemsBgboard:"tawla",itemsDmpiece:"dama",itemsDmboard:"dama",itemsZtable:"zar",itemsZcard:"zar",itemsBadge:"gen",itemsRtheme:"gen"};
+let shopG=(()=>{try{return localStorage.getItem("ag.shopG")||"all"}catch(e){return"all"}})();
+function shopSections(){const out=[];let cur=null;const walk=par=>{for(const el of par.children){if(el.id==="shopGames")continue;if(el.id==="itemsPacks"){walk(el);continue}
+    if(el.tagName==="H2"){cur={h:el,els:[el],g:""};out.push(cur)}else if(cur){cur.els.push(el);if(!cur.g){if(SHOPG[el.id])cur.g=SHOPG[el.id];else if(/^pack_/.test(cur.h.id)){const pk=SKINPACKS.find(p=>"pack_"+p.type===cur.h.id);cur.g=(pk&&pk.game)||"gen"}}}}};
+  walk($("tab-items"));return out}
+function filterShop(){const secs=shopSections(),have={};secs.forEach(s=>{(s.g||"gen").split(" ").forEach(g=>{have[g]=(have[g]||0)+1})});
+  if(shopG!=="all"&&!have[shopG])shopG="all";
+  secs.forEach(s=>{const show=shopG==="all"||(s.g||"gen").split(" ").includes(shopG);s.els.forEach(e=>{e.style.display=show?"":"none"})});
+  const bar=$("shopGames");if(!bar)return;bar.textContent="";const TH=AG.theme||{};
+  const chip=(id,ic,name,c1,c2)=>{const b=document.createElement("button");b.type="button";b.className=shopG===id?"on":"";b.style.setProperty("--g1",c1);b.style.setProperty("--g2",c2);
+    const i=document.createElement("i");i.textContent=ic;const n=document.createElement("span");n.textContent=name;b.append(i,n);
+    if(id!=="all"){const c=document.createElement("small");c.textContent=have[id]+" بەش";b.append(c)}
+    b.onclick=()=>{shopG=id;try{localStorage.setItem("ag.shopG",id)}catch(e){}filterShop();const t=$("tab-items");if(t){const y=t.getBoundingClientRect().top+scrollY-(document.querySelector(".topbar")||{offsetHeight:78}).offsetHeight-8;if(scrollY>y)scrollTo({top:y,behavior:"smooth"})}};bar.append(b);if(shopG===id)setTimeout(()=>b.scrollIntoView({block:"nearest",inline:"center"}),0)};
+  chip("all","🛍️","هەمی","#f59e0b","#7c2d12");
+  if(have.gen)chip("gen","⭐","گشتی","#eab308","#713f12");
+  (AG.games||[]).forEach(g=>{if(!have[g.id])return;const th=TH[g.id]||["#16a34a","#064e3b","🎮"];chip(g.id,th[2],AG.nm(g.name),th[0],th[1])})}
+function shopFocus(h){const s=shopSections().find(x=>x.els.includes(h));if(s&&shopG!=="all"&&!(s.g||"gen").split(" ").includes(shopG)){shopG=(s.g||"gen").split(" ")[0];filterShop()}}
+function renderItems(){renderPieceStyles();renderCoinPacks();renderSkinPacks();setTimeout(filterShop,0);
   for(const[type,box]of[["board",$("itemsBoard")],["dtable",$("itemsDtable")],["badge",$("itemsBadge")],["rtheme",$("itemsRtheme")],["dice",$("itemsDice")],["token",$("itemsToken")],["bgpiece",$("itemsBgpiece")],["bgboard",$("itemsBgboard")],["dmpiece",$("itemsDmpiece")],["dmboard",$("itemsDmboard")],["sboard",$("itemsSboard")],["ztable",$("itemsZtable")],["zcard",$("itemsZcard")]]){if(!box)continue;box.textContent="";
     const entries=Object.entries(CATALOG).filter(([k,v])=>v.type===type);
     if(type==="board")entries.unshift(["classic",{type:"board",name:"کلاسیک",price:0,l:"#dfe7e2",d:"#6f8f86"}]);

@@ -587,7 +587,7 @@ function drawShop(){const box=$("shop");if(!box||box.hidden)return;box.textConte
       if(cur===k){b.className="buy used";b.textContent=t("inUse")}else if(mine){b.className="buy";b.textContent=t("use");b.onclick=()=>setLook(type,k)}else{b.className="buy ag";b.textContent=num(it.price)+" AG";b.onclick=()=>{location.href="./#pack_"+type}}
       if(it.rare){const r=document.createElement("span");r.className="rib";r.textContent="✨";d.append(r)}d.append(pv,nm,b);g.append(d)});
     look("m3fruit",M3SK.sets,SKIN.f,(k,pv)=>{let h="";for(let i=0;i<6;i++)h+='<svg viewBox="0 0 100 100">'+M3SK.fruit(k,i)+'</svg>';pv.innerHTML=h});
-    look("m3bg",M3SK.bgs,SKIN.bg,(k,pv)=>{pv.style.height="70px";const u=M3SK.bgUrl(k);if(u)pv.style.backgroundImage=u});
+    look("m3bg",M3SK.bgs,SKIN.bg,(k,pv)=>{pv.style.height="70px";const u=M3SK.bgUrl(k);if(u){pv.style.backgroundImage=u;pv.style.backgroundPosition="50% 22%"}});
     look("m3map",M3SK.maps,SKIN.map,(k,pv)=>{const m=M3SK.maps[k];if(m.bg)pv.style.background=m.bg;pv.style.fontSize="22px";pv.textContent=m.deco.slice(0,4).join(" ")})}}
 async function setLook(type,k){const key={m3fruit:"f",m3bg:"bg",m3map:"map"}[type],def={m3fruit:"fs_classic",m3bg:"fb_green",m3map:"fm_spring"}[type];SKIN[key]=k;ls("fr.skin",JSON.stringify(SKIN));sfx.tap();
   if(fdb&&me)try{await fdb.ref("profiles/"+me+"/private/"+type).set(k===def?null:k)}catch(e){}drawMap.done=0;drawMap();drawShop()}

@@ -56,9 +56,9 @@ function route(mode,code){for(var i=0;i<GAMES.length;i++){var g=GAMES[i];
 
 /* ---- shop styles of a game ("skin packs"): a game's skins file calls AG.addPack({type, def, items, title, desc, preview}) ---- */
 var PACKS=[];
-window.AG={games:GAMES,route:route,fillSwitch:fillSwitch,packs:PACKS,addPack:function(p){PACKS.push(p)},nm:function(a){return(a&&(a[lang()]||a[0]))||""}};
+window.AG={games:GAMES,route:route,fillSwitch:fillSwitch,packs:PACKS,addPack:function(p){if(!p.game)p.game=window.AG_G||"gen";PACKS.push(p)},nm:function(a){return(a&&(a[lang()]||a[0]))||""}};
 // the shop (chess page) and the game's own page load that game's skins file
-GAMES.forEach(function(g){if(g.skins&&(here()==="./"||here()===g.page))document.write('<script src="'+g.skins+'"><\/script>')});
+GAMES.forEach(function(g){if(g.skins&&(here()==="./"||here()===g.page))document.write('<script>window.AG_G="'+g.id+'"<\/script><script src="'+g.skins+'"><\/script><script>window.AG_G=""<\/script>')});
 
 /* ---- opening screen: the animated logo, once per visit; tap to skip ---- */
 (function(){var seen=false;try{seen=!!sessionStorage.getItem("ag.splash");sessionStorage.setItem("ag.splash","1")}catch(e){}
@@ -106,6 +106,7 @@ function fzWatchAll(){var tries=0;(function go(){try{if(!window.firebase||!fireb
 var THEME={chess:["#7c3aed","#2e1065","♟️"],domino:["#16a34a","#064e3b","🁣"],snakes:["#f97316","#7c2d12","🐍"],tawla:["#b45309","#451a03","🎲"],
   dama:["#2563eb","#172554","⚫"],ludo:["#db2777","#500724","🎯"],zar:["#0d9488","#042f2e","🃏"],kon:["#dc2626","#450a0a","♠️"],
   worms:["#0ea5e9","#082f49","🪱"],xo:["#4f46e5","#1e1b4b","❌"],dots:["#d97706","#451a03","▦"],kustirk:["#be185d","#4a0420","💍"],pool:["#0f766e","#042f2e","🎱"],quiz:["#7c3aed","#2e1065","🧠"],spy:["#dc2626","#1e1b4b","🕵️"],fruit:["#16a34a","#0f3d2e","🍎"]};
+AG.theme=THEME;
 var PLAY=["▶ یاری بکە","▶ یاری بکە","▶ العب","▶ Play"],HERE=["✓ تو ل ڤێرێ یی","✓ تۆ لێرەی","✓ أنت هنا","✓ You are here"];
 function carCss(){if(document.getElementById("agCarCss"))return;var st=document.createElement("style");st.id="agCarCss";st.textContent=
  "#lobby nav.gswitch{display:none!important}"+
@@ -327,7 +328,7 @@ function paintMine(){var k=myFrame();[].forEach.call(document.querySelectorAll("
   ".fpv{position:relative;width:96px;height:96px;margin:14px auto 10px;border-radius:50%;background:radial-gradient(circle at 50% 38%,#9fb3c8 0 22%,transparent 23%),radial-gradient(ellipse at 50% 100%,#9fb3c8 0 46%,transparent 47%),linear-gradient(#3b4a5c,#1f2a36)}"+
   ".fpv img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}";(document.head||document.documentElement).append(st)})();
 AG.frames=FRAMES;AG.frameSvg=frameSvg;AG.applyFrame=applyFrame;AG.framed=framed;AG.myFrame=myFrame;AG.setMyFrame=setMyFrame;
-AG.addPack({type:"frame",def:"fr_none",items:FRAMES,
+AG.addPack({type:"frame",game:"gen",def:"fr_none",items:FRAMES,
   title:["🖼 چوارچۆڤێن وێنەیێ","🖼 چوارچێوەی وێنە","🖼 إطارات الصورة","🖼 Picture frames"],
   desc:["چوارچۆڤەک ل دۆر وێنەیێ تە، یێ هەمی کەس دبینن. هندەک ژ وان دلڤن و دبریقن ✨","چوارچێوەیەک بە دەوری وێنەکەت کە هەموو کەس دەیبینن.","إطار حول صورتك يراه الجميع. بعضها متحرك ولامع ✨","A frame around your picture that everyone sees. Some move and sparkle ✨"],
   preview:function(k){var d=document.createElement("div");d.className="fpv";var ph="";try{ph=localStorage.getItem("ag.photo")||""}catch(e){}if(ph){var im=document.createElement("img");im.src=ph;im.alt="";d.append(im)}applyFrame(d,k);return d}});
