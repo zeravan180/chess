@@ -84,11 +84,42 @@ var BODIES={
 var DEF={body:"bd_sedan",paint:"pt_white",engine:"en_i4",light:"li_white",rim:"rm_silver",wing:"wg_none",glow:"gl_none",stripe:"st_none"};
 var SETS={body:BODIES,paint:PAINTS,engine:ENGINES,light:LIGHTS,rim:RIMS,wing:WINGS,glow:GLOWS,stripe:STRIPES};
 var TYPE={body:"rcbody",paint:"rcpaint",engine:"rcengine",light:"rclight",rim:"rcrim",wing:"rcwing",glow:"rcglow",stripe:"rcstripe"};
+// ---------- the garage (bought once in the shop): own colour, tyres, height, stripes, plate, name ----------
+var CITIES={krd:[["duhok","دهۆک","Duhok"],["erbil","هەولێر","Erbil"],["slemani","سلێمانی","Sulaymaniyah"],["halabja","هەڵەبجە","Halabja"],["zakho","زاخۆ","Zakho"]],
+  iq:[["baghdad","بغداد","Baghdad"],["mosul","نينوى","Nineveh"],["basra","البصرة","Basra"],["kirkuk","كركوك","Kirkuk"],["najaf","النجف","Najaf"],["anbar","الأنبار","Anbar"]]};
+var CUSDEF={c:"c81e1e",d:"ffffff",t:1,h:1,s:0,p:"krd",y:"duhok",n:"24A00000"};
+// read a garage string like "c=c81e1e,d=ffffff,t=1,h=1,s=0,p=krd,y=duhok,n=24A00000"; anything wrong falls back to the default
+function parseCus(str){if(!str||typeof str!=="string")return null;var o={},m={};str.split(",").forEach(function(kv){var i=kv.indexOf("=");if(i>0)m[kv.slice(0,i)]=kv.slice(i+1)});
+  o.c=/^[0-9a-f]{6}$/i.test(m.c||"")?m.c.toLowerCase():CUSDEF.c;o.d=/^[0-9a-f]{6}$/i.test(m.d||"")?m.d.toLowerCase():CUSDEF.d;
+  o.t=[0,1,2].indexOf(+m.t)>=0?+m.t:1;o.h=[0,1,2].indexOf(+m.h)>=0?+m.h:1;o.s=[0,1,2,3].indexOf(+m.s)>=0?+m.s:0;
+  o.p=m.p==="iq"?"iq":"krd";o.y=CITIES[o.p].some(function(c){return c[0]===m.y})?m.y:CITIES[o.p][0][0];
+  o.n=/^\d{2}[A-Z]\d{1,5}$/.test(m.n||"")?m.n:CUSDEF.n;return o}
+function packCus(o){o=o||CUSDEF;return["c="+o.c,"d="+o.d,"t="+o.t,"h="+o.h,"s="+o.s,"p="+o.p,"y="+o.y,"n="+o.n].join(",")}
+function cleanCus(str){var o=parseCus(str);return o?packCus(o):""}
+// "#rrggbb" -> a paint colour for the 3D picture (like the shop paints)
+function lin(hex){return[0,2,4].map(function(i){return Math.max(0.006,Math.pow(parseInt(hex.substr(i,2),16)/255,2.2)*0.8)})}
+var TIRE=[0.82,1,1.28],LIFT=[-0.06,0,0.16];
+function cityName(o,ar){var c=CITIES[o.p].filter(function(c){return c[0]===o.y})[0]||CITIES[o.p][0];return ar?c[1]:c[2]}
+// the number plate, drawn on a 256x64 canvas
+function drawPlate(x,o){try{x.direction="ltr"}catch(e){}x.clearRect(0,0,256,64);
+  var rr=function(X,Y,w,h,r){x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+w,Y,X+w,Y+h,r);x.arcTo(X+w,Y+h,X,Y+h,r);x.arcTo(X,Y+h,X,Y,r);x.arcTo(X,Y,X+w,Y,r);x.closePath()};
+  // white plate with a thin black frame, like the real ones
+  rr(1,1,254,62,7);x.fillStyle="#fafafa";x.fill();x.lineWidth=2.5;x.strokeStyle="#1a1a1a";x.stroke();
+  rr(5,5,246,54,5);x.lineWidth=1.2;x.strokeStyle="#2a2a2a";x.stroke();
+  // the small strip on the left: IRQ, and KR for Kurdistan, written upwards
+  x.beginPath();x.moveTo(30,7);x.lineTo(30,57);x.lineWidth=1.2;x.stroke();
+  x.save();x.translate(18,32);x.rotate(-Math.PI/2);x.fillStyle="#1a1a1a";x.textAlign="center";x.textBaseline="middle";x.font="bold 11px sans-serif";
+  if(o.p==="krd"){x.fillText("IRQ",-9,0);x.fillText("KR",13,0)}else x.fillText("IRQ",0,0);x.restore();
+  // the number: 24 · A 00000
+  var a=o.n.slice(0,2),L=o.n.charAt(2),b=o.n.slice(3);x.fillStyle="#111";x.textBaseline="middle";x.textAlign="left";
+  x.font="bold 40px 'DejaVu Sans Condensed','Arial Narrow','Roboto Condensed',sans-serif";
+  var wa=x.measureText(a).width,wL=x.measureText(L).width,wb=x.measureText(b).width,gap=10,dot=8,tot=wa+gap+dot+gap+wL+gap*1.6+wb,sc=Math.min(1,206/tot),X=38+(208-tot*sc)/2;
+  x.save();x.translate(X,35);x.scale(sc,1);x.fillText(a,0,0);var dx=wa+gap;x.fillStyle="#9aa0a6";x.fillRect(dx,-dot/2,dot,dot);x.fillStyle="#111";dx+=dot+gap;x.fillText(L,dx,0);dx+=wL+gap*1.6;x.fillText(b,dx,0);x.restore()}
 // linear colour -> css (the same tone curve the 3D picture uses)
 function css(c){if(!c)return"transparent";return"rgb("+c.map(function(v){return Math.round(Math.min(1,Math.pow(Math.max(0,v)/(1+Math.max(0,v))*1.3,1/2.2))*255)}).join(",")+")"}
 function rainbow(t){return[0.5+0.5*Math.sin(t*2.2),0.5+0.5*Math.sin(t*2.2+2.1),0.5+0.5*Math.sin(t*2.2+4.2)]}
 // a clean "look" from the keys the player has, with anything unknown falling back to the default
-function look(sk){var o={};for(var k in DEF){var v=sk&&sk[k];o[k]=SETS[k][v]?v:DEF[k]}return o}
+function look(sk){var o={};for(var k in DEF){var v=sk&&sk[k];o[k]=SETS[k][v]?v:DEF[k]}var c=sk&&cleanCus(sk.cus);if(c)o.cus=c;return o}
 
 // ================= the engine sound =================
 // firing frequency = rpm/60 * cylinders/2; saw waves + half orders through a soft clipper and a filter
@@ -129,10 +160,13 @@ function preview(key){try{if(PV){PV.e.kill();PV.ac.close();PV=null}var AC=new(wi
     e.update(rpm,thr,true);requestAnimationFrame(tick)})()}catch(err){}}
 
 // ================= a car seen from the side, for the shop and the garage =================
-function draw2D(x,w,h,sk,hl){sk=look(sk);var P=PAINTS[sk.paint],S=STRIPES[sk.stripe],R=RIMS[sk.rim],Lt=LIGHTS[sk.light],Wg=WINGS[sk.wing],Gl=GLOWS[sk.glow],t=performance.now()/1000;
+function draw2D(x,w,h,sk,hl,cname){var cnm=cname||(sk&&sk.cname)||"";sk=look(sk);var CU=parseCus(sk.cus),P=PAINTS[sk.paint],S=STRIPES[sk.stripe],R=RIMS[sk.rim],Lt=LIGHTS[sk.light],Wg=WINGS[sk.wing],Gl=GLOWS[sk.glow],t=performance.now()/1000;
   var s=Math.min(w/300,h/120);x.save();x.translate(w/2-150*s,h/2-60*s+6*s);x.scale(s,s);
   if(Gl.col){var gc=Gl.rainbow?rainbow(t):Gl.col,gr=x.createRadialGradient(150,100,10,150,100,150);gr.addColorStop(0,"rgba("+gc.map(function(v){return Math.round(Math.min(1,v)*255)}).join(",")+",.85)");gr.addColorStop(1,"rgba(0,0,0,0)");x.fillStyle=gr;x.beginPath();x.ellipse(150,100,150,18,0,0,7);x.fill()}
   x.fillStyle="rgba(0,0,0,.3)";x.beginPath();x.ellipse(150,103,128,7,0,0,7);x.fill();
+  if(CU){P={col:lin(CU.c),metal:0.5,refl:1};S=CU.s?{col:lin(CU.d),st:CU.s}:{col:null}}
+  var tk=CU?TIRE[CU.t]:1,R1=19*tk,cyW=109-R1,dy=CU&&sk.body!=="bd_truck"?(cyW-90)-[ -5,0,10][CU.h]:0;
+  if(sk.body!=="bd_truck"){x.save();x.translate(0,dy)}
   var body=css(P.col),dark=css(P.col.map(function(v){return v*0.35})),lite=css((P.col2||P.col).map(function(v){return Math.min(1.5,v*1.6+0.05)}));
   var bg=x.createLinearGradient(0,30,0,96);bg.addColorStop(0,lite);bg.addColorStop(0.45,body);bg.addColorStop(1,dark);
   var B=sk.body,wx=[72,232];
@@ -161,7 +195,9 @@ function draw2D(x,w,h,sk,hl){sk=look(sk);var P=PAINTS[sk.paint],S=STRIPES[sk.str
   else{x.moveTo(84,52);x.quadraticCurveTo(108,32,140,30);x.lineTo(156,30);x.lineTo(156,52);x.closePath();x.moveTo(162,30);x.lineTo(188,30);x.quadraticCurveTo(206,32,222,50);x.lineTo(162,52);x.closePath()}
   var wg=x.createLinearGradient(0,30,0,52);wg.addColorStop(0,"#9fb4c8");wg.addColorStop(1,"#1a2430");x.fillStyle=wg;x.fill();
   if(S.col&&B!=='bd_truck'){var sc=css(S.col);x.fillStyle=sc;if(S.kurd){x.fillStyle=css([0.8,0.02,0.02]);x.fillRect(24,63,258,4);x.fillStyle="#fff";x.fillRect(24,67,258,4);x.fillStyle=css([0.02,0.4,0.1]);x.fillRect(24,71,258,4);x.fillStyle="#ffd400";x.beginPath();x.arc(150,69,4,0,7);x.fill()}
-    else{x.fillRect(24,64,258,4);x.fillRect(24,70,258,4)}}
+    else if(S.st===2)x.fillRect(24,62,258,13);else if(S.st===3)x.fillRect(24,78,258,4);else{x.fillRect(24,64,258,4);x.fillRect(24,70,258,4)}}
+  if(cnm&&B!=='bd_truck'){x.save();x.font="900 13px system-ui,sans-serif";x.textAlign="center";x.textBaseline="middle";x.lineWidth=3;x.strokeStyle="rgba(0,0,0,.55)";x.fillStyle="#fff";x.strokeText(cnm,128,82);x.fillText(cnm,128,82);x.restore()}
+  if(CU&&B!=='bd_truck'){x.fillStyle="#f4f5f7";x.fillRect(22,74,20,8);x.strokeStyle="#111";x.lineWidth=0.8;x.strokeRect(22,74,20,8);x.fillStyle="#555";x.fillRect(23,75,3,6)}
   // door lines and handle
   x.strokeStyle="rgba(0,0,0,.3)";x.beginPath();x.moveTo(158,54);x.lineTo(158,90);x.moveTo(98,56);x.lineTo(96,90);x.stroke();x.fillStyle="rgba(0,0,0,.4)";x.fillRect(132,60,12,2.5);x.fillRect(190,60,12,2.5);
   // lights: front on the right, back on the left
@@ -173,14 +209,15 @@ function draw2D(x,w,h,sk,hl){sk=look(sk);var P=PAINTS[sk.paint],S=STRIPES[sk.str
     else{var hh=Wg.t===3?26:16;x.fillRect(30,60-hh,4,hh);x.beginPath();x.moveTo(8,58-hh);x.lineTo(52,56-hh);x.lineTo(54,61-hh);x.lineTo(8,63-hh);x.closePath();x.fill();x.stroke();if(Wg.carbon){x.strokeStyle="rgba(255,255,255,.18)";for(var i=10;i<52;i+=4){x.beginPath();x.moveTo(i,58-hh);x.lineTo(i+2,62-hh);x.stroke()}}}}
   // wheels
   if(B==='bd_truck'){x.restore();x.save();var s2=Math.min(w/300,h/120);x.translate(w/2-150*s2,h/2-60*s2+6*s2);x.scale(s2,s2)}
-  wx.forEach(function(cx){x.fillStyle="#111";x.beginPath();x.arc(cx,90,19,0,7);x.fill();var rc=css(R.col),g2=x.createRadialGradient(cx-4,86,2,cx,90,13);g2.addColorStop(0,"#fff");g2.addColorStop(0.5,rc);g2.addColorStop(1,css(R.col.map(function(v){return v*0.4})));
-    x.fillStyle=g2;x.beginPath();x.arc(cx,90,12.5,0,7);x.fill();x.strokeStyle="rgba(0,0,0,.45)";x.lineWidth=2;for(var k=0;k<5;k++){var a=k*Math.PI*2/5+t*(hl==="rim"?2:0);x.beginPath();x.moveTo(cx+Math.cos(a)*4,90+Math.sin(a)*4);x.lineTo(cx+Math.cos(a)*11,90+Math.sin(a)*11);x.stroke()}
-    x.fillStyle="#333";x.beginPath();x.arc(cx,90,3,0,7);x.fill()});
+  var cyD=cyW-(B==='bd_truck'?0:dy),r2=12.5*tk;
+  wx.forEach(function(cx){x.fillStyle="#111";x.beginPath();x.arc(cx,cyD,R1,0,7);x.fill();var rc=css(R.col),g2=x.createRadialGradient(cx-4,cyD-4,2,cx,cyD,r2+0.5);g2.addColorStop(0,"#fff");g2.addColorStop(0.5,rc);g2.addColorStop(1,css(R.col.map(function(v){return v*0.4})));
+    x.fillStyle=g2;x.beginPath();x.arc(cx,cyD,r2,0,7);x.fill();x.strokeStyle="rgba(0,0,0,.45)";x.lineWidth=2;for(var k=0;k<5;k++){var a=k*Math.PI*2/5+t*(hl==="rim"?2:0);x.beginPath();x.moveTo(cx+Math.cos(a)*4*tk,cyD+Math.sin(a)*4*tk);x.lineTo(cx+Math.cos(a)*11*tk,cyD+Math.sin(a)*11*tk);x.stroke()}
+    x.fillStyle="#333";x.beginPath();x.arc(cx,cyD,3,0,7);x.fill()});
   // a shine along the body
   if(B==='bd_truck'){x.restore();return}
-  x.globalAlpha=0.25+(P.refl>1.3?0.25:0);x.strokeStyle="#fff";x.lineWidth=2;x.beginPath();x.moveTo(40,58);x.quadraticCurveTo(150,50,270,56);x.stroke();x.restore()}
+  x.globalAlpha=0.25+(P.refl>1.3?0.25:0);x.strokeStyle="#fff";x.lineWidth=2;x.beginPath();x.moveTo(40,58);x.quadraticCurveTo(150,50,270,56);x.stroke();x.restore();x.restore()}
 
-window.RCSK={sets:SETS,type:TYPE,def:DEF,bodies:BODIES,paints:PAINTS,engines:ENGINES,lights:LIGHTS,rims:RIMS,wings:WINGS,glows:GLOWS,stripes:STRIPES,
+window.RCSK={cities:CITIES,cusdef:CUSDEF,parseCus:parseCus,packCus:packCus,cleanCus:cleanCus,lin:lin,tire:TIRE,lift:LIFT,drawPlate:drawPlate,sets:SETS,type:TYPE,def:DEF,bodies:BODIES,paints:PAINTS,engines:ENGINES,lights:LIGHTS,rims:RIMS,wings:WINGS,glows:GLOWS,stripes:STRIPES,
   look:look,css:css,rainbow:rainbow,Engine:Engine,rpmAt:rpmAt,preview:preview,draw2D:draw2D};
 if(!window.AG||!AG.addPack)return;
 // ---------- the shop ----------
@@ -194,6 +231,9 @@ function bars(k){var E=ENGINES[k],d=document.createElement("div");d.style.cssTex
   var p=document.createElement("button");p.type="button";p.textContent="🔊";p.style.cssText="align-self:center;border:0;border-radius:14px;padding:6px 16px;font-size:16px;background:linear-gradient(#ff6b3d,#e0341f);color:#fff;box-shadow:0 3px 0 #8a1a0a;cursor:pointer";
   p.onclick=function(e){e.stopPropagation();e.preventDefault();preview(k)};d.append(p);return d}
 var T4=function(a,b,c,d){return[a,b,c,d]};
+AG.addPack({type:"rcgarage",def:"gr_off",items:{gr_off:{price:0,name:T4("گەراجا ئاسایی","گەراجی ئاسایی","المرآب العادي","Basic garage")},gr_pro:{price:2000,rare:1,name:T4("🔧 گەراجا تایبەت","🔧 گەراجی تایبەت","🔧 المرآب الخاص","🔧 Custom garage")}},
+  title:T4("🔧 گەراجا ترومبێلێ","🔧 گەراجی ئۆتۆمبێل","🔧 مرآب السيارة","🔧 Car garage"),desc:T4("ترومبێلا خۆ ب دەستێ خۆ دروست بکە: هەر ڕەنگەکێ تە بڤێت، تایێن مەزن یان بچووک، بلند یان نزم، خەت، ناڤێ خۆ و پلێتا کوردستانێ یان عێراقێ.","ئۆتۆمبێلەکەت خۆت دروست بکە: هەر ڕەنگێک، تایەی گەورە یان بچووک، بەرز یان نزم، هێڵ، ناوت و پلێتی کوردستان یان عێراق.","صمّم سيارتك بنفسك: أي لون، إطارات كبيرة أو صغيرة، عالية أو منخفضة، خطوط، اسمك ولوحة كردستان أو العراق.","Build your own car: any colour, big or small tyres, high or low, stripes, your name and a Kurdistan or Iraq plate."),
+  preview:function(k){return cvs(170,80,function(x){draw2D(x,170,80,k==="gr_pro"?{body:"bd_coupe",cus:"c=1e6fd9,d=ffd400,t=2,h=2,s=2,p=krd,y=duhok,n=24A00000"}:{paint:"pt_white"},"body",k==="gr_pro"?"AG":"")})}});
 AG.addPack({type:"rcbody",def:"bd_sedan",items:BODIES,title:T4("🚗 جۆرێن ترومبێلان","🚗 جۆری ئۆتۆمبێل","🚗 أنواع السيارات","🚗 Car types"),desc:T4("سێدان، ستەیشن، سپۆرت، پیکاپ و تریلە. تریلە گرانە و هەمیان پاڵ ددەت!","سێدان، ستەیشن، سپۆرت، پیکاپ و تریلە.","سيدان، ستيشن، رياضية، بيك آب وتريلة. التريلة ثقيلة وتدفع الجميع!","Sedan, wagon, coupé, pickup and a semi truck — the truck is heavy and pushes everyone!"),preview:function(k){return cvs(170,80,function(x){draw2D(x,170,80,{body:k,paint:"pt_red"},"body")})}});
 AG.addPack({type:"rcpaint",def:"pt_white",items:PAINTS,title:T4("🎨 ڕەنگێن ترومبێلێ","🎨 ڕەنگی ئۆتۆمبێل","🎨 ألوان السيارة","🎨 Car paint"),desc:T4("ڕەنگێ ترومبێلا تە ل یاریا بەزینێ. هەمی یاریکەر دبینن!","ڕەنگی ئۆتۆمبێلەکەت لە یاری پێشبڕکێ.","لون سيارتك في لعبة السباق، ويراه الجميع!","Your car's colour in the race — everyone sees it!"),preview:car("paint")});
 AG.addPack({type:"rcengine",def:"en_i4",items:ENGINES,title:T4("🔊 مەکینێن ترومبێلێ","🔊 بزوێنەری ئۆتۆمبێل","🔊 محركات السيارة","🔊 Car engines"),desc:T4("هەر مەکینەکێ دەنگێ خۆ هەیە، و دژی ڕۆبۆتان بهێزترە. ل ئۆنلاین هەمی وەک ئێکن، تنێ دەنگ دگوهۆڕیت. 🔊 لێدە و گوهداری بکە!","هەر بزوێنەرێک دەنگی خۆی هەیە. لە ئۆنلاین هەموو وەک یەکن.","لكل محرك صوته، وهو أقوى ضد الروبوتات. في الأونلاين الجميع متساوون والصوت فقط يتغير. اضغط 🔊 واستمع!","Every engine has its own sound and more power against the robots. Online everyone is equal — only the sound changes. Tap 🔊 to listen!"),preview:bars});
