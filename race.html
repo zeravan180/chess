@@ -50,6 +50,9 @@
   .garo label{font-size:13px;font-weight:800;opacity:.9}.garo .rowi{flex-wrap:wrap}
   .garo input[type=color]{width:58px;height:42px;border:2px solid rgba(255,255,255,.3);border-radius:12px;background:none;padding:2px}
   .garo input[type=text],.garo select{flex:1;min-width:0;padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.35);color:#fff;font-size:16px;font-weight:800}
+  .garo .stk{display:flex;gap:6px;overflow-x:auto;padding:4px 2px 8px;scrollbar-width:none}.garo .stk::-webkit-scrollbar{display:none}
+  .garo .stk button{flex:none;width:52px;height:52px;border-radius:14px;padding:3px;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.15);color:#fff;font-size:12px;font-weight:800}
+  .garo .stk button.on{border-color:#ffb347;background:rgba(255,120,40,.25)}.garo .stk canvas{width:100%;height:100%}
   .garo .pl{direction:ltr}.garo .pl input{text-align:center;letter-spacing:2px;direction:ltr}.garo .note{font-size:12px;opacity:.7}
   #toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:#111a33;border:1px solid rgba(255,255,255,.2);padding:10px 16px;border-radius:14px;font-weight:700;color:#fff;opacity:0;transition:.25s;z-index:50;pointer-events:none}#toast.on{opacity:1}
 </style>
@@ -109,25 +112,25 @@ const SEDAN={Z0:-2.3,Z1:2.36,WY:0.34,RA:0.435,WZS:[-1.36,1.42],WX:0.79,
   KYT:[[-2.3,.84],[-2.08,.965],[-1.6,.995],[-1.2,1.0],[-0.4,1.0],[0.6,.99],[1.05,.97],[1.6,.92],[2.05,.84],[2.36,.74]],
   KYB:[[-2.3,.40],[-2.1,.32],[-1.75,.285],[1.8,.28],[2.15,.31],[2.36,.37]],
   KROOF:[[-1.42,0],[-1.18,.15],[-0.88,.34],[-0.5,.43],[-0.1,.45],[0.3,.44],[0.58,.33],[0.84,.16],[1.06,0]],G0:-1.42,G1:1.06,roof:[-0.86,0.56],
-  doors:[-1.05,-0.05,1.0],handles:[-0.78,0.28],mirror:[0.86,0.9],cp:[-1.3,1.3],rad:1,cam:[7.8,2.9,1.1],shadow:[1,1]};
+  back:[1,-2.22,-1.48,0.7,0],doors:[-1.05,-0.05,1.0],handles:[-0.78,0.28],mirror:[0.86,0.9],cp:[-1.3,1.3],rad:1,cam:[7.8,2.9,1.1],shadow:[1,1]};
 const BODIES={bd_sedan:SEDAN,
- bd_wagon:Object.assign({},SEDAN,{KYT:[[-2.3,.9],[-2.08,.985],[-1.6,.995],[-1.2,1.0],[-0.4,1.0],[0.6,.99],[1.05,.97],[1.6,.92],[2.05,.84],[2.36,.74]],
+ bd_wagon:Object.assign({},SEDAN,{back:[2,-2.15,0.63,0.55,0.78],KYT:[[-2.3,.9],[-2.08,.985],[-1.6,.995],[-1.2,1.0],[-0.4,1.0],[0.6,.99],[1.05,.97],[1.6,.92],[2.05,.84],[2.36,.74]],
    KROOF:[[-2.06,0],[-1.98,.3],[-1.85,.43],[-1.2,.46],[-0.1,.46],[0.3,.44],[0.58,.33],[0.84,.16],[1.06,0]],G0:-2.06,roof:[-1.8,0.56]}),
- bd_coupe:Object.assign({},SEDAN,{KYT:[[-2.3,.8],[-2.08,.92],[-1.6,.95],[-1.2,.95],[-0.4,.94],[0.6,.92],[1.05,.89],[1.6,.83],[2.05,.74],[2.36,.64]],
+ bd_coupe:Object.assign({},SEDAN,{back:[1,-2.22,-1.32,0.68,0],KYT:[[-2.3,.8],[-2.08,.92],[-1.6,.95],[-1.2,.95],[-0.4,.94],[0.6,.92],[1.05,.89],[1.6,.83],[2.05,.74],[2.36,.64]],
    KYB:[[-2.3,.36],[-2.1,.28],[-1.75,.25],[1.8,.24],[2.15,.27],[2.36,.33]],
    KROOF:[[-1.25,0],[-0.95,.17],[-0.6,.31],[-0.2,.35],[0.2,.34],[0.55,.25],[0.85,.12],[1.15,0]],G0:-1.25,G1:1.15,roof:[-0.6,0.5],doors:[-1.15,0.95],handles:[-0.4],mirror:[0.95,0.82]}),
- bd_pickup:Object.assign({},SEDAN,{WY:0.4,RA:0.5,WZS:[-1.5,1.5],Z0:-2.55,Z1:2.45,
+ bd_pickup:Object.assign({},SEDAN,{back:[2,-2.4,0.63,0.62,0.78],WY:0.4,RA:0.5,WZS:[-1.5,1.5],Z0:-2.55,Z1:2.45,
    KHW:[[-2.55,.86],[-2.3,.92],[-1.6,.94],[-0.5,.95],[1.2,.94],[1.8,.92],[2.2,.9],[2.45,.84]],
    KYT:[[-2.55,1.02],[-2.4,1.1],[-0.6,1.12],[0.6,1.1],[1.1,1.07],[1.7,1.0],[2.15,.94],[2.45,.84]],
    KYB:[[-2.55,.5],[-2.3,.42],[-1.9,.4],[1.9,.4],[2.25,.42],[2.45,.48]],
    KROOF:[[-0.62,0],[-0.56,.32],[-0.45,.46],[-0.1,.48],[0.3,.47],[0.6,.35],[0.86,.17],[1.08,0]],G0:-0.62,G1:1.08,roof:[-0.45,0.58],
    doors:[-0.6,0.95],handles:[-0.2],bed:[-2.45,-0.68],mirror:[0.9,1.02],cp:[-1.4,1.4],cam:[8.4,3.2,1.2],shadow:[1.05,1.08]}),
- bd_truck:Object.assign({},SEDAN,{WY:0.5,RA:0.6,WZS:[-0.5,1.75,-7.4,-8.6],WX:1.0,Z0:-1.6,Z1:2.6,
+ bd_truck:Object.assign({},SEDAN,{WY:0.5,RA:0.6,WZS:[-0.6,1.6,-7.4,-8.6],WX:1.02,Z0:-1.6,Z1:2.75,
    KHW:[[-1.6,1.05],[-1.2,1.1],[1.8,1.12],[2.3,1.1],[2.6,1.02]],
    KYT:[[-1.6,1.25],[-1.3,1.32],[1.7,1.32],[2.25,1.26],[2.6,1.1]],
    KYB:[[-1.6,.6],[-1.2,.55],[2.2,.55],[2.6,.62]],
    KROOF:[[0.5,0],[0.6,.55],[0.9,1.0],[1.85,1.05],[2.2,.7],[2.45,0]],G0:0.5,G1:2.45,roof:[0.9,1.8],
-   doors:[0.6,2.2],handles:[1.6],mirror:[2.25,2.0],trailer:1,cp:[-8.6,-6.4,-4.2,-2,0.2,2.2],rad:1.3,cam:[14,4.6,2.2],shadow:[1.35,2.6]})};
+   doors:[0.6,2.2],handles:[1.6],mirror:[2.45,2.05],trailer:1,cab:1,cp:[-8.6,-6.4,-4.2,-2,0.2,2.2],rad:1.3,cam:[14,4.6,2.2],shadow:[1.35,2.6]})};
 function useBody(T){Z0=T.Z0;Z1=T.Z1;WY=T.WY;RA=T.RA;WZS=T.WZS;KHW=T.KHW;KYT=T.KYT;KYB=T.KYB;KROOF=T.KROOF;G0=T.G0;G1=T.G1}
 useBody(SEDAN);
 function archY(z){let y=-9;for(const wz of WZS){const d=z-wz;if(Math.abs(d)<RA)y=Math.max(y,WY+Math.sqrt(RA*RA-d*d));}return y;}
@@ -310,7 +313,7 @@ const VS=`precision highp float;attribute vec3 aP;attribute vec3 aN;attribute fl
 uniform mat4 uM,uVP;varying vec3 vW,vN,vO;varying float vA;
 void main(){vec4 w=uM*vec4(aP,1.);vW=w.xyz;vN=normalize(mat3(uM)*aN);vO=aP;vA=aA;gl_Position=uVP*w;}`;
 const FS=`precision highp float;varying vec3 vW,vN,vO;varying float vA;
-uniform vec3 uCam,uCol,uCol2,uStr,uSkyH,uSkyZ,uSkyG,uSunC,uG1,uG2,uP0,uP1,uP2,uP8,uSunD;uniform float uKind,uEmit,uMetal,uRefl,uStrOn,uAmbK,uFogK,uDecOn;uniform vec4 uWz,uDent[8];uniform sampler2D uTex,uDec;
+uniform vec3 uCam,uCol,uCol2,uStr,uSkyH,uSkyZ,uSkyG,uSunC,uG1,uG2,uP0,uP1,uP2,uP8,uSunD;uniform float uKind,uEmit,uMetal,uRefl,uStrOn,uAmbK,uFogK,uDecOn,uBackOn;uniform vec4 uWz,uDent[8],uBackR;uniform sampler2D uTex,uDec,uBack;
 #define SUN uSunD
 vec3 sky(vec3 d){float y=d.y;vec3 c=mix(uSkyH,uSkyZ,smoothstep(0.,.55,y));
   if(y<0.)c=mix(uSkyH,uSkyG,smoothstep(0.,-.12,y));
@@ -333,7 +336,12 @@ void main(){float k=uKind;vec3 V=uCam-vW;float dist=length(V);vec3 v=V/dist;
       else if(uStrOn<3.5){if(top&&ax<.24)base=uStr;}
       else{if(ax>.7&&vO.y>.5&&vO.y<.56)base=uStr;}}
     // my name on the doors (only I see it)
-    if(uDecOn>.5&&abs(vO.x)>.76&&vO.y>.44&&vO.y<.74&&vO.z>-1.15&&vO.z<.95){vec2 uv=vec2(vO.x>0.?(.95-vO.z)/2.1:(vO.z+1.15)/2.1,(.74-vO.y)/.30);vec4 dc=texture2D(uDec,uv);base=mix(base,dc.rgb,dc.a);}
+    if(uDecOn>.5&&uDecOn<1.5&&abs(vO.x)>.76&&vO.y>.42&&vO.y<.86&&vO.z>-1.15&&vO.z<.95){vec2 uv=vec2(vO.x>0.?(.95-vO.z)/2.1:(vO.z+1.15)/2.1,(.86-vO.y)/.44);vec4 dc=texture2D(uDec,uv);base=mix(base,dc.rgb,dc.a);}
+    if(uBackOn>.5){vec2 uv=vec2(-1.);
+      if(uBackOn<1.5){if(n.y>.5&&vO.z>uBackR.x&&vO.z<uBackR.y&&abs(vO.x)<uBackR.z)uv=vec2((uBackR.z-vO.x)/(2.*uBackR.z),(uBackR.y-vO.z)/(uBackR.y-uBackR.x));}
+      else{if(vO.z<uBackR.x&&abs(vO.x)<uBackR.z&&vO.y>uBackR.y&&vO.y<uBackR.w)uv=vec2((uBackR.z-vO.x)/(2.*uBackR.z),(uBackR.w-vO.y)/(uBackR.w-uBackR.y));}
+      if(uv.x>=0.){vec4 bk=texture2D(uBack,uv);base=mix(base,bk.rgb,bk.a);}}
+    if(uDecOn>1.5&&abs(vO.x)>1.0&&vO.y>1.08&&vO.y<2.45&&vO.z>.32&&vO.z<2.62){vec2 uv=vec2((2.62-vO.z)/2.3,(2.45-vO.y)/1.37);vec4 dc=texture2D(uDec,uv);base=mix(base,dc.rgb,dc.a);}
     float trim=0.;if(vA>.5){float ar=-9.;for(int i=0;i<2;i++){float wz=i==0?uWz.x:uWz.y;float d=vO.z-wz;if(abs(d)<uWz.w+.06)ar=max(ar,uWz.z+sqrt(max(0.,uWz.w*uWz.w-d*d))*(abs(d)<uWz.w?1.:0.));}
       float yl=max(ar+.055,uWz.z+.005);trim=1.-smoothstep(yl-.004,yl+.004,vO.y);}
     float F=mix(.05,1.,fr);col=base*(amb+nl*sunc)*(1.-F)+base*E*uMetal*.5+E*F*uRefl+sunc*pow(max(dot(n,h),0.),220.)*3.;
@@ -368,8 +376,8 @@ void main(){float k=uKind;vec3 V=uCam-vW;float dist=length(V);vec3 v=V/dist;
   gl_FragColor=vec4(tone(col),1.);}`;
 function prog(vs,fs){const p=gl.createProgram();for(const[t,s]of[[gl.VERTEX_SHADER,vs],[gl.FRAGMENT_SHADER,fs]]){const sh=gl.createShader(t);gl.shaderSource(sh,s);gl.compileShader(sh);if(!gl.getShaderParameter(sh,gl.COMPILE_STATUS))throw gl.getShaderInfoLog(sh);gl.attachShader(p,sh);}gl.linkProgram(p);return p;}
 const P=prog(VS,FS);gl.useProgram(P);
-const U={};for(const n of['uM','uVP','uCam','uCol','uCol2','uStr','uStrOn','uKind','uEmit','uMetal','uRefl','uTex','uSkyH','uSkyZ','uSkyG','uSunC','uG1','uG2','uP0','uP1','uP2','uP8','uSunD','uAmbK','uFogK','uWz','uDent','uDecOn','uDec'])U[n]=gl.getUniformLocation(P,n);
-gl.uniform1i(U.uDec,1);
+const U={};for(const n of['uM','uVP','uCam','uCol','uCol2','uStr','uStrOn','uKind','uEmit','uMetal','uRefl','uTex','uSkyH','uSkyZ','uSkyG','uSunC','uG1','uG2','uP0','uP1','uP2','uP8','uSunD','uAmbK','uFogK','uWz','uDent','uDecOn','uDec','uBackOn','uBackR','uBack'])U[n]=gl.getUniformLocation(P,n);
+gl.uniform1i(U.uDec,1);gl.uniform1i(U.uBack,2);
 const aP=gl.getAttribLocation(P,'aP'),aN=gl.getAttribLocation(P,'aN'),aA=gl.getAttribLocation(P,'aA');for(const a of[aP,aN,aA])gl.enableVertexAttribArray(a);
 function upload(m){const b=k=>{const x=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,x);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(k),gl.STATIC_DRAW);return x;};
   const big=m.pos.length/3>65535;const ib=gl.createBuffer();gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,ib);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,big?new Uint32Array(m.idx):new Uint16Array(m.idx),gl.STATIC_DRAW);
@@ -380,7 +388,61 @@ const G={tire:upload(TIRE),rim:upload(RIM),disc:upload(DISC),mirror:upload(MIRRO
   shadow:upload(quadMesh([-1.4,0,-2.9],[1.4,0,-2.9],[1.4,0,2.9],[-1.4,0,2.9])),
   glow:upload(quadMesh([-2,0,-3.5],[2,0,-3.5],[2,0,3.5],[-2,0,3.5])),T:{}};
 // every kind of car: its pieces on the graphics card
-for(const k in BODIES){const b=buildBody(BODIES[k]),u=m=>Array.isArray(m)?m.map(upload):upload(m);
+// the truck: a tall flat-fronted cab built from blocks (an extruded side outline, a grille, lights, steps and fenders)
+function extrude(pts,x0,x1){const pos=[],nrm=[],aux=[],idx=[];const q=(a,b,c,d)=>{const ux=b[0]-a[0],uy=b[1]-a[1],uz=b[2]-a[2],vx=d[0]-a[0],vy=d[1]-a[1],vz=d[2]-a[2];
+    let n=[uy*vz-uz*vy,uz*vx-ux*vz,ux*vy-uy*vx];const l=hyp(...n)||1;n=n.map(v=>v/l);const o=pos.length/3;for(const p of[a,b,c,d]){pos.push(...p);nrm.push(...n);aux.push(0)}idx.push(o,o+1,o+2,o,o+2,o+3)};
+  const P=(x,p)=>[x,p[1],p[0]];const n=pts.length;
+  for(let i=0;i<n;i++){const a=pts[i],b=pts[(i+1)%n];q(P(x0,a),P(x0,b),P(x1,b),P(x1,a))}
+  for(const x of[x0,x1]){const o=pos.length/3,nx=x===x0?-1:1;for(const p of pts){pos.push(...P(x,p));nrm.push(nx,0,0);aux.push(0)}for(let i=1;i<n-1;i++)idx.push(o,o+i,o+i+1)}
+  return{pos,nrm,aux,idx}}
+// a box with soft rounded edges (a superellipsoid): e near 0 is a box, 1 is a ball
+function sbox(cx,cy,cz,a,b,c,e,shape){const f=v=>Math.sign(v)*Math.pow(Math.abs(v),e);
+  const m=gridMesh(30,22,(u,v)=>{const th=u*Math.PI*2,ph=(v-0.5)*Math.PI,cp=Math.cos(ph),sp=Math.sin(ph);let p=[cx+a*f(cp)*f(Math.cos(th)),cy+b*f(sp),cz+c*f(cp)*f(Math.sin(th))];return shape?shape(p):p},true);
+  return flipIfInward(m,()=>[cx,cy,cz])}
+function truckCab(out){const W=1.15,e=0.22;
+  // the cab, a high roof that slopes down to the front, and the low front with the bumper
+  const cab=sbox(0,1.8,1.5,W,0.75,1.22,e);
+  const cap=sbox(0,2.85,1.3,1.1,0.46,1.0,e,p=>{if(p[1]>2.42){const k=clamp((p[2]-0.9)/1.4,0,1);p[1]=2.42+(p[1]-2.42)*(1-0.6*k)}return p});
+  const low=sbox(0,0.78,2.48,1.1,0.36,0.3,e);
+  const steps=merge([boxMesh(-1.06,-0.62,0.55,1.0,0.15,0.95),boxMesh(0.62,1.06,0.55,1.0,0.15,0.95)]);
+  out.BODY=merge([cab,cap,low,steps]);out.ROOF=boxMesh(-0.01,0.01,2,2.01,1,1.01);out.DIFF=out.ROOF;
+  out.EMBLEM=boxMesh(-0.09,0.09,1.17,1.25,2.745,2.76);
+  // glass inside a big black frame, like the photo
+  out.GLASS=merge([quadMesh([-0.96,1.52,2.742],[0.96,1.52,2.742],[0.96,2.4,2.742],[-0.96,2.4,2.742],[0,0,1]),
+    quadMesh([W+0.02,1.62,1.62],[W+0.02,1.62,2.5],[W+0.02,2.36,2.5],[W+0.02,2.36,1.62],[1,0,0]),quadMesh([-W-0.02,1.62,2.5],[-W-0.02,1.62,1.62],[-W-0.02,2.36,1.62],[-W-0.02,2.36,2.5],[-1,0,0])]);
+  out.CHROME_W=[merge([0,1,2,3,4,5].map(k=>boxMesh(-0.8,0.8,1.0+k*0.062,1.03+k*0.062,2.738,2.752)))];
+  out.GRILLE=boxMesh(-0.86,0.86,0.97,1.39,2.722,2.738);
+  out.INTAKE=boxMesh(-1.06,1.06,0.42,0.56,2.765,2.79);
+  out.HEAD=[boxMesh(-0.98,-0.62,0.66,0.86,2.775,2.795),boxMesh(0.62,0.98,0.66,0.86,2.775,2.795)];
+  out.DRL=[boxMesh(-0.96,-0.64,0.88,0.905,2.77,2.79),boxMesh(0.64,0.96,0.88,0.905,2.77,2.79),boxMesh(-0.7,0.7,2.62,2.66,2.62,2.7)];
+  out.DOORLINES=[0,1].map(i=>{const s=i?1:-1,x=s*(W+0.006);return merge([boxMesh(x-0.004,x+0.004,1.08,2.45,1.5,1.52),boxMesh(x-0.004,x+0.004,1.08,1.11,1.5,2.6)])});
+  out.HANDLES=[boxMesh(-W-0.035,-W,1.55,1.6,1.62,1.8),boxMesh(W,W+0.035,1.55,1.6,1.62,1.8)];
+  const fender=(z)=>[sbox(-1.12,1.12,z,0.15,0.07,0.68,0.35),sbox(1.12,1.12,z,0.15,0.07,0.68,0.35)];
+  out.LINERS=[merge([
+    // black frame round the windscreen and the visor over it
+    boxMesh(-1.02,1.02,1.44,2.5,2.712,2.738),boxMesh(-1.0,1.0,2.46,2.56,2.7,2.75),
+    // black frames round the side windows
+    boxMesh(W-0.01,W+0.015,1.55,2.44,1.55,2.6),boxMesh(-W-0.015,-W+0.01,1.55,2.44,1.55,2.6),
+    ...fender(1.6),...fender(-0.6),
+    // mirrors on arms
+    boxMesh(-1.3,-1.14,2.02,2.06,2.42,2.5),boxMesh(1.14,1.3,2.02,2.06,2.42,2.5),boxMesh(-1.4,-1.29,1.68,2.32,2.38,2.52),boxMesh(1.29,1.4,1.68,2.32,2.38,2.52)])];
+  out.CHASSIS=merge([boxMesh(-0.55,0.55,0.62,1.05,-9.5,0.4),boxMesh(-1.1,1.1,0.95,1.1,-9.2,-6.6)]);
+  // red lights at the back of the trailer, and the red band over the grille
+  out.TAILS=merge([boxMesh(-1.12,-0.75,1.32,1.46,-9.74,-9.7),boxMesh(0.75,1.12,1.32,1.46,-9.74,-9.7),boxMesh(-0.86,0.86,1.39,1.45,2.725,2.745)]);
+  out.PLATE=quadMesh([0.24,0.5,-9.53],[-0.24,0.5,-9.53],[-0.24,0.62,-9.53],[0.24,0.62,-9.53],[0,0,-1]);
+  out.mx=1.2;return out}
+// the side picture of the truck: a black swoosh with a blue line, a checkered flag and stripes (no names or logos)
+let truckDec=null;
+function truckDecal(){if(truckDec)return truckDec;const c=document.createElement('canvas');c.width=512;c.height=304;const x=c.getContext('2d');
+  // left = front of the truck
+  x.fillStyle='#111';x.beginPath();x.moveTo(30,250);x.quadraticCurveTo(160,150,330,170);x.lineTo(300,215);x.quadraticCurveTo(170,205,60,270);x.closePath();x.fill();
+  x.fillStyle='#1d4fd8';x.beginPath();x.moveTo(70,262);x.quadraticCurveTo(170,215,290,222);x.lineTo(284,234);x.quadraticCurveTo(180,228,92,272);x.closePath();x.fill();
+  // checkered flag high at the back
+  const fx=420,fy=40,s=16;for(let r=0;r<7;r++)for(let k=0;k<3;k++){if((r+k)%2)continue;x.save();x.translate(fx+k*s,fy+r*s+k*5);x.transform(1,0.3,0,1,0,0);x.fillStyle='#111';x.fillRect(0,0,s,s);x.restore()}
+  // four stripes low at the back
+  x.fillStyle='#111';for(let k=0;k<4;k++){x.save();x.translate(440+k*14,200);x.transform(1,0,-0.25,1,0,0);x.fillRect(0,0,7,70);x.restore()}
+  truckDec=texFrom(c);return truckDec}
+for(const k in BODIES){const b0=buildBody(BODIES[k]),b=BODIES[k].cab?truckCab(b0):b0,u=m=>Array.isArray(m)?m.map(upload):upload(m);
   G.T[k]={body:u(b.BODY),glass:u(b.GLASS),roof:u(b.ROOF),chrome:u(b.CHROME_W),head:u(b.HEAD),drl:u(b.DRL),grille:u(b.GRILLE),intake:u(b.INTAKE),emblem:u(b.EMBLEM),
     tails:u(b.TAILS),plate:u(b.PLATE),diff:u(b.DIFF),doors:u(b.DOORLINES),handles:u(b.HANDLES),liners:u(b.LINERS),wings:[null,u(b.WINGM[1]),u(b.WINGM[2]),u(b.WINGM[3])],
     bed:b.BED&&u(b.BED),trailer:b.TRAILER&&u(b.TRAILER),chassis:b.CHASSIS&&u(b.CHASSIS),mx:b.mx,def:BODIES[k]}}
@@ -398,10 +460,17 @@ function texFrom(c){const t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);g
   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);return t}
 const PLATES=new Map();
 function plateFor(cu){if(!cu)return plateTex;const k=cu.p+cu.y+cu.n;let t=PLATES.get(k);if(!t){const c=document.createElement('canvas');c.width=256;c.height=64;RCSK.drawPlate(c.getContext('2d'),cu);t=texFrom(c);PLATES.set(k,t);if(PLATES.size>40){const f=PLATES.keys().next().value;gl.deleteTexture(PLATES.get(f));PLATES.delete(f)}}return t}
-let decTex=null,decName='';
-function decalFor(name){if(name===decName&&decTex)return decTex;decName=name;const c=document.createElement('canvas');c.width=512;c.height=128;const x=c.getContext('2d');
-  let fs=72;x.font='900 '+fs+'px system-ui,sans-serif';const tw=x.measureText(name).width;if(tw>440){fs=Math.max(28,Math.floor(fs*440/tw));x.font='900 '+fs+'px system-ui,sans-serif'}x.textAlign='center';x.textBaseline='middle';x.lineJoin='round';x.lineWidth=12;x.strokeStyle='rgba(0,0,0,.75)';x.strokeText(name,256,66);x.fillStyle='#fff';x.fillText(name,256,66);
-  if(decTex)gl.deleteTexture(decTex);decTex=texFrom(c);return decTex}
+// my own photo for the stickers (only on this phone)
+let MYPHOTO=null;function loadPhoto(){try{const d=localStorage.getItem('rc.photo');if(!d){MYPHOTO=null;return}const im=new Image();im.onload=()=>{MYPHOTO=im;DECS.forEach(t=>gl.deleteTexture(t));DECS.clear()};im.src=d}catch(e){}}loadPhoto();
+const DECS=new Map();
+function decCache(key,make){let t=DECS.get(key);if(!t){t=texFrom(make());DECS.set(key,t);if(DECS.size>40){const f=DECS.keys().next().value;gl.deleteTexture(DECS.get(f));DECS.delete(f)}}return t}
+// the doors: a sticker (or my photo) in the middle and my name under it
+function sideTex(stk,name){return decCache('s'+stk+'|'+name+'|'+(MYPHOTO?1:0),()=>{const c=document.createElement('canvas');c.width=512;c.height=208;const x=c.getContext('2d');
+  if(stk)RCSK.drawSticker(x,stk,256,name?84:104,name?150:190,MYPHOTO);
+  if(name){let fs=60;x.font='900 '+fs+'px system-ui,sans-serif';const tw=x.measureText(name).width;if(tw>440){fs=Math.max(26,Math.floor(fs*440/tw));x.font='900 '+fs+'px system-ui,sans-serif'}
+    x.textAlign='center';x.textBaseline='middle';x.lineJoin='round';x.lineWidth=10;x.strokeStyle='rgba(0,0,0,.75)';x.strokeText(name,256,stk?180:150);x.fillStyle='#fff';x.fillText(name,256,stk?180:150)}return c})}
+// the back: one picture fitted into the shape of the boot
+function backTex(stk,asp){const w=Math.round(Math.min(1024,160*asp)),h=160;return decCache('b'+stk+'|'+w+'|'+(MYPHOTO?1:0),()=>{const c=document.createElement('canvas');c.width=w;c.height=h;RCSK.drawSticker(c.getContext('2d'),stk,w/2,h/2,h*0.92,MYPHOTO);return c})}
 const CUC=new Map();
 // the garage look of a car: mine only when I own the garage; other players' as they sent it
 function cuOf(c){const str=c.sk&&c.sk.cus;if(!str||(c.player&&!garageOn()))return null;let o=CUC.get(str);if(!o){o=RCSK.parseCus(str);CUC.set(str,o)}return o}
@@ -441,11 +510,16 @@ function drawCar(c){
   // where this car was hit
   const dn=new Float32Array(32);(c.dents||[]).slice(-8).forEach((d,i)=>{dn[i*4]=d.x;dn[i*4+1]=d.y;dn[i*4+2]=d.z;dn[i*4+3]=d.r});gl.uniform4fv(U.uDent,dn);
   setMat(0,P.col,0,P.metal,P.refl);gl.uniform3fv(U.uCol2,P.col2||[0,0,0]);gl.uniform1f(U.uStrOn,strOn);gl.uniform3fv(U.uStr,strCol);
-  const dec=c.player&&CU&&CNAME;if(dec){gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,decalFor(CNAME));gl.activeTexture(gl.TEXTURE0);gl.uniform1f(U.uDecOn,1)}
-  draw(B.body,I);gl.uniform1f(U.uDecOn,0);draw(B.roof,I);gl.uniform1f(U.uStrOn,0);gl.uniform4fv(U.uDent,NODENT);
+  // stickers: my own photo only on my phone; others see only the shop stickers
+  const ok=v=>v&&(v!==99||c.player)?v:0,sk1=CU?ok(CU.k):0,sk2=CU?ok(CU.b):0,nm=c.player&&CU?CNAME:'';
+  const dec=!BD.cab&&(sk1||nm);if(dec){gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,sideTex(sk1,nm));gl.activeTexture(gl.TEXTURE0);gl.uniform1f(U.uDecOn,1)}
+  const bk=BD.back;if(sk2&&bk){const asp=bk[0]===1?2*bk[3]/(bk[2]-bk[1]):2*bk[3]/(bk[4]-bk[2]);gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,backTex(sk2,asp));gl.activeTexture(gl.TEXTURE0);
+    gl.uniform1f(U.uBackOn,bk[0]);gl.uniform4f(U.uBackR,bk[1],bk[2],bk[3],bk[4])}
+  else if(BD.cab){gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,truckDecal());gl.activeTexture(gl.TEXTURE0);gl.uniform1f(U.uDecOn,2)}
+  draw(B.body,I);gl.uniform1f(U.uDecOn,0);gl.uniform1f(U.uBackOn,0);draw(B.roof,I);gl.uniform1f(U.uStrOn,0);gl.uniform4fv(U.uDent,NODENT);
   if(B.trailer){gl.uniform3fv(U.uCol2,[0,0,0]);setMat(0,[0.8,0.82,0.85],0,0.2,0.8);draw(B.trailer,I);setMat(5);draw(B.chassis,I)}
   setMat(0,P.col,0,P.metal,P.refl);
-  const my=BD.mirror[1]+0.1;for(const s of[-1,1])draw(G.mirror,M4.mul(I,M4.mul(M4.tr(s*(B.mx+0.06),my,BD.mirror[0]),M4.sc(0.075*(BD.trailer?1.6:1),0.06*(BD.trailer?2.4:1),0.13))));
+  const my=BD.mirror[1]+0.1;if(!BD.cab)for(const s of[-1,1])draw(G.mirror,M4.mul(I,M4.mul(M4.tr(s*(B.mx+0.06),my,BD.mirror[0]),M4.sc(0.075*(BD.trailer?1.6:1),0.06*(BD.trailer?2.4:1),0.13))));
   const WG=RCSK.wings[K.wing];if(WG.t&&!BD.trailer){if(WG.carbon)setMat(5,[0,0,0],0,1);draw(B.wings[WG.t],I)}
   gl.uniform3fv(U.uCol2,[0,0,0]);
   setMat(1);draw(B.glass,I);
@@ -712,6 +786,9 @@ const S={
  stripes:['خەت','هێڵ','الخطوط','Stripes'],s0:['بێ','بێ','بدون','None'],s1:['دوو','دوو','خطان','Double'],s2:['پان','پان','عريض','Wide'],s3:['ڕەخ','لا','جانبي','Side'],
  cname:['ناڤێ ل سەر دەرگەهان','ناو لەسەر دەرگاکان','الاسم على الأبواب','Name on the doors'],onlyYou:['🔒 تنێ تو دبینی، یاریکەرێن دی نابینن.','🔒 تەنها تۆ دەیبینیت.','🔒 أنت فقط تراه.','🔒 Only you can see it.'],
  plate:['پلێتا ترومبێلێ','پلێتی ئۆتۆمبێل','لوحة السيارة','Number plate'],pK:['IRQ · KR کوردستان','IRQ · KR کوردستان','IRQ · KR كردستان','IRQ · KR Kurdistan'],pI:['IRQ عێراق','IRQ عێراق','IRQ العراق','IRQ Iraq'],plateD:['هەمی یاریکەر پلێتا تە دبینن.','هەموو یاریزانان دەیبینن.','يراها كل اللاعبين.','Everyone sees your plate.'],
+ stkSide:['🖼️ وێنە ل سەر ڕەخان','🖼️ وێنە لەسەر لاکان','🖼️ صورة على الجانبين','🖼️ Picture on the sides'],stkBack:['🖼️ وێنە ل پشتێ','🖼️ وێنە لە دواوە','🖼️ صورة في الخلف','🖼️ Picture on the back'],
+ newPhoto:['📷 وێنەیەکێ دی ژ مۆبایلێ','📷 وێنەیەکی تر لە مۆبایل','📷 صورة أخرى من الهاتف','📷 Another photo from the phone'],
+ photoNote:['📷 وێنەیێ تە ب خۆ تنێ تو دبینی. وێنێن دی (☀️🔥⭐…) هەمی یاریکەر دبینن.','📷 وێنەکەی خۆت تەنها تۆ دەیبینیت.','📷 صورتك تراها أنت فقط، والملصقات يراها الجميع.','📷 Only you see your own photo; everyone sees the stickers.'],
  saved:['✅ هاتە پاشەکەفتکرن','✅ پاشەکەوت کرا','✅ تم الحفظ','✅ Saved'],
  myCar:['ترومبێلا من','ئۆتۆمبێلەکەم','سيارتي','My car'],rev:['دەنگ','دەنگ','الصوت','Sound'],toShop:['دکانا ترومبێلێ','دووکانی ئۆتۆمبێل','متجر السيارة','Car shop'],
  maps:['خەریتە (یاریگەهـ)','نەخشە (یاریگا)','الخرائط','Tracks'],randomMap:['🎲 کەیفی','🎲 هەڕەمەکی','🎲 عشوائي','🎲 Random'],
@@ -781,6 +858,17 @@ function openGarage(){const ov=document.createElement('div');ov.className='garo'
   // the name: only on my phone
   const ni=document.createElement('input');ni.type='text';ni.maxLength=12;ni.value=nm;ni.placeholder='AG';ni.oninput=()=>{nm=ni.value.replace(/[<>&"'`\\]/g,'').slice(0,12);if(nm!==ni.value)ni.value=nm};
   row(t('cname'),ni);box.append(el('p','note',t('onlyYou')));
+  // stickers on the sides and on the back
+  const file=document.createElement('input');file.type='file';file.accept='image/*';file.style.display='none';box.append(file);let want=null;
+  file.onchange=()=>{const f=file.files&&file.files[0];if(!f)return;const im=new Image(),url=URL.createObjectURL(f);im.onload=()=>{const m=256,r=Math.min(1,m/Math.max(im.width,im.height)),cv2=document.createElement('canvas');cv2.width=Math.round(im.width*r);cv2.height=Math.round(im.height*r);
+      cv2.getContext('2d').drawImage(im,0,0,cv2.width,cv2.height);try{localStorage.setItem('rc.photo',cv2.toDataURL('image/jpeg',0.82))}catch(e){toast('✖')}URL.revokeObjectURL(url);loadPhoto();if(want){o[want]=99;want=null;stkDraw()}};im.src=url;file.value=''};
+  const stkRows={};const stkRow=(key,lbl)=>{box.append(el('label',null,lbl));const r=el('div','stk');box.append(r);stkRows[key]=r};
+  const stkDraw=()=>{for(const key in stkRows){const r=stkRows[key];r.textContent='';
+    const add=(id,html)=>{const b=el('button',o[key]===id?'on':'');b.type='button';if(typeof html==='string')b.textContent=html;else b.append(html);b.onclick=()=>{if(id===99&&!MYPHOTO){want=key;file.click();return}o[key]=id;stkDraw()};r.append(b)};
+    add(0,t('s0'));for(let i=1;i<RCSK.stickers.length;i++){const cv3=document.createElement('canvas');cv3.width=cv3.height=64;RCSK.drawSticker(cv3.getContext('2d'),i,32,32,56);add(i,cv3)}
+    const ph=document.createElement('canvas');ph.width=ph.height=64;const px=ph.getContext('2d');if(MYPHOTO)RCSK.drawSticker(px,99,32,32,58,MYPHOTO);else{px.font='34px sans-serif';px.textAlign='center';px.textBaseline='middle';px.fillText('📷',32,34)}add(99,ph)}};
+  stkRow('k',t('stkSide'));stkRow('b',t('stkBack'));stkDraw();
+  const chg=el('button','btn ghost',t('newPhoto'));chg.type='button';chg.style.padding='8px';chg.style.fontSize='14px';chg.onclick=()=>{want=o.b===99?'b':'k';file.click()};box.append(chg,el('p','note',t('photoNote')));
   // the plate
   box.append(el('label',null,t('plate')));box.append(pc);
   const pRow=el('div','seg');const pDraw=()=>{pRow.textContent='';[['krd','pK'],['iq','pI']].forEach(([k,L])=>{const b=el('button',o.p===k?'on':'',t(L));b.type='button';b.onclick=()=>{o.p=k;o.y=RCSK.cities[k][0][0];pDraw();cityFill()};pRow.append(b)})};pDraw();box.append(pRow);
@@ -799,7 +887,7 @@ function openGarage(){const ov=document.createElement('div');ov.className='garo'
     if(fdb&&me){try{await fdb.ref('profiles/'+me+'/private').update({rccus:MY.cus,rcname:CNAME||null})}catch(e){}}stop()};
   rs.onclick=()=>{Object.assign(o,RCSK.cusdef);nm='';ni.value='';stop();delete MY.cus;CNAME='';try{localStorage.setItem('rc.look',JSON.stringify(MY));localStorage.removeItem('rc.cname')}catch(e){}if(fdb&&me)fdb.ref('profiles/'+me+'/private').update({rccus:null,rcname:null}).catch(()=>{})};
   cl.onclick=stop;
-  (function loop(){if(!alive||!cv.isConnected)return;const x=cv.getContext('2d');x.setTransform(2,0,0,2,0,0);x.clearRect(0,0,340,160);RCSK.draw2D(x,340,160,Object.assign({},MY,{cus:RCSK.packCus(o)}),null,nm);
+  (function loop(){if(!alive||!cv.isConnected)return;const x=cv.getContext('2d');x.setTransform(2,0,0,2,0,0);x.clearRect(0,0,340,160);RCSK.draw2D(x,340,160,Object.assign({},MY,{cus:RCSK.packCus(o)}),null,nm,MYPHOTO);
     RCSK.drawPlate(pc.getContext('2d'),o);setTimeout(()=>requestAnimationFrame(loop),50)})()}
 try{LAPS=+localStorage.getItem('rc.laps')||3}catch(e){}
 

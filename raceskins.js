@@ -87,14 +87,22 @@ var TYPE={body:"rcbody",paint:"rcpaint",engine:"rcengine",light:"rclight",rim:"r
 // ---------- the garage (bought once in the shop): own colour, tyres, height, stripes, plate, name ----------
 var CITIES={krd:[["duhok","دهۆک","Duhok"],["erbil","هەولێر","Erbil"],["slemani","سلێمانی","Sulaymaniyah"],["halabja","هەڵەبجە","Halabja"],["zakho","زاخۆ","Zakho"]],
   iq:[["baghdad","بغداد","Baghdad"],["mosul","نينوى","Nineveh"],["basra","البصرة","Basra"],["kirkuk","كركوك","Kirkuk"],["najaf","النجف","Najaf"],["anbar","الأنبار","Anbar"]]};
-var CUSDEF={c:"c81e1e",d:"ffffff",t:1,h:1,s:0,p:"krd",y:"duhok",n:"24A00000"};
+var CUSDEF={c:"c81e1e",d:"ffffff",t:1,h:1,s:0,p:"krd",y:"duhok",n:"24A00000",k:0,b:0};
+// stickers for the sides and the back (everyone sees these); 99 = my own photo (only I see it)
+var STICKERS=[null,"sun","🔥","⭐","🦅","⚡","🏁","🦁","🐺","🌹","🏔️","👑","💎"];
+function drawSticker(x,id,cx,cy,size,photo){if(id===99){if(!photo||!photo.width)return;var r=Math.min(size/photo.width,size/photo.height),w=photo.width*r,h=photo.height*r;
+    x.save();x.beginPath();var rr=size*0.08;x.moveTo(cx-w/2+rr,cy-h/2);x.arcTo(cx+w/2,cy-h/2,cx+w/2,cy+h/2,rr);x.arcTo(cx+w/2,cy+h/2,cx-w/2,cy+h/2,rr);x.arcTo(cx-w/2,cy+h/2,cx-w/2,cy-h/2,rr);x.arcTo(cx-w/2,cy-h/2,cx+w/2,cy-h/2,rr);x.closePath();x.clip();x.drawImage(photo,cx-w/2,cy-h/2,w,h);x.restore();return}
+  var st=STICKERS[id];if(!st)return;
+  if(st==="sun"){x.save();x.translate(cx,cy);x.fillStyle="#ffd400";x.strokeStyle="rgba(0,0,0,.35)";x.lineWidth=size*0.02;x.beginPath();for(var i=0;i<42;i++){var a=i*Math.PI/21-Math.PI/2,r=(i%2?0.3:0.48)*size;x.lineTo(Math.cos(a)*r,Math.sin(a)*r)}x.closePath();x.fill();x.stroke();x.beginPath();x.arc(0,0,size*0.26,0,7);x.fill();x.restore();return}
+  x.save();x.font=Math.round(size*0.86)+'px "Noto Color Emoji","Apple Color Emoji","Segoe UI Emoji",sans-serif';x.textAlign="center";x.textBaseline="middle";x.fillText(st,cx,cy+size*0.04);x.restore()}
 // read a garage string like "c=c81e1e,d=ffffff,t=1,h=1,s=0,p=krd,y=duhok,n=24A00000"; anything wrong falls back to the default
 function parseCus(str){if(!str||typeof str!=="string")return null;var o={},m={};str.split(",").forEach(function(kv){var i=kv.indexOf("=");if(i>0)m[kv.slice(0,i)]=kv.slice(i+1)});
   o.c=/^[0-9a-f]{6}$/i.test(m.c||"")?m.c.toLowerCase():CUSDEF.c;o.d=/^[0-9a-f]{6}$/i.test(m.d||"")?m.d.toLowerCase():CUSDEF.d;
   o.t=[0,1,2].indexOf(+m.t)>=0?+m.t:1;o.h=[0,1,2].indexOf(+m.h)>=0?+m.h:1;o.s=[0,1,2,3].indexOf(+m.s)>=0?+m.s:0;
   o.p=m.p==="iq"?"iq":"krd";o.y=CITIES[o.p].some(function(c){return c[0]===m.y})?m.y:CITIES[o.p][0][0];
-  o.n=/^\d{2}[A-Z]\d{1,5}$/.test(m.n||"")?m.n:CUSDEF.n;return o}
-function packCus(o){o=o||CUSDEF;return["c="+o.c,"d="+o.d,"t="+o.t,"h="+o.h,"s="+o.s,"p="+o.p,"y="+o.y,"n="+o.n].join(",")}
+  o.n=/^\d{2}[A-Z]\d{1,5}$/.test(m.n||"")?m.n:CUSDEF.n;
+  var sk=function(v){v=+v;return (v===99||(v>0&&v<STICKERS.length))?v:0};o.k=sk(m.k);o.b=sk(m.b);return o}
+function packCus(o){o=o||CUSDEF;var a=["c="+o.c,"d="+o.d,"t="+o.t,"h="+o.h,"s="+o.s,"p="+o.p,"y="+o.y,"n="+o.n];if(o.k)a.push("k="+o.k);if(o.b)a.push("b="+o.b);return a.join(",")}
 function cleanCus(str){var o=parseCus(str);return o?packCus(o):""}
 // "#rrggbb" -> a paint colour for the 3D picture (like the shop paints)
 function lin(hex){return[0,2,4].map(function(i){return Math.max(0.006,Math.pow(parseInt(hex.substr(i,2),16)/255,2.2)*0.8)})}
@@ -160,7 +168,7 @@ function preview(key){try{if(PV){PV.e.kill();PV.ac.close();PV=null}var AC=new(wi
     e.update(rpm,thr,true);requestAnimationFrame(tick)})()}catch(err){}}
 
 // ================= a car seen from the side, for the shop and the garage =================
-function draw2D(x,w,h,sk,hl,cname){var cnm=cname||(sk&&sk.cname)||"";sk=look(sk);var CU=parseCus(sk.cus),P=PAINTS[sk.paint],S=STRIPES[sk.stripe],R=RIMS[sk.rim],Lt=LIGHTS[sk.light],Wg=WINGS[sk.wing],Gl=GLOWS[sk.glow],t=performance.now()/1000;
+function draw2D(x,w,h,sk,hl,cname,photo){var cnm=cname||(sk&&sk.cname)||"";sk=look(sk);var CU=parseCus(sk.cus),P=PAINTS[sk.paint],S=STRIPES[sk.stripe],R=RIMS[sk.rim],Lt=LIGHTS[sk.light],Wg=WINGS[sk.wing],Gl=GLOWS[sk.glow],t=performance.now()/1000;
   var s=Math.min(w/300,h/120);x.save();x.translate(w/2-150*s,h/2-60*s+6*s);x.scale(s,s);
   if(Gl.col){var gc=Gl.rainbow?rainbow(t):Gl.col,gr=x.createRadialGradient(150,100,10,150,100,150);gr.addColorStop(0,"rgba("+gc.map(function(v){return Math.round(Math.min(1,v)*255)}).join(",")+",.85)");gr.addColorStop(1,"rgba(0,0,0,0)");x.fillStyle=gr;x.beginPath();x.ellipse(150,100,150,18,0,0,7);x.fill()}
   x.fillStyle="rgba(0,0,0,.3)";x.beginPath();x.ellipse(150,103,128,7,0,0,7);x.fill();
@@ -196,6 +204,7 @@ function draw2D(x,w,h,sk,hl,cname){var cnm=cname||(sk&&sk.cname)||"";sk=look(sk)
   var wg=x.createLinearGradient(0,30,0,52);wg.addColorStop(0,"#9fb4c8");wg.addColorStop(1,"#1a2430");x.fillStyle=wg;x.fill();
   if(S.col&&B!=='bd_truck'){var sc=css(S.col);x.fillStyle=sc;if(S.kurd){x.fillStyle=css([0.8,0.02,0.02]);x.fillRect(24,63,258,4);x.fillStyle="#fff";x.fillRect(24,67,258,4);x.fillStyle=css([0.02,0.4,0.1]);x.fillRect(24,71,258,4);x.fillStyle="#ffd400";x.beginPath();x.arc(150,69,4,0,7);x.fill()}
     else if(S.st===2)x.fillRect(24,62,258,13);else if(S.st===3)x.fillRect(24,78,258,4);else{x.fillRect(24,64,258,4);x.fillRect(24,70,258,4)}}
+  if(CU&&CU.k&&B!=='bd_truck')drawSticker(x,CU.k,128,cnm?66:72,cnm?20:26,photo);
   if(cnm&&B!=='bd_truck'){x.save();x.font="900 13px system-ui,sans-serif";x.textAlign="center";x.textBaseline="middle";x.lineWidth=3;x.strokeStyle="rgba(0,0,0,.55)";x.fillStyle="#fff";x.strokeText(cnm,128,82);x.fillText(cnm,128,82);x.restore()}
   if(CU&&B!=='bd_truck'){x.fillStyle="#f4f5f7";x.fillRect(22,74,20,8);x.strokeStyle="#111";x.lineWidth=0.8;x.strokeRect(22,74,20,8);x.fillStyle="#555";x.fillRect(23,75,3,6)}
   // door lines and handle
@@ -217,7 +226,7 @@ function draw2D(x,w,h,sk,hl,cname){var cnm=cname||(sk&&sk.cname)||"";sk=look(sk)
   if(B==='bd_truck'){x.restore();return}
   x.globalAlpha=0.25+(P.refl>1.3?0.25:0);x.strokeStyle="#fff";x.lineWidth=2;x.beginPath();x.moveTo(40,58);x.quadraticCurveTo(150,50,270,56);x.stroke();x.restore();x.restore()}
 
-window.RCSK={cities:CITIES,cusdef:CUSDEF,parseCus:parseCus,packCus:packCus,cleanCus:cleanCus,lin:lin,tire:TIRE,lift:LIFT,drawPlate:drawPlate,sets:SETS,type:TYPE,def:DEF,bodies:BODIES,paints:PAINTS,engines:ENGINES,lights:LIGHTS,rims:RIMS,wings:WINGS,glows:GLOWS,stripes:STRIPES,
+window.RCSK={stickers:STICKERS,drawSticker:drawSticker,cities:CITIES,cusdef:CUSDEF,parseCus:parseCus,packCus:packCus,cleanCus:cleanCus,lin:lin,tire:TIRE,lift:LIFT,drawPlate:drawPlate,sets:SETS,type:TYPE,def:DEF,bodies:BODIES,paints:PAINTS,engines:ENGINES,lights:LIGHTS,rims:RIMS,wings:WINGS,glows:GLOWS,stripes:STRIPES,
   look:look,css:css,rainbow:rainbow,Engine:Engine,rpmAt:rpmAt,preview:preview,draw2D:draw2D};
 if(!window.AG||!AG.addPack)return;
 // ---------- the shop ----------
