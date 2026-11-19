@@ -185,6 +185,7 @@ function draw2D(x,w,h,sk,hl,cname,photo){var cnm=cname||(sk&&sk.cname)||"";sk=lo
     x.beginPath();x.moveTo(196,92);x.lineTo(196,18);x.quadraticCurveTo(198,8,212,8);x.lineTo(262,8);x.quadraticCurveTo(286,10,290,40);x.lineTo(296,62);x.quadraticCurveTo(300,86,292,92);x.closePath();x.fillStyle=bg;x.fill();x.stroke();
     x.beginPath();x.moveTo(248,14);x.lineTo(268,14);x.quadraticCurveTo(282,18,286,42);x.lineTo(248,42);x.closePath();var tg=x.createLinearGradient(0,14,0,42);tg.addColorStop(0,"#9fb4c8");tg.addColorStop(1,"#1a2430");x.fillStyle=tg;x.fill();
     var lcT=Lt.rainbow?rainbow(t):Lt.col;x.fillStyle=css(lcT.map(function(v){return v*1.4}));x.fillRect(290,66,7,6);
+    if(CU&&CU.k)drawSticker(x,CU.k,236,32,26,photo);
     x.restore();wx=[22,52,118,176].map(function(v){return 150+(v-150)*0.62});wx.push(150+(236-150)*0.62);
   }else{
   // body

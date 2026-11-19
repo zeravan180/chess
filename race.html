@@ -125,7 +125,7 @@ const BODIES={bd_sedan:SEDAN,
    KYB:[[-2.55,.5],[-2.3,.42],[-1.9,.4],[1.9,.4],[2.25,.42],[2.45,.48]],
    KROOF:[[-0.62,0],[-0.56,.32],[-0.45,.46],[-0.1,.48],[0.3,.47],[0.6,.35],[0.86,.17],[1.08,0]],G0:-0.62,G1:1.08,roof:[-0.45,0.58],
    doors:[-0.6,0.95],handles:[-0.2],bed:[-2.45,-0.68],mirror:[0.9,1.02],cp:[-1.4,1.4],cam:[8.4,3.2,1.2],shadow:[1.05,1.08]}),
- bd_truck:Object.assign({},SEDAN,{WY:0.5,RA:0.6,WZS:[-0.6,1.6,-7.4,-8.6],WX:1.02,Z0:-1.6,Z1:2.75,
+ bd_truck:Object.assign({},SEDAN,{back:[2,-9.6,1.45,1.05,3.6],WY:0.5,RA:0.6,WZS:[-0.6,1.6,-7.4,-8.6],WX:1.02,Z0:-1.6,Z1:2.75,
    KHW:[[-1.6,1.05],[-1.2,1.1],[1.8,1.12],[2.3,1.1],[2.6,1.02]],
    KYT:[[-1.6,1.25],[-1.3,1.32],[1.7,1.32],[2.25,1.26],[2.6,1.1]],
    KYB:[[-1.6,.6],[-1.2,.55],[2.2,.55],[2.6,.62]],
@@ -341,7 +341,8 @@ void main(){float k=uKind;vec3 V=uCam-vW;float dist=length(V);vec3 v=V/dist;
       if(uBackOn<1.5){if(n.y>.5&&vO.z>uBackR.x&&vO.z<uBackR.y&&abs(vO.x)<uBackR.z)uv=vec2((uBackR.z-vO.x)/(2.*uBackR.z),(uBackR.y-vO.z)/(uBackR.y-uBackR.x));}
       else{if(vO.z<uBackR.x&&abs(vO.x)<uBackR.z&&vO.y>uBackR.y&&vO.y<uBackR.w)uv=vec2((uBackR.z-vO.x)/(2.*uBackR.z),(uBackR.w-vO.y)/(uBackR.w-uBackR.y));}
       if(uv.x>=0.){vec4 bk=texture2D(uBack,uv);base=mix(base,bk.rgb,bk.a);}}
-    if(uDecOn>1.5&&abs(vO.x)>1.0&&vO.y>1.08&&vO.y<2.45&&vO.z>.32&&vO.z<2.62){vec2 uv=vec2((2.62-vO.z)/2.3,(2.45-vO.y)/1.37);vec4 dc=texture2D(uDec,uv);base=mix(base,dc.rgb,dc.a);}
+    if(uDecOn>2.5&&abs(vO.x)>1.1&&vO.y>1.3&&vO.y<3.65&&vO.z>-9.65&&vO.z<-1.85){vec2 uv=vec2(vO.x>0.?(-1.85-vO.z)/15.6:.5+(vO.z+9.65)/15.6,(3.65-vO.y)/2.35);vec4 dc=texture2D(uDec,uv);base=mix(base,dc.rgb,dc.a);}
+    if(uDecOn>1.5&&uDecOn<2.5&&abs(vO.x)>1.0&&vO.y>1.08&&vO.y<2.45&&vO.z>.32&&vO.z<2.62){vec2 uv=vec2(vO.x>0.?(2.62-vO.z)/4.6:.5+(vO.z-.32)/4.6,(2.45-vO.y)/1.37);vec4 dc=texture2D(uDec,uv);base=mix(base,dc.rgb,dc.a);}
     float trim=0.;if(vA>.5){float ar=-9.;for(int i=0;i<2;i++){float wz=i==0?uWz.x:uWz.y;float d=vO.z-wz;if(abs(d)<uWz.w+.06)ar=max(ar,uWz.z+sqrt(max(0.,uWz.w*uWz.w-d*d))*(abs(d)<uWz.w?1.:0.));}
       float yl=max(ar+.055,uWz.z+.005);trim=1.-smoothstep(yl-.004,yl+.004,vO.y);}
     float F=mix(.05,1.,fr);col=base*(amb+nl*sunc)*(1.-F)+base*E*uMetal*.5+E*F*uRefl+sunc*pow(max(dot(n,h),0.),220.)*3.;
@@ -432,16 +433,28 @@ function truckCab(out){const W=1.15,e=0.22;
   out.PLATE=quadMesh([0.24,0.5,-9.53],[-0.24,0.5,-9.53],[-0.24,0.62,-9.53],[0.24,0.62,-9.53],[0,0,-1]);
   out.mx=1.2;return out}
 // the side picture of the truck: a black swoosh with a blue line, a checkered flag and stripes (no names or logos)
-let truckDec=null;
-function truckDecal(){if(truckDec)return truckDec;const c=document.createElement('canvas');c.width=512;c.height=304;const x=c.getContext('2d');
-  // left = front of the truck
-  x.fillStyle='#111';x.beginPath();x.moveTo(30,250);x.quadraticCurveTo(160,150,330,170);x.lineTo(300,215);x.quadraticCurveTo(170,205,60,270);x.closePath();x.fill();
-  x.fillStyle='#1d4fd8';x.beginPath();x.moveTo(70,262);x.quadraticCurveTo(170,215,290,222);x.lineTo(284,234);x.quadraticCurveTo(180,228,92,272);x.closePath();x.fill();
-  // checkered flag high at the back
-  const fx=420,fy=40,s=16;for(let r=0;r<7;r++)for(let k=0;k<3;k++){if((r+k)%2)continue;x.save();x.translate(fx+k*s,fy+r*s+k*5);x.transform(1,0.3,0,1,0,0);x.fillStyle='#111';x.fillRect(0,0,s,s);x.restore()}
-  // four stripes low at the back
-  x.fillStyle='#111';for(let k=0;k<4;k++){x.save();x.translate(440+k*14,200);x.transform(1,0,-0.25,1,0,0);x.fillRect(0,0,7,70);x.restore()}
-  truckDec=texFrom(c);return truckDec}
+// the truck's sides: a black swoosh with a blue line, a checkered flag and stripes (no names or logos);
+// with the garage: my picture on the big side of the cab and my name on the door.
+// Two halves: the right side uses the left half, the left side the right half, so pictures are never mirrored.
+// the long sides of the trailer: one big picture in the middle of each side
+function trailerSide(stk){return decCache('l'+stk+'|'+(MYPHOTO?1:0),()=>{const c=document.createElement('canvas');c.width=2048;c.height=310;const x=c.getContext('2d');
+  for(let h=0;h<2;h++)RCSK.drawSticker(x,stk,h*1024+512,155,290,MYPHOTO);return c})}
+function truckDecal(stk,name){return decCache('t'+(stk||0)+'|'+(name||'')+'|'+(MYPHOTO?1:0),()=>{const c=document.createElement('canvas');c.width=1024;c.height=304;const x=c.getContext('2d');
+  for(let h=0;h<2;h++){x.save();x.translate(h*512,0);x.beginPath();x.rect(0,0,512,304);x.clip();
+    // h=0: left of the picture is the front; h=1: left is the back, so the swoosh is drawn the other way
+    x.save();if(h){x.translate(512,0);x.scale(-1,1)}
+    x.fillStyle='#111';x.beginPath();x.moveTo(30,250);x.quadraticCurveTo(160,150,330,170);x.lineTo(300,215);x.quadraticCurveTo(170,205,60,270);x.closePath();x.fill();
+    x.fillStyle='#1d4fd8';x.beginPath();x.moveTo(70,262);x.quadraticCurveTo(170,215,290,222);x.lineTo(284,234);x.quadraticCurveTo(180,228,92,272);x.closePath();x.fill();
+    if(!stk){const fx=420,fy=40,s=16;for(let r=0;r<7;r++)for(let k=0;k<3;k++){if((r+k)%2)continue;x.save();x.translate(fx+k*s,fy+r*s+k*5);x.transform(1,0.3,0,1,0,0);x.fillStyle='#111';x.fillRect(0,0,s,s);x.restore()}
+      x.fillStyle='#111';for(let k=0;k<4;k++){x.save();x.translate(440+k*14,200);x.transform(1,0,-0.25,1,0,0);x.fillRect(0,0,7,70);x.restore()}}
+    x.restore();
+    // the picture on the back half of the cab side, the name on the door
+    const back=h?134:377,door=h?384:130;
+    if(stk)RCSK.drawSticker(x,stk,back,140,210,MYPHOTO);
+    if(name){let fs=44;x.font='900 '+fs+'px system-ui,sans-serif';const tw=x.measureText(name).width;if(tw>220){fs=Math.max(18,Math.floor(fs*220/tw));x.font='900 '+fs+'px system-ui,sans-serif'}
+      x.textAlign='center';x.textBaseline='middle';x.lineJoin='round';x.lineWidth=8;x.strokeStyle='rgba(0,0,0,.75)';x.strokeText(name,door,248);x.fillStyle='#fff';x.fillText(name,door,248)}
+    x.restore()}
+  return c})}
 for(const k in BODIES){const b0=buildBody(BODIES[k]),b=BODIES[k].cab?truckCab(b0):b0,u=m=>Array.isArray(m)?m.map(upload):upload(m);
   G.T[k]={body:u(b.BODY),glass:u(b.GLASS),roof:u(b.ROOF),chrome:u(b.CHROME_W),head:u(b.HEAD),drl:u(b.DRL),grille:u(b.GRILLE),intake:u(b.INTAKE),emblem:u(b.EMBLEM),
     tails:u(b.TAILS),plate:u(b.PLATE),diff:u(b.DIFF),doors:u(b.DOORLINES),handles:u(b.HANDLES),liners:u(b.LINERS),wings:[null,u(b.WINGM[1]),u(b.WINGM[2]),u(b.WINGM[3])],
@@ -503,9 +516,9 @@ function makeCars(){cars=[];let seed=Date.now()%100000;const r=()=>{seed=(seed*1
 const NODENT=new Float32Array(32);
 function drawCar(c){
   const I0=M4.mul(M4.tr(c.x,0,c.z),M4.ry(c.h)),K=c.sk,B=G.T[K.body]||G.T.bd_sedan,BD=B.def,ST0=RCSK.stripes[K.stripe],LT=RCSK.lights[K.light],t=performance.now()/1000;
-  let P=RCSK.paints[K.paint];const CU=BD.trailer?null:cuOf(c);if(CU)P={col:RCSK.lin(CU.c),metal:0.5,refl:1};
-  const tk=CU?RCSK.tire[CU.t]:1,lift=CU?BD.WY*(tk-1)+RCSK.lift[CU.h]:0,I=lift?M4.mul(I0,M4.tr(0,lift,0)):I0;
-  const strOn=CU&&CU.s?[0,1,3,4][CU.s]:(ST0.col&&!BD.trailer?(ST0.kurd?2:1):0),strCol=CU&&CU.s?RCSK.lin(CU.d):(ST0.col||[0,0,0]);
+  let P=RCSK.paints[K.paint];const CU=cuOf(c);if(CU)P={col:RCSK.lin(CU.c),metal:0.5,refl:1};
+  const tk=CU&&!BD.trailer?RCSK.tire[CU.t]:1,lift=CU&&!BD.trailer?BD.WY*(tk-1)+RCSK.lift[CU.h]:0,I=lift?M4.mul(I0,M4.tr(0,lift,0)):I0;
+  const strOn=CU&&CU.s&&!BD.trailer?[0,1,3,4][CU.s]:(ST0.col&&!BD.trailer?(ST0.kurd?2:1):0),strCol=CU&&CU.s?RCSK.lin(CU.d):(ST0.col||[0,0,0]);
   gl.uniform4f(U.uWz,BD.WZS[0],BD.WZS[1],BD.WY,BD.RA);
   // where this car was hit
   const dn=new Float32Array(32);(c.dents||[]).slice(-8).forEach((d,i)=>{dn[i*4]=d.x;dn[i*4+1]=d.y;dn[i*4+2]=d.z;dn[i*4+3]=d.r});gl.uniform4fv(U.uDent,dn);
@@ -513,11 +526,15 @@ function drawCar(c){
   // stickers: my own photo only on my phone; others see only the shop stickers
   const ok=v=>v&&(v!==99||c.player)?v:0,sk1=CU?ok(CU.k):0,sk2=CU?ok(CU.b):0,nm=c.player&&CU?CNAME:'';
   const dec=!BD.cab&&(sk1||nm);if(dec){gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,sideTex(sk1,nm));gl.activeTexture(gl.TEXTURE0);gl.uniform1f(U.uDecOn,1)}
-  const bk=BD.back;if(sk2&&bk){const asp=bk[0]===1?2*bk[3]/(bk[2]-bk[1]):2*bk[3]/(bk[4]-bk[2]);gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,backTex(sk2,asp));gl.activeTexture(gl.TEXTURE0);
-    gl.uniform1f(U.uBackOn,bk[0]);gl.uniform4f(U.uBackR,bk[1],bk[2],bk[3],bk[4])}
-  else if(BD.cab){gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,truckDecal());gl.activeTexture(gl.TEXTURE0);gl.uniform1f(U.uDecOn,2)}
+  if(BD.cab){gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,truckDecal(sk1,nm));gl.activeTexture(gl.TEXTURE0);gl.uniform1f(U.uDecOn,2)}
+  const bk=BD.back,backOn=()=>{const asp=bk[0]===1?2*bk[3]/(bk[2]-bk[1]):2*bk[3]/(bk[4]-bk[2]);gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,backTex(sk2,asp));gl.activeTexture(gl.TEXTURE0);
+    gl.uniform1f(U.uBackOn,bk[0]);gl.uniform4f(U.uBackR,bk[1],bk[2],bk[3],bk[4])};
+  if(sk2&&bk&&!BD.trailer)backOn();
   draw(B.body,I);gl.uniform1f(U.uDecOn,0);gl.uniform1f(U.uBackOn,0);draw(B.roof,I);gl.uniform1f(U.uStrOn,0);gl.uniform4fv(U.uDent,NODENT);
-  if(B.trailer){gl.uniform3fv(U.uCol2,[0,0,0]);setMat(0,[0.8,0.82,0.85],0,0.2,0.8);draw(B.trailer,I);setMat(5);draw(B.chassis,I)}
+  // the trailer: my picture on its big back door
+  if(B.trailer){gl.uniform3fv(U.uCol2,[0,0,0]);setMat(0,[0.8,0.82,0.85],0,0.2,0.8);if(sk2&&bk)backOn();
+    if(sk1){gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,trailerSide(sk1));gl.activeTexture(gl.TEXTURE0);gl.uniform1f(U.uDecOn,3)}
+    draw(B.trailer,I);gl.uniform1f(U.uBackOn,0);gl.uniform1f(U.uDecOn,0);setMat(5);draw(B.chassis,I)}
   setMat(0,P.col,0,P.metal,P.refl);
   const my=BD.mirror[1]+0.1;if(!BD.cab)for(const s of[-1,1])draw(G.mirror,M4.mul(I,M4.mul(M4.tr(s*(B.mx+0.06),my,BD.mirror[0]),M4.sc(0.075*(BD.trailer?1.6:1),0.06*(BD.trailer?2.4:1),0.13))));
   const WG=RCSK.wings[K.wing];if(WG.t&&!BD.trailer){if(WG.carbon)setMat(5,[0,0,0],0,1);draw(B.wings[WG.t],I)}
