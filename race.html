@@ -39,7 +39,7 @@
   .dcode{font:900 34px/1 monospace;letter-spacing:8px;text-align:center;direction:ltr;color:#facc15}
   .ppl{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}.ppl div{display:flex;flex-direction:column;align-items:center;gap:4px;width:70px;font-size:12px;font-weight:800;text-align:center}
   .ppl img{width:48px;height:48px;border-radius:50%;object-fit:cover;border:3px solid #ff5a2a;background:#222}
-  #gar{width:100%;height:150px;display:block}
+  #gar{width:100%;height:210px;display:block;touch-action:pan-y;cursor:grab}
   .maps{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.maps button{border:2px solid rgba(255,255,255,.18);border-radius:14px;padding:4px 4px 6px;color:#fff;background:rgba(0,0,0,.25);font-size:11px;font-weight:800;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
   .maps button.on{border-color:#facc15;box-shadow:0 0 0 3px rgba(250,204,21,.3)}.maps canvas{width:100%;height:64px;display:block;border-radius:10px}
   .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}.chips button{width:34px;height:34px;border-radius:50%;border:3px solid rgba(255,255,255,.25);cursor:pointer}.chips button.on{border-color:#fff;transform:scale(1.15)}
@@ -400,7 +400,7 @@ const PLATES=new Map();
 function plateFor(cu){if(!cu)return plateTex;const k=cu.p+cu.y+cu.n;let t=PLATES.get(k);if(!t){const c=document.createElement('canvas');c.width=256;c.height=64;RCSK.drawPlate(c.getContext('2d'),cu);t=texFrom(c);PLATES.set(k,t);if(PLATES.size>40){const f=PLATES.keys().next().value;gl.deleteTexture(PLATES.get(f));PLATES.delete(f)}}return t}
 let decTex=null,decName='';
 function decalFor(name){if(name===decName&&decTex)return decTex;decName=name;const c=document.createElement('canvas');c.width=512;c.height=128;const x=c.getContext('2d');
-  x.font='900 72px system-ui,sans-serif';x.textAlign='center';x.textBaseline='middle';x.lineJoin='round';x.lineWidth=12;x.strokeStyle='rgba(0,0,0,.75)';x.strokeText(name,256,66);x.fillStyle='#fff';x.fillText(name,256,66);
+  let fs=72;x.font='900 '+fs+'px system-ui,sans-serif';const tw=x.measureText(name).width;if(tw>440){fs=Math.max(28,Math.floor(fs*440/tw));x.font='900 '+fs+'px system-ui,sans-serif'}x.textAlign='center';x.textBaseline='middle';x.lineJoin='round';x.lineWidth=12;x.strokeStyle='rgba(0,0,0,.75)';x.strokeText(name,256,66);x.fillStyle='#fff';x.fillText(name,256,66);
   if(decTex)gl.deleteTexture(decTex);decTex=texFrom(c);return decTex}
 const CUC=new Map();
 // the garage look of a car: mine only when I own the garage; other players' as they sent it
@@ -592,7 +592,39 @@ function pauseMenu(){if(state==='menu'||ov.style.display==='flex')return;paused=
   $('pRes').onclick=()=>{ov.style.display='none';paused=false;last=performance.now()};$('pOut').onclick=toMenu}
 const fmt=t=>`${Math.floor(t/60)}:${(t%60).toFixed(2).padStart(5,'0')}`;
 
+// ================= my car in the lobby: the real 3D car, turning; drag it to turn it yourself =================
+const SPIN={yaw:2.3,pitch:0.32,vel:0.5,zoom:1,drag:null,pinch:0,ptrs:new Map(),idle:0};
+const STUDIO={x:0,z:0,h:0,v:0,steer:0,wheel:0,brake:false,player:true,dents:[],sk:null};
+function renderGarage(dt){const gc=$('gar');if(!gc)return false;const cw=gc.clientWidth,ch=gc.clientHeight;if(!cw||!ch)return false;
+  const vw=Math.min(cv.width,Math.round(cw*DPR)),vh=Math.min(cv.height,Math.round(ch*DPR));if(gc.width!==vw||gc.height!==vh){gc.width=vw;gc.height=vh}
+  // turning by itself, slower when just let go
+  if(!SPIN.drag&&SPIN.ptrs.size===0){SPIN.vel+=(0.45-SPIN.vel)*Math.min(1,dt*1.5);SPIN.yaw+=SPIN.vel*dt}
+  STUDIO.sk=garageOn()?MY:skNet();const BD=(G.T[STUDIO.sk.body]||G.T.bd_sedan).def,big=BD.trailer?2.1:1;
+  const d=(7.2*big)/SPIN.zoom,ty=BD.trailer?1.4:0.62,eye=[Math.sin(SPIN.yaw)*Math.cos(SPIN.pitch)*d,ty+Math.sin(SPIN.pitch)*d,Math.cos(SPIN.yaw)*Math.cos(SPIN.pitch)*d],tgt=[0,ty,BD.trailer?-3:0];
+  const VP=M4.mul(M4.persp(0.62,vw/vh,0.3,200),M4.look(eye,tgt,[0,1,0]));
+  const th=THEMES.day,keep=TH;TH=th;
+  gl.uniform3fv(U.uSkyH,[.42,.36,.5]);gl.uniform3fv(U.uSkyZ,[.12,.1,.22]);gl.uniform3fv(U.uSkyG,[.08,.06,.1]);gl.uniform3fv(U.uSunC,th.sun);gl.uniform3fv(U.uSunD,[.5,.75,.45]);gl.uniform1f(U.uAmbK,1.05);gl.uniform1f(U.uFogK,0);gl.uniform4fv(U.uDent,NODENT);
+  gl.viewport(0,0,vw,vh);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);
+  gl.uniformMatrix4fv(U.uVP,false,VP);gl.uniform3fv(U.uCam,eye);gl.uniform1i(U.uTex,0);gl.activeTexture(gl.TEXTURE0);
+  gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.depthMask(false);
+  const sh=BD.shadow;setMat(9);draw(G.shadow,M4.mul(M4.tr(0,0.0,0),M4.mul(M4.tr(0,0,sh[1]>2?-3.2:0),M4.sc(sh[0]*1.15,1,sh[1]*1.08))));
+  gl.blendFunc(gl.ONE,gl.ONE);drawGlow(STUDIO);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.disable(gl.BLEND);gl.depthMask(true);
+  drawCar(STUDIO);TH=keep;
+  // copy that corner of the big picture into the small card picture
+  const x=gc.getContext('2d');x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,vw,vh);x.drawImage(cv,0,cv.height-vh,vw,vh,0,0,vw,vh);
+  gl.viewport(0,0,cv.width,cv.height);return true}
+(()=>{const gc=document.getElementById('gar');if(!gc)return;
+  gc.addEventListener('pointerdown',e=>{SPIN.ptrs.set(e.pointerId,[e.clientX,e.clientY]);if(SPIN.ptrs.size===1)SPIN.drag={x:e.clientX,y:e.clientY,t:performance.now()};gc.style.cursor='grabbing'});
+  gc.addEventListener('pointermove',e=>{if(!SPIN.ptrs.has(e.pointerId))return;SPIN.ptrs.set(e.pointerId,[e.clientX,e.clientY]);
+    if(SPIN.ptrs.size>=2){const [a,b]=[...SPIN.ptrs.values()],dd=Math.hypot(a[0]-b[0],a[1]-b[1]);if(SPIN.pinch)SPIN.zoom=clamp(SPIN.zoom*dd/SPIN.pinch,0.7,2.2);SPIN.pinch=dd;return}
+    const g=SPIN.drag;if(!g)return;const now=performance.now(),dx=e.clientX-g.x,dy=e.clientY-g.y,dtt=Math.max(1,now-g.t)/1000;
+    SPIN.yaw-=dx*0.012;SPIN.pitch=clamp(SPIN.pitch+dy*0.006,0.05,1.0);SPIN.vel=clamp(-dx*0.012/dtt,-6,6);g.x=e.clientX;g.y=e.clientY;g.t=now});
+  const up=e=>{SPIN.ptrs.delete(e.pointerId);if(SPIN.ptrs.size<2)SPIN.pinch=0;if(SPIN.ptrs.size===0){SPIN.drag=null;gc.style.cursor='grab'}};
+  gc.addEventListener('pointerup',up);gc.addEventListener('pointercancel',up);gc.addEventListener('pointerleave',up);
+  gc.addEventListener('wheel',e=>{SPIN.zoom=clamp(SPIN.zoom*(e.deltaY>0?0.92:1.08),0.7,2.2);e.preventDefault()},{passive:false})})();
+let GAR3D=true;
 function render(){
+  if(state==='menu'&&GAR3D&&!$('lobby').hidden){try{if(renderGarage(render.dt||0.016))return}catch(e){GAR3D=false}}
   const asp=W/H,c=player||{x:TR[0].x,z:TR[0].z,h:TR[0].ang,v:0};render.fov=0;
   const fwd=[Math.sin(c.h),Math.cos(c.h)];
   let eye,tgt;
@@ -722,7 +754,7 @@ function mapThumb(c,k){const w=c.clientWidth||100,h=64,d=Math.min(2,devicePixelR
   const sc=Math.min((w-14)/(x1-x0),(h-12)/(z1-z0)),ox=w/2-(x0+x1)/2*sc*-1,oz=h/2+(z0+z1)/2*sc;
   x.lineJoin='round';for(const [lw,st] of [[7,'rgba(0,0,0,.45)'],[4,'#555'],[1.2,'#fff']]){x.lineWidth=lw;x.strokeStyle=st;x.beginPath();P.forEach((p,i)=>{const a=w/2-(p.x-(x0+x1)/2)*sc,b=h/2-(p.z-(z0+z1)/2)*sc;i?x.lineTo(a,b):x.moveTo(a,b)});x.closePath();x.stroke()}
   const s0=P[0];x.fillStyle='#facc15';x.beginPath();x.arc(w/2-(s0.x-(x0+x1)/2)*sc,h/2-(s0.z-(z0+z1)/2)*sc,3,0,7);x.fill()}
-function drawGarage(){const c=$('gar');if(!c||$('lobby').hidden)return;const w=c.clientWidth||320,h=150,d=Math.min(2,devicePixelRatio||1);if(c.width!==Math.round(w*d)){c.width=w*d;c.height=h*d}const x=c.getContext('2d');x.setTransform(d,0,0,d,0,0);x.clearRect(0,0,w,h);RCSK.draw2D(x,w,h,garageOn()?MY:skNet(),null,garageOn()?CNAME:'')}
+function drawGarage(){const c=$('gar');if(!c||$('lobby').hidden||GAR3D)return;const w=c.clientWidth||320,h=150,d=Math.min(2,devicePixelRatio||1);if(c.width!==Math.round(w*d)){c.width=w*d;c.height=h*d}const x=c.getContext('2d');x.setTransform(d,0,0,d,0,0);x.clearRect(0,0,w,h);RCSK.draw2D(x,w,h,garageOn()?MY:skNet(),null,garageOn()?CNAME:'')}
 async function setLook(k,v){MY[k]=v;MY=RCSK.look(MY);try{localStorage.setItem('rc.look',JSON.stringify(MY))}catch(e){}drawLobby();
   if(fdb&&me){try{await fdb.ref('profiles/'+me+'/private/'+RCSK.type[k]).set(v===RCSK.def[k]?null:v)}catch(e){}}}
 $('go').onclick=startRace;
@@ -861,7 +893,7 @@ function netSend(force){if(!NET.ref||!player)return;const t0=performance.now();
 fbBoot();
 makeCars();drawLobby();
 let last=performance.now(),gf=0;
-function loop(now){const dt=Math.min(0.033,(now-last)/1000);last=now;update(dt);render();if(++gf%2===0)drawGarage();requestAnimationFrame(loop);}
+function loop(now){const dt=Math.min(0.033,(now-last)/1000);last=now;update(dt);render.dt=dt;render();if(++gf%2===0)drawGarage();requestAnimationFrame(loop);}
 requestAnimationFrame(loop);
 </script>
 </body>
