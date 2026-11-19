@@ -529,7 +529,7 @@ function drawCar(c){
   const dn=new Float32Array(32);(c.dents||[]).slice(-8).forEach((d,i)=>{dn[i*4]=d.x;dn[i*4+1]=d.y;dn[i*4+2]=d.z;dn[i*4+3]=d.r});gl.uniform4fv(U.uDent,dn);
   setMat(0,P.col,0,P.metal,P.refl);gl.uniform3fv(U.uCol2,P.col2||[0,0,0]);gl.uniform1f(U.uStrOn,strOn);gl.uniform3fv(U.uStr,strCol);
   // stickers: my own photo only on my phone; others see only the shop stickers
-  const ok=v=>v&&(v!==99||c.player)?v:0,sk1=CU?ok(CU.k):0,sk2=CU?ok(CU.b):0,nm=c.player&&CU?CNAME:'';
+  const ok=v=>v&&(v!==99||c.player)?v:0,sk1=CU?ok(CU.k):0,sk2=CU?ok(CU.b)||sk1:0,nm=c.player&&CU?CNAME:'';
   const dec=!BD.cab&&(sk1||nm);if(dec){gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,sideTex(sk1,nm));gl.activeTexture(gl.TEXTURE0);gl.uniform1f(U.uDecOn,1)}
   if(BD.cab){gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,truckDecal(sk1,nm));gl.activeTexture(gl.TEXTURE0);gl.uniform1f(U.uDecOn,2)}
   const bk=BD.back,backOn=()=>{const asp=bk[0]===1?2*bk[3]/(bk[2]-bk[1]):2*bk[3]/(bk[4]-bk[2]);gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,backTex(sk2,asp));gl.activeTexture(gl.TEXTURE0);
