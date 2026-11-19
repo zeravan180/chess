@@ -112,20 +112,20 @@ const SEDAN={Z0:-2.3,Z1:2.36,WY:0.34,RA:0.435,WZS:[-1.36,1.42],WX:0.79,
   KYT:[[-2.3,.84],[-2.08,.965],[-1.6,.995],[-1.2,1.0],[-0.4,1.0],[0.6,.99],[1.05,.97],[1.6,.92],[2.05,.84],[2.36,.74]],
   KYB:[[-2.3,.40],[-2.1,.32],[-1.75,.285],[1.8,.28],[2.15,.31],[2.36,.37]],
   KROOF:[[-1.42,0],[-1.18,.15],[-0.88,.34],[-0.5,.43],[-0.1,.45],[0.3,.44],[0.58,.33],[0.84,.16],[1.06,0]],G0:-1.42,G1:1.06,roof:[-0.86,0.56],
-  back:[1,-2.22,-1.48,0.7,0],doors:[-1.05,-0.05,1.0],handles:[-0.78,0.28],mirror:[0.86,0.9],cp:[-1.3,1.3],rad:1,cam:[7.8,2.9,1.1],shadow:[1,1]};
+  back:[1,-2.24,-1.46,0.74,0],rw:[-0.9,-1.4,0.52,1.55],doors:[-1.05,-0.05,1.0],handles:[-0.78,0.28],mirror:[0.86,0.9],cp:[-1.3,1.3],rad:1,cam:[7.8,2.9,1.1],shadow:[1,1]};
 const BODIES={bd_sedan:SEDAN,
- bd_wagon:Object.assign({},SEDAN,{back:[2,-2.15,0.63,0.55,0.78],KYT:[[-2.3,.9],[-2.08,.985],[-1.6,.995],[-1.2,1.0],[-0.4,1.0],[0.6,.99],[1.05,.97],[1.6,.92],[2.05,.84],[2.36,.74]],
+ bd_wagon:Object.assign({},SEDAN,{rw:[-1.9,0.98,0.6,3.0,1.37],back:[2,-2.15,0.63,0.55,0.78],KYT:[[-2.3,.9],[-2.08,.985],[-1.6,.995],[-1.2,1.0],[-0.4,1.0],[0.6,.99],[1.05,.97],[1.6,.92],[2.05,.84],[2.36,.74]],
    KROOF:[[-2.06,0],[-1.98,.3],[-1.85,.43],[-1.2,.46],[-0.1,.46],[0.3,.44],[0.58,.33],[0.84,.16],[1.06,0]],G0:-2.06,roof:[-1.8,0.56]}),
- bd_coupe:Object.assign({},SEDAN,{back:[1,-2.22,-1.32,0.68,0],KYT:[[-2.3,.8],[-2.08,.92],[-1.6,.95],[-1.2,.95],[-0.4,.94],[0.6,.92],[1.05,.89],[1.6,.83],[2.05,.74],[2.36,.64]],
+ bd_coupe:Object.assign({},SEDAN,{back:[1,-2.24,-1.3,0.72,0],rw:[-0.64,-1.23,0.5,1.4],KYT:[[-2.3,.8],[-2.08,.92],[-1.6,.95],[-1.2,.95],[-0.4,.94],[0.6,.92],[1.05,.89],[1.6,.83],[2.05,.74],[2.36,.64]],
    KYB:[[-2.3,.36],[-2.1,.28],[-1.75,.25],[1.8,.24],[2.15,.27],[2.36,.33]],
    KROOF:[[-1.25,0],[-0.95,.17],[-0.6,.31],[-0.2,.35],[0.2,.34],[0.55,.25],[0.85,.12],[1.15,0]],G0:-1.25,G1:1.15,roof:[-0.6,0.5],doors:[-1.15,0.95],handles:[-0.4],mirror:[0.95,0.82]}),
- bd_pickup:Object.assign({},SEDAN,{back:[2,-2.4,0.63,0.62,0.78],WY:0.4,RA:0.5,WZS:[-1.5,1.5],Z0:-2.55,Z1:2.45,
+ bd_pickup:Object.assign({},SEDAN,{rw:[-0.54,1.04,0.46,3.0,1.34],back:[2,-2.4,0.63,0.62,0.78],WY:0.4,RA:0.5,WZS:[-1.5,1.5],Z0:-2.55,Z1:2.45,
    KHW:[[-2.55,.86],[-2.3,.92],[-1.6,.94],[-0.5,.95],[1.2,.94],[1.8,.92],[2.2,.9],[2.45,.84]],
    KYT:[[-2.55,1.02],[-2.4,1.1],[-0.6,1.12],[0.6,1.1],[1.1,1.07],[1.7,1.0],[2.15,.94],[2.45,.84]],
    KYB:[[-2.55,.5],[-2.3,.42],[-1.9,.4],[1.9,.4],[2.25,.42],[2.45,.48]],
    KROOF:[[-0.62,0],[-0.56,.32],[-0.45,.46],[-0.1,.48],[0.3,.47],[0.6,.35],[0.86,.17],[1.08,0]],G0:-0.62,G1:1.08,roof:[-0.45,0.58],
    doors:[-0.6,0.95],handles:[-0.2],bed:[-2.45,-0.68],mirror:[0.9,1.02],cp:[-1.4,1.4],cam:[8.4,3.2,1.2],shadow:[1.05,1.08]}),
- bd_truck:Object.assign({},SEDAN,{back:[2,-9.6,1.45,1.05,3.6],WY:0.5,RA:0.6,WZS:[-0.6,1.6,-7.4,-8.6],WX:1.02,Z0:-1.6,Z1:2.75,
+ bd_truck:Object.assign({},SEDAN,{rw:0,back:[2,-9.6,1.45,1.05,3.6],WY:0.5,RA:0.6,WZS:[-0.6,1.6,-7.4,-8.6],WX:1.02,Z0:-1.6,Z1:2.75,
    KHW:[[-1.6,1.05],[-1.2,1.1],[1.8,1.12],[2.3,1.1],[2.6,1.02]],
    KYT:[[-1.6,1.25],[-1.3,1.32],[1.7,1.32],[2.25,1.26],[2.6,1.1]],
    KYB:[[-1.6,.6],[-1.2,.55],[2.2,.55],[2.6,.62]],
@@ -350,7 +350,12 @@ void main(){float k=uKind;vec3 V=uCam-vW;float dist=length(V);vec3 v=V/dist;
     // dents and scratches where the car was hit
     for(int i=0;i<8;i++){vec4 dn=uDent[i];if(dn.w>0.){float dd=distance(vO,dn.xyz);if(dd<dn.w){float f=smoothstep(dn.w,dn.w*.25,dd);float sc=hash(floor(vO.xy*90.)+floor(vO.zz*90.));
       vec3 dm=mix(vec3(.5,.5,.52)*(amb+nl*sunc)*(.5+.8*sc),vec3(.03),smoothstep(.45,.9,f));col=mix(col,dm,f*.9);}}}}
-  else if(k<1.5){float F=mix(.07,1.,fr);col=vec3(.006,.009,.013)+E*F*1.1+sunc*pow(max(dot(n,h),0.),400.)*4.;}
+  else if(k<1.5){float F=mix(.07,1.,fr);col=vec3(.006,.009,.013)+E*F*1.1+sunc*pow(max(dot(n,h),0.),400.)*4.;
+    // my picture on the back window
+    vec2 wv=vec2(-1.);if(uBackOn>3.5){if(vO.z<uBackR.x&&vO.y>uBackR.y&&vO.y<uBackR.w&&abs(vO.x)<uBackR.z)wv=vec2((uBackR.z-vO.x)/(2.*uBackR.z),(uBackR.w-vO.y)/(uBackR.w-uBackR.y));}
+    else if(uBackOn>2.5&&vO.z<uBackR.x&&vO.z>uBackR.y&&abs(vO.x)<uBackR.z)wv=vec2((uBackR.z-vO.x)/(2.*uBackR.z),(uBackR.x-vO.z)/(uBackR.x-uBackR.y));
+    if(wv.x>=0.){vec2 uv=wv;vec4 bk=texture2D(uBack,uv);
+      col=mix(col,bk.rgb*(amb*1.3+nl*sunc)+E*F*.5,bk.a*.97);}}
   else if(k<2.5){col=E*vec3(.9,.93,.97)*.9;}
   else if(k<3.5){col=vec3(.02)+amb*.04+nl*.04+E*mix(.02,.2,fr);}
   else if(k<4.5){float r=length(vO.yz),a=atan(vO.y,vO.z);float sp=abs(fract(a/6.2831853*5.+.5)-.5);float sp2=abs(sp-.075);
@@ -539,7 +544,8 @@ function drawCar(c){
   const my=BD.mirror[1]+0.1;if(!BD.cab)for(const s of[-1,1])draw(G.mirror,M4.mul(I,M4.mul(M4.tr(s*(B.mx+0.06),my,BD.mirror[0]),M4.sc(0.075*(BD.trailer?1.6:1),0.06*(BD.trailer?2.4:1),0.13))));
   const WG=RCSK.wings[K.wing];if(WG.t&&!BD.trailer){if(WG.carbon)setMat(5,[0,0,0],0,1);draw(B.wings[WG.t],I)}
   gl.uniform3fv(U.uCol2,[0,0,0]);
-  setMat(1);draw(B.glass,I);
+  setMat(1);const rw=BD.rw;if(sk2&&rw){gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,backTex(sk2,rw[3]));gl.activeTexture(gl.TEXTURE0);gl.uniform1f(U.uBackOn,rw[4]?4:3);gl.uniform4f(U.uBackR,rw[0],rw[1],rw[2],rw[4]||0)}
+  draw(B.glass,I);gl.uniform1f(U.uBackOn,0);
   gl.enable(gl.POLYGON_OFFSET_FILL);gl.polygonOffset(-2,-4);
   setMat(5);for(const g of B.liners)draw(g,I);draw(B.intake,I);draw(B.diff,I);for(const g of B.doors)draw(g,I);if(B.bed)draw(B.bed,I);
   setMat(5,[0,0,0],0,1);draw(B.grille,I);
