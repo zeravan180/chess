@@ -146,6 +146,13 @@ const BODIES={bd_sedan:SEDAN,
    KYB:[[-2.36,.38],[-2.18,.29],[-1.75,.265],[1.8,.265],[2.2,.29],[2.42,.37]],
    KROOF:[[-1.32,0],[-1.02,.13],[-0.72,.27],[-0.3,.335],[0.15,.33],[0.5,.24],[0.8,.12],[1.06,0]],G0:-1.32,G1:1.06,roof:[-0.7,0.5],
    doors:[-1.12,0.92],handles:[-0.45],mirror:[0.94,0.88],cam:[7.9,2.85,1.1]}),
+ // off-road pickup (original design): crew cab with 4 doors, lifted on big tyres, black wheel-arch flares, hood scoop, big black bumpers with a skid plate
+ bd_offroad:Object.assign({},SEDAN,{ck:[0.05,1.66],rw:[-0.9,1.3,0.48,3.0,1.6],back:[2,-2.72,0.86,0.66,1.06],WY:0.52,RA:0.66,WX:0.93,WZS:[-1.75,1.62],Z0:-2.8,Z1:2.6,offroad:1,nexp:11,fy:0.3,ry:0.28,
+   KHW:[[-2.8,.93],[-2.6,.97],[-1.8,.98],[-0.5,.98],[1.2,.98],[1.9,.97],[2.35,.95],[2.6,.92]],
+   KYT:[[-2.8,1.33],[-2.7,1.38],[-1.0,1.39],[0.6,1.38],[1.15,1.36],[1.75,1.33],[2.35,1.3],[2.6,1.24]],
+   KYB:[[-2.8,.7],[-2.5,.64],[-2.1,.62],[2.1,.62],[2.45,.64],[2.6,.72]],
+   KROOF:[[-1.02,0],[-0.96,.34],[-0.86,.47],[-0.2,.5],[0.4,.49],[0.7,.36],[0.95,.18],[1.16,0]],G0:-1.02,G1:1.16,roof:[-0.86,0.66],
+   doors:[-0.98,0.08,1.06],handles:[-0.62,0.42],bed:[-2.7,-1.08],mirror:[1.02,1.3],cp:[-1.5,1.5],cam:[8.8,3.6,1.4],shadow:[1.12,1.15]}),
  bd_pickup:Object.assign({},SEDAN,{ck:[0.1,1.4],rw:[-0.54,1.04,0.46,3.0,1.34],back:[2,-2.4,0.63,0.62,0.78],WY:0.4,RA:0.5,WZS:[-1.5,1.5],Z0:-2.55,Z1:2.45,
    KHW:[[-2.55,.86],[-2.3,.92],[-1.6,.94],[-0.5,.95],[1.2,.94],[1.8,.92],[2.2,.9],[2.45,.84]],
    KYT:[[-2.55,1.02],[-2.4,1.1],[-0.6,1.12],[0.6,1.1],[1.1,1.07],[1.7,1.0],[2.15,.94],[2.45,.84]],
@@ -211,20 +218,21 @@ const CHROME_W=[];for(const side of[0,1]){const a=side?Math.PI-0.075:0.012,b=sid
   CHROME_W.push(offsetMesh(flipIfInward(gridMesh(3,90,(u,v)=>ghPoint(lerp(G0+0.12,G1-0.1,v),lerp(a,b,u))),(x,y,z)=>[0,sec(z).yt-0.2,z]),0.004));}
 
 // --- decals on surfaces
-function frontStrip(x0,x1,ytop,ybot,off,nu=30,nv=3){return gridMesh(nu,nv,(u,v)=>{const x=lerp(x0,x1,u),y=lerp(ytop(x),ybot(x),v),z=frontZ(x,y);return[x,y,(z??Z1)+off];});}
-function rearStrip(x0,x1,ytop,ybot,off,nu=40,nv=3){return gridMesh(nu,nv,(u,v)=>{const x=lerp(x0,x1,u),y=lerp(ytop(x),ybot(x),v),z=rearZ(x,y);return[x,y,(z??Z0)-off];});}
+const FY=BT.fy||0,RY=BT.ry||0;
+function frontStrip(x0,x1,ytop,ybot,off,nu=30,nv=3){return gridMesh(nu,nv,(u,v)=>{const x=lerp(x0,x1,u),y=lerp(ytop(x),ybot(x),v)+FY,z=frontZ(x,y);return[x,y,(z??Z1)+off];});}
+function rearStrip(x0,x1,ytop,ybot,off,nu=40,nv=3){return gridMesh(nu,nv,(u,v)=>{const x=lerp(x0,x1,u),y=lerp(ytop(x),ybot(x),v)+RY,z=rearZ(x,y);return[x,y,(z??Z0)-off];});}
 function sideStrip(side,z0,z1,y0,y1,off,nu=6,nv=12){return gridMesh(nu,nv,(u,v)=>{const z=lerp(z0,z1,u),y=lerp(y0,y1,v);return[side*(sideX(z,y)+off),y,z];});}
-const fxMax=y=>sideX(Z1-0.15,y);
+const fxMax=y=>sideX(Z1-0.15,y+FY);
 const HEAD=[],DRL=[];for(const s of[-1,1]){
-  const xa=0.27,xb=fxMax(0.64)*0.97;
+  const xa=BT.offroad?0.55:0.27,xb=fxMax(0.64)*0.97;
   HEAD.push(frontStrip(s*xa,s*xb,x=>0.66+0.03*(Math.abs(x)-xa),x=>0.615+0.012*(Math.abs(x)-xa),0.012));
   DRL.push(frontStrip(s*(xa+0.02),s*(xb-0.03),x=>0.678+0.03*(Math.abs(x)-xa),x=>0.668+0.03*(Math.abs(x)-xa),0.016));}
-const GRILLE=frontStrip(-0.52,0.52,x=>0.57-0.04*x*x,x=>0.44,0.012,30,4);
+const GRILLE=BT.offroad?frontStrip(-0.52,0.52,x=>0.69,x=>0.45,0.012,30,4):frontStrip(-0.52,0.52,x=>0.57-0.04*x*x,x=>0.44,0.012,30,4);
 const INTAKE=frontStrip(-0.66,0.66,x=>0.425,x=>0.395,0.012,30,2);
 const EMBLEM=(()=>{const N=40,pos=[],idx=[];for(let i=0;i<=N;i++){const a=i/N*Math.PI*2;for(const r of[1,0.75]){const x=Math.cos(a)*0.075*r,y=0.62+Math.sin(a)*0.045*r;pos.push(x,y,(frontZ(x,y)??Z1)+0.018);}}
   for(let i=0;i<N;i++){const a=i*2;idx.push(a,a+1,a+2,a+1,a+3,a+2);}const nrm=[];for(let i=0;i<pos.length;i+=3)nrm.push(0,0.2,1);normalize(nrm);return{pos,nrm,aux:new Array(pos.length/3).fill(0),idx};})();
-const rxMax=y=>sideX(Z0+0.15,y);
-const TAILS=BT.muscle?merge([-1,1].map(sd=>rearStrip(sd*0.3,sd*rxMax(0.86)*0.93,x=>0.905,x=>0.835,0.012,24,3))):rearStrip(-rxMax(0.8)*0.985,rxMax(0.8)*0.985,x=>0.835-0.02*x*x,x=>0.79-0.02*x*x,0.012,60,3);
+const rxMax=y=>sideX(Z0+0.15,y+RY);
+const TAILS=BT.offroad?merge([-1,1].map(sd=>rearStrip(sd*rxMax(0.75)*0.78,sd*rxMax(0.75)*0.97,x=>0.95,x=>0.6,0.012,8,6))):BT.muscle?merge([-1,1].map(sd=>rearStrip(sd*0.3,sd*rxMax(0.86)*0.93,x=>0.905,x=>0.835,0.012,24,3))):rearStrip(-rxMax(0.8)*0.985,rxMax(0.8)*0.985,x=>0.835-0.02*x*x,x=>0.79-0.02*x*x,0.012,60,3);
 const PLATE=rearStrip(-0.24,0.24,x=>0.62,x=>0.5,0.014,8,2);
 const DIFF=BT.muscle?rearStrip(-0.76,0.76,x=>0.47,x=>0.33,0.012,30,2):rearStrip(-0.7,0.7,x=>0.45,x=>0.4,0.012,30,2);
 const DOORLINES=[],HANDLES=[],SKIRT=[];
@@ -234,6 +242,15 @@ for(const s of[-1,1]){for(const z of BT.doors){const yb=ybAt(z);DOORLINES.push(s
   const dz=Z0+2.3,dy=curve(KYT,Z0+0.22)-0.965,W=WINGM_();for(let i=1;i<W.length;i++)shiftMesh(W[i],dy,dz);
   const out={BODY,GLASS,ROOF,CHROME_W,HEAD,DRL,GRILLE,INTAKE,EMBLEM,TAILS,PLATE,DIFF,DOORLINES,HANDLES,LINERS,WINGM:W,mx:sideX(BT.mirror[0],BT.mirror[1])};
   // the open box of a pickup, and the trailer of the truck
+  if(BT.offroad){// black arch flares, hood scoop, bumpers, skid plate
+    const F=[];for(const wz of WZS)for(const sd of[-1,1])F.push(gridMesh(20,2,(u,v)=>{const a=lerp(0.05,Math.PI-0.05,u),r=RA+lerp(0.03,0.17,v),z=wz+Math.cos(a)*r,y=WY+Math.sin(a)*r,zc=clamp(z,Z0+0.05,Z1-0.05);
+      return[sd*(sideX(zc,Math.min(y,sec(zc).yt-0.03))+0.035+0.03*v),y,z]}));
+    F.forEach(m=>{for(let i=0;i<m.nrm.length;i+=3){const sd=Math.sign(m.pos[i])||1;m.nrm[i]=sd;m.nrm[i+1]=0;m.nrm[i+2]=0}});
+    const zf=Z1+0.06,zr=Z0-0.06;
+    out.FLARES=merge(F.concat([boxMesh(-0.98,0.98,0.5,0.76,zf-0.22,zf),boxMesh(-0.96,0.96,0.52,0.78,zr,zr+0.22),boxMesh(-0.34,0.34,1.29,1.315,1.68,1.86)]));
+    out.SKID=merge([boxMesh(-0.62,0.62,0.44,0.56,zf-0.12,zf+0.04),boxMesh(-0.5,0.5,0.46,0.54,zr-0.03,zr+0.1)]);
+    const bump=t=>Math.pow(Math.max(0,Math.sin(Math.PI*t)),0.4);
+    out.HOODB=flipIfInward(gridMesh(24,40,(u,v)=>{const x=lerp(-0.4,0.4,u),z=lerp(1.2,1.95,v);return[x,curve(KYT,z)-0.004+0.1*bump(u)*Math.pow(Math.max(0,Math.sin(Math.PI*v*0.85)),0.5),z]}),(x,y,z)=>[0,y-1,z])}
   if(BT.muscle){// a bulge on the hood, and two pairs of round exhaust tips under the tail
     const bump=t=>Math.pow(Math.max(0,Math.sin(Math.PI*t)),0.45);
     out.HOODB=flipIfInward(gridMesh(24,40,(u,v)=>{const x=lerp(-0.3,0.3,u),z=lerp(0.95,2.05,v);return[x,curve(KYT,z)-0.004+0.07*bump(u)*bump(v)*(1-0.3*v),z]}),(x,y,z)=>[0,y-1,z]);
@@ -523,7 +540,7 @@ function truckDecal(stk,name){return decCache('t'+(stk||0)+'|'+(name||'')+'|'+(M
 for(const k in BODIES){const b0=buildBody(BODIES[k]),b=BODIES[k].cab?truckCab(b0):b0,u=m=>Array.isArray(m)?m.map(upload):upload(m);
   G.T[k]={body:u(b.BODY),glass:u(b.GLASS),roof:u(b.ROOF),chrome:u(b.CHROME_W),head:u(b.HEAD),drl:u(b.DRL),grille:u(b.GRILLE),intake:u(b.INTAKE),emblem:u(b.EMBLEM),
     tails:u(b.TAILS),plate:u(b.PLATE),diff:u(b.DIFF),doors:u(b.DOORLINES),handles:u(b.HANDLES),liners:u(b.LINERS),wings:[null,u(b.WINGM[1]),u(b.WINGM[2]),u(b.WINGM[3])],
-    bed:b.BED&&u(b.BED),hoodb:b.HOODB&&u(b.HOODB),exh:b.EXH&&u(b.EXH),exhi:b.EXHI&&u(b.EXHI),trailer:b.TRAILER&&u(b.TRAILER),chassis:b.CHASSIS&&u(b.CHASSIS),mx:b.mx,def:BODIES[k]}}
+    bed:b.BED&&u(b.BED),hoodb:b.HOODB&&u(b.HOODB),flares:b.FLARES&&u(b.FLARES),skid:b.SKID&&u(b.SKID),exh:b.EXH&&u(b.EXH),exhi:b.EXHI&&u(b.EXHI),trailer:b.TRAILER&&u(b.TRAILER),chassis:b.CHASSIS&&u(b.CHASSIS),mx:b.mx,def:BODIES[k]}}
 useBody(SEDAN);
 // put a track on the graphics card (the old one is thrown away)
 function buildTrack(key){if(!TRACKS[key])key='tr_oval';MAP=key;const T=TRACKS[key];CP=T.cp;TR=makeTR(CP);N=TR.length;TL=TR.L;TH=THEMES[T.theme];trackMeshes();
@@ -568,7 +585,7 @@ let MY=(()=>{try{return RCSK.look(JSON.parse(localStorage.getItem('rc.look'))||{
 let CNAME=(()=>{try{return localStorage.getItem('rc.cname')||''}catch(e){return''}})();
 // the robots get a random look, so every race looks different
 function botLook(r){const pick=o=>{const k=Object.keys(o);return k[Math.floor(r()*k.length)]};
-  const bd=r()<.1?'bd_truck':['bd_sedan','bd_sedan','bd_wagon','bd_coupe','bd_pickup','bd_muscle'][Math.floor(r()*6)];return RCSK.look({body:bd,paint:pick(RCSK.paints),light:r()<.6?'li_white':pick(RCSK.lights),rim:pick(RCSK.rims),wing:r()<.5?'wg_none':pick(RCSK.wings),glow:r()<.75?'gl_none':pick(RCSK.glows),stripe:r()<.6?'st_none':pick(RCSK.stripes),engine:'en_i4'})}
+  const bd=r()<.1?'bd_truck':['bd_sedan','bd_sedan','bd_wagon','bd_coupe','bd_pickup','bd_muscle','bd_offroad'][Math.floor(r()*7)];return RCSK.look({body:bd,paint:pick(RCSK.paints),light:r()<.6?'li_white':pick(RCSK.lights),rim:pick(RCSK.rims),wing:r()<.5?'wg_none':pick(RCSK.wings),glow:r()<.75?'gl_none':pick(RCSK.glows),stripe:r()<.6?'st_none':pick(RCSK.stripes),engine:'en_i4'})}
 const SKILL={easy:[.8,.86],normal:[.88,.94],hard:[.95,1.0]};
 let LV=(()=>{try{return localStorage.getItem('rc.lv')||'normal'}catch(e){return'normal'}})();
 // one car on the grid; g = place 0..5 (0 is the front)
@@ -607,10 +624,11 @@ function drawCar(c){
   setMat(1);const rw=BD.rw;if(sk2&&rw){gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,backTex(sk2,rw[3]));gl.activeTexture(gl.TEXTURE0);gl.uniform1f(U.uBackOn,rw[4]?4:3);gl.uniform4f(U.uBackR,rw[0],rw[1],rw[2],rw[4]||0)}
   draw(B.glass,I);gl.uniform1f(U.uBackOn,0);
   gl.enable(gl.POLYGON_OFFSET_FILL);gl.polygonOffset(-2,-4);
-  setMat(5);for(const g of B.liners)draw(g,I);draw(B.intake,I);draw(B.diff,I);for(const g of B.doors)draw(g,I);if(B.bed)draw(B.bed,I);
+  setMat(5);for(const g of B.liners)draw(g,I);if(B.flares)draw(B.flares,I);draw(B.intake,I);draw(B.diff,I);for(const g of B.doors)draw(g,I);if(B.bed)draw(B.bed,I);
   setMat(5,[0,0,0],0,1);draw(B.grille,I);
   if(B.exhi){setMat(5,[0,0,0],0,1);draw(B.exhi,I)}
-  setMat(2);for(const g of B.chrome)draw(g,I);if(B.exh)draw(B.exh,I);draw(B.emblem,I);for(const g of B.handles)draw(g,I);
+  if(B.skid){setMat(0,[0.3,0.31,0.33],0,0.7,0.6);draw(B.skid,I)}
+  setMat(2);for(const g of B.chrome)draw(g,I);if(B.exh)draw(B.exh,I);if(!BD.offroad)draw(B.emblem,I);for(const g of B.handles)draw(g,I);
   const lc=LT.rainbow?RCSK.rainbow(t+c.x*.01).map(v=>v*1.4):LT.col,hc=LT.rainbow?lc.map(v=>v*.8):LT.head;
   setMat(6,lc,3);for(const g of B.drl)draw(g,I);setMat(6,hc,TH.night?2.2:0.15);for(const g of B.head)draw(g,I);
   setMat(6,[1,0.03,0.04],c.brake?3.2:(TH.night?1.6:0.9));draw(B.tails,I);
@@ -765,7 +783,7 @@ const BODYK=()=>Object.keys(RCSK.bodies),hasBody=k=>!RCSK.bodies[k].price||!!own
 function carSwitch(d){const ks=BODYK(),cur=PREVB||MY.body;let i=(ks.indexOf(cur)+d+ks.length)%ks.length,k=ks[i];
   if(hasBody(k)){PREVB=null;if(k!==MY.body)setLook('body',k);else drawCarSw()}else{PREVB=k;drawCarSw()}SPIN.vel=1.2}
 function drawCarSw(){const ks=BODYK(),cur=PREVB||MY.body,B=RCSK.bodies[cur];if(!B)return;
-  $('gName').textContent=({bd_truck:'🚛',bd_pickup:'🛻',bd_wagon:'🚙',bd_coupe:'🏎️',bd_muscle:'💪'}[cur]||'🚗')+' '+nm(B.name);
+  $('gName').textContent=({bd_truck:'🚛',bd_pickup:'🛻',bd_wagon:'🚙',bd_coupe:'🏎️',bd_muscle:'💪',bd_offroad:'🛻'}[cur]||'🚗')+' '+nm(B.name);
   const lk=$('gLock'),box=lk.parentNode;box.classList.toggle('lk',!!PREVB);lk.hidden=!PREVB;if(PREVB)lk.textContent='🔒 '+num(B.price)+' AG · 🛒';
   const dt=$('cDots');if(dt.children.length!==ks.length){dt.textContent='';ks.forEach(()=>dt.append(document.createElement('i')))}
   [...dt.children].forEach((e,i)=>{e.className=(ks[i]===cur?'on':'')+(hasBody(ks[i])?'':' lk')})}
