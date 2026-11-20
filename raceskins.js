@@ -81,6 +81,7 @@ var BODIES={
  bd_coupe:{price:200,name:L4("سپۆرت (کووپێ)","سپۆرت (کووپێ)","رياضية (كوبيه)","Sports coupé"),acc:1.02,vmax:1.03,mass:0.9},
  bd_muscle:{price:400,name:L4("ماسڵ کار 💪","ماسڵ کار 💪","سيارة عضلية 💪","Muscle car 💪"),acc:1.05,vmax:1.04,mass:1.1},
  bd_offroad:{price:500,name:L4("پیکاپا چۆلێ 🏜️","پیکاپی چۆڵ 🏜️","بيك آب الصحراء 🏜️","Desert pickup 🏜️"),acc:1.02,vmax:1.0,mass:1.6},
+ bd_bike:{price:2500,rare:1,name:L4("ماتۆرا خێرا 🏍️","ماتۆڕی خێرا 🏍️","دراجة نارية سريعة 🏍️","Superbike 🏍️"),acc:1.2,vmax:1,mass:0.35},
  bd_pickup:{price:250,name:L4("پیکاپ","پیکاپ","بيك آب","Pickup"),acc:0.97,vmax:0.97,mass:1.4},
  bd_truck:{price:600,rare:1,name:L4("تریلە 🚛","تریلە 🚛","تريلة 🚛","Semi truck 🚛"),acc:0.85,vmax:0.92,mass:3}};
 var DEF={body:"bd_sedan",paint:"pt_white",engine:"en_i4",light:"li_white",rim:"rm_silver",wing:"wg_none",glow:"gl_none",stripe:"st_none"};
@@ -177,6 +178,16 @@ function draw2D(x,w,h,sk,hl,cname,photo){var cnm=cname||(sk&&sk.cname)||"";sk=lo
   var body=css(P.col),dark=css(P.col.map(function(v){return v*0.35})),lite=css((P.col2||P.col).map(function(v){return Math.min(1.5,v*1.6+0.05)}));
   var bg=x.createLinearGradient(0,30,0,96);bg.addColorStop(0,lite);bg.addColorStop(0.45,body);bg.addColorStop(1,dark);
   var B=sk.body,wx=[72,232];
+  if(B==="bd_bike"){ // the motorbike from the side, with its rider
+    var rc=css(P.col),dk=css(P.col.map(function(v){return v*0.5}));
+    [[78,84],[226,84]].forEach(function(q){x.fillStyle="#141416";x.beginPath();x.arc(q[0],q[1],24,0,7);x.fill();x.fillStyle=css(R.col);x.beginPath();x.arc(q[0],q[1],12,0,7);x.fill()});
+    x.strokeStyle="#bfc4cc";x.lineWidth=5;x.beginPath();x.moveTo(226,84);x.lineTo(206,36);x.stroke();x.strokeStyle="#222";x.beginPath();x.moveTo(78,84);x.lineTo(140,70);x.stroke();
+    x.fillStyle=bg;x.beginPath();x.moveTo(52,46);x.lineTo(110,54);x.lineTo(140,40);x.quadraticCurveTo(190,30,214,40);x.quadraticCurveTo(246,52,250,66);x.lineTo(214,76);x.lineTo(150,80);x.lineTo(120,64);x.lineTo(60,56);x.closePath();x.fill();
+    x.fillStyle="rgba(150,180,210,.75)";x.beginPath();x.moveTo(206,36);x.quadraticCurveTo(214,22,226,26);x.lineTo(222,40);x.closePath();x.fill();
+    x.fillStyle=dk;x.beginPath();x.ellipse(150,30,30,11,-0.5,0,7);x.fill();x.fillRect(116,40,14,30);x.beginPath();x.moveTo(170,26);x.lineTo(206,38);x.lineTo(203,43);x.lineTo(166,34);x.fill();
+    x.fillStyle=rc;x.beginPath();x.arc(180,16,12,0,7);x.fill();x.fillStyle="#111";x.fillRect(184,12,9,7);
+    var lc2=Lt.rainbow?rainbow(t):Lt.col;x.fillStyle=css(lc2.map(function(v){return v*1.4}));x.beginPath();x.ellipse(250,62,5,3,0,0,7);x.fill();x.fillStyle="#e0101a";x.fillRect(50,46,6,5);
+    x.restore();x.restore();return}
   if(B==="bd_truck"){ // the trailer behind a tall cab
     x.save();x.translate(150,0);x.scale(0.62,1);x.translate(-150,0);
     x.fillStyle="#e9edf2";x.strokeStyle="rgba(0,0,0,.35)";x.fillRect(-60,8,250,66);x.strokeRect(-60,8,250,66);x.fillStyle=bg;x.fillRect(-60,56,250,8);
