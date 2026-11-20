@@ -24,16 +24,16 @@ var PAINTS={
  pt_cham:{price:400,rare:1,name:L4("گۆڕەک (مۆر/کەسک)","گۆڕاو (مۆر/سەوز)","حرباء (بنفسجي/أخضر)","Chameleon"),col:[0.22,0.02,0.4],col2:[0.0,0.45,0.25],metal:0.8,refl:1.2},
  pt_chrome:{price:500,rare:1,name:L4("کرۆم 🪞","کرۆم 🪞","كروم 🪞","Chrome 🪞"),col:[0.55,0.57,0.6],metal:1.7,refl:1.7},
  pt_gold:{price:600,rare:1,name:L4("زێڕ 👑","زێڕ 👑","ذهبي 👑","Gold 👑"),col:[0.7,0.45,0.06],col2:[0.9,0.7,0.2],metal:1.5,refl:1.4}};
-// ---------- engines: how they sound, and (against the robots) how they pull ----------
+// ---------- engines: how strong they pull (all of them share one sound: a real car) ----------
 var ENGINES={
- en_i4:{price:0,name:L4("٤ سلەندەر","٤ سلەندەر","٤ سلندر","Inline-4"),d:L4("ئاسایی و ئارام","ئاسایی و هێمن","عادي وهادئ","Calm and simple"),cyl:4,idle:900,red:6800,sub:0,half:0.15,drive:2,bright:2600,roar:0.12,vol:0.5,acc:1,vmax:1},
- en_i4t:{price:150,name:L4("٤ سلەندەر تووربۆ","٤ سلەندەر تووربۆ","٤ سلندر توربو","Inline-4 Turbo"),d:L4("بچووک بەس ب تووربۆ 🌀","بچووک بەڵام تووربۆ 🌀","صغير مع توربو 🌀","Small, with a turbo 🌀"),cyl:4,idle:900,red:7000,sub:0.05,half:0.18,drive:2.4,bright:3000,roar:0.13,vol:0.5,turbo:1,acc:1.04,vmax:1.02},
- en_v6t:{price:300,name:L4("V6 تووربۆ","V6 تووربۆ","V6 توربو","V6 Turbo"),d:L4("فیتکا تووربۆیێ 🌀","فیکەی تووربۆ 🌀","صفير التوربو 🌀","Turbo whistle 🌀"),cyl:6,idle:850,red:7000,sub:0.1,half:0.2,drive:2.6,bright:3000,roar:0.14,vol:0.5,turbo:1,acc:1.08,vmax:1.04},
- en_v8:{price:500,name:L4("V8 گران","V8 قورس","V8 قوي","V8 Muscle"),d:L4("دەنگێ گران و تەقتەق 💥","دەنگی قورس و تەقەتەق 💥","صوت غليظ وفرقعة 💥","Deep rumble and pops 💥"),cyl:8,idle:750,red:7200,sub:0.55,half:0.3,drive:3.6,bright:2200,roar:0.16,vol:0.55,pops:1,acc:1.12,vmax:1.06},
- en_ev:{price:650,name:L4("کارەبایی ⚡","کارەبایی ⚡","كهربائي ⚡","Electric ⚡"),d:L4("بێدەنگ و بلەز","بێدەنگ و خێرا","صامت وسريع","Silent and quick"),ev:1,cyl:2,idle:0,red:16000,vol:0.35,acc:1.16,vmax:1.07},
- en_v10:{price:800,rare:1,name:L4("V10 قیژە 🔥","V10 قیژە 🔥","V10 صارخ 🔥","V10 Screamer 🔥"),d:L4("وەکی ترومبێلێن سووپەرکار","وەک سووپەرکار","مثل السيارات الخارقة","Like a supercar"),cyl:10,idle:1000,red:8500,sub:0.15,half:0.35,drive:4,bright:4200,roar:0.16,vol:0.55,pops:1,acc:1.2,vmax:1.09},
- en_v12:{price:1000,rare:1,name:L4("V12 شاهانە 👑","V12 شاهانە 👑","V12 ملكي 👑","V12 Royal 👑"),d:L4("بهێز و نەرم","بەهێز و نەرم","قوي وناعم","Strong and smooth"),cyl:12,idle:900,red:8800,sub:0.1,half:0.22,drive:2.6,bright:5000,roar:0.12,vol:0.5,acc:1.24,vmax:1.11},
- en_w16:{price:1500,rare:1,name:L4("W16 هایپەرکار 🚀","W16 هایپەرکار 🚀","W16 هايبركار 🚀","W16 Hypercar 🚀"),d:L4("بهێزترینا هەمیان!","بەهێزترینی هەمووان!","الأقوى على الإطلاق!","The strongest of all!"),cyl:16,idle:1000,red:7400,sub:0.3,half:0.4,drive:3.2,bright:3600,roar:0.2,vol:0.55,turbo:1,pops:1,acc:1.3,vmax:1.14}};
+ en_i4:{price:0,name:L4("٤ سلەندەر","٤ سلەندەر","٤ سلندر","Inline-4"),d:L4("هێزا ئاسایی","هێزی ئاسایی","قوة عادية","Normal power"),cyl:4,idle:900,red:6800,sub:0,half:0.15,drive:2,bright:2600,roar:0.12,vol:0.5,acc:1,vmax:1},
+ en_i4t:{price:150,name:L4("٤ سلەندەر تووربۆ","٤ سلەندەر تووربۆ","٤ سلندر توربو","Inline-4 Turbo"),d:L4("هێز +4% · لەز +2%","هێز +4% · خێرایی +2%","قوة +4% · سرعة +2%","Power +4% · Speed +2%"),cyl:4,idle:900,red:7000,sub:0.05,half:0.18,drive:2.4,bright:3000,roar:0.13,vol:0.5,turbo:1,acc:1.04,vmax:1.02},
+ en_v6t:{price:300,name:L4("V6 تووربۆ","V6 تووربۆ","V6 توربو","V6 Turbo"),d:L4("هێز +8% · لەز +4%","هێز +8% · خێرایی +4%","قوة +8% · سرعة +4%","Power +8% · Speed +4%"),cyl:6,idle:850,red:7000,sub:0.1,half:0.2,drive:2.6,bright:3000,roar:0.14,vol:0.5,turbo:1,acc:1.08,vmax:1.04},
+ en_v8:{price:500,name:L4("V8 گران","V8 قورس","V8 قوي","V8 Muscle"),d:L4("هێز +12% · لەز +6%","هێز +12% · خێرایی +6%","قوة +12% · سرعة +6%","Power +12% · Speed +6%"),cyl:8,idle:750,red:7200,sub:0.55,half:0.3,drive:3.6,bright:2200,roar:0.16,vol:0.55,pops:1,acc:1.12,vmax:1.06},
+ en_ev:{price:650,name:L4("کارەبایی ⚡","کارەبایی ⚡","كهربائي ⚡","Electric ⚡"),d:L4("هێز +16% · لەز +7%","هێز +16% · خێرایی +7%","قوة +16% · سرعة +7%","Power +16% · Speed +7%"),ev:1,cyl:2,idle:0,red:16000,vol:0.35,acc:1.16,vmax:1.07},
+ en_v10:{price:800,rare:1,name:L4("V10 قیژە 🔥","V10 قیژە 🔥","V10 صارخ 🔥","V10 Screamer 🔥"),d:L4("هێز +20% · لەز +9%","هێز +20% · خێرایی +9%","قوة +20% · سرعة +9%","Power +20% · Speed +9%"),cyl:10,idle:1000,red:8500,sub:0.15,half:0.35,drive:4,bright:4200,roar:0.16,vol:0.55,pops:1,acc:1.2,vmax:1.09},
+ en_v12:{price:1000,rare:1,name:L4("V12 شاهانە 👑","V12 شاهانە 👑","V12 ملكي 👑","V12 Royal 👑"),d:L4("هێز +24% · لەز +11%","هێز +24% · خێرایی +11%","قوة +24% · سرعة +11%","Power +24% · Speed +11%"),cyl:12,idle:900,red:8800,sub:0.1,half:0.22,drive:2.6,bright:5000,roar:0.12,vol:0.5,acc:1.24,vmax:1.11},
+ en_w16:{price:1500,rare:1,name:L4("W16 هایپەرکار 🚀","W16 هایپەرکار 🚀","W16 هايبركار 🚀","W16 Hypercar 🚀"),d:L4("هێز +30% · لەز +14%","هێز +30% · خێرایی +14%","قوة +30% · سرعة +14%","Power +30% · Speed +14%"),cyl:16,idle:1000,red:7400,sub:0.3,half:0.4,drive:3.2,bright:3600,roar:0.2,vol:0.55,turbo:1,pops:1,acc:1.3,vmax:1.14}};
 // ---------- lights: day lights and headlights ----------
 var LIGHTS={
  li_white:{price:0,name:L4("سپی","سپی","أبيض","White"),col:[1,1,1.05],head:[0.75,0.82,0.95]},
@@ -130,42 +130,39 @@ function rainbow(t){return[0.5+0.5*Math.sin(t*2.2),0.5+0.5*Math.sin(t*2.2+2.1),0
 function look(sk){var o={};for(var k in DEF){var v=sk&&sk[k];o[k]=SETS[k][v]?v:DEF[k]}var c=sk&&cleanCus(sk.cus);if(c)o.cus=c;return o}
 
 // ================= the engine sound =================
-// firing frequency = rpm/60 * cylinders/2; saw waves + half orders through a soft clipper and a filter
-function Engine(AC,out,key){var E=ENGINES[key]||ENGINES.en_i4,o={},T=function(p,v){p.setTargetAtTime(v,AC.currentTime,0.03)};
+// one sound for every car: the owner's own Camry, recorded with his phone (carsound.wav).
+// the file holds two loops: idle (0 - 3.0 s) and holding the revs (3.05 - 5.05 s).
+// the loops are played as they are; only their speed follows the rpm.
+var VOICE={idle:1000,red:6000,vol:0.9,file:"carsound.wav",L:{idle:[0,3.0],hi:[3.05,5.05]},hiRpm:3000};
+var CARBUF={},CARWAIT={};
+function carBuf(AC,cb){var k=E0(AC);if(CARBUF[k])return cb(CARBUF[k]);(CARWAIT[k]=CARWAIT[k]||[]).push(cb);if(CARWAIT[k].length>1)return;
+  fetch(VOICE.file).then(function(r){return r.arrayBuffer()}).then(function(b){return new Promise(function(ok,no){AC.decodeAudioData(b,ok,no)})})
+   .then(function(buf){CARBUF[k]=buf;CARWAIT[k].forEach(function(f){f(buf)});CARWAIT[k]=[]}).catch(function(){CARWAIT[k]=[]})}
+function E0(AC){return AC.__id||(AC.__id=String(Math.random()))}
+function Engine(AC,out,key){var E=VOICE,dead=false,T=function(p,v,k){p.setTargetAtTime(v,AC.currentTime,k||0.04)};
   var g=AC.createGain();g.gain.value=0;g.connect(out);
-  var lp=AC.createBiquadFilter();lp.type="lowpass";lp.Q.value=1.4;lp.connect(g);
-  var ws=AC.createWaveShaper(),n=2048,cv=new Float32Array(n),k=E.drive||2;for(var i=0;i<n;i++){var x=i/n*2-1;cv[i]=Math.tanh(x*k)/Math.tanh(k)}ws.curve=cv;ws.connect(lp);
-  var mk=function(type,gain){var os=AC.createOscillator(),gg=AC.createGain();os.type=type;gg.gain.value=gain;os.connect(gg);gg.connect(ws);os.start();return os};
-  var nb=AC.createBuffer(1,AC.sampleRate,AC.sampleRate),nd=nb.getChannelData(0);for(i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;
-  if(E.ev){o.a=mk("sine",0.5);o.b=mk("triangle",0.15);lp.frequency.value=6000}
-  else{o.a=mk("sawtooth",0.45);o.s=mk("square",E.sub);o.h=mk("sawtooth",E.half);o.b=mk("sawtooth",0.12)}
-  // the air through the intake: noise that follows the engine
-  var ns=AC.createBufferSource();ns.buffer=nb;ns.loop=true;var nbp=AC.createBiquadFilter();nbp.type="bandpass";nbp.Q.value=0.8;var ng=AC.createGain();ng.gain.value=0;ns.connect(nbp);nbp.connect(ng);ng.connect(g);ns.start();
-  var tb=null,tg=null;if(E.turbo){tb=AC.createOscillator();tb.type="sine";tg=AC.createGain();tg.gain.value=0;tb.connect(tg);tg.connect(out);tb.start()}
-  var lastThr=0,boost=0;
-  function pop(){var s=AC.createBufferSource();s.buffer=nb;var f=AC.createBiquadFilter();f.type="lowpass";f.frequency.value=900+Math.random()*900;var gg=AC.createGain(),t0=AC.currentTime+Math.random()*0.35;
-    gg.gain.setValueAtTime(0.0001,t0);gg.gain.exponentialRampToValueAtTime(0.5*E.vol,t0+0.004);gg.gain.exponentialRampToValueAtTime(0.0001,t0+0.06);s.connect(f);f.connect(gg);gg.connect(out);s.start(t0,Math.random()*0.8);s.stop(t0+0.08)}
-  function blow(){var s=AC.createBufferSource();s.buffer=nb;var f=AC.createBiquadFilter();f.type="bandpass";f.frequency.value=2500;f.Q.value=1.2;var gg=AC.createGain(),t0=AC.currentTime;
-    gg.gain.setValueAtTime(0.12*E.vol,t0);gg.gain.exponentialRampToValueAtTime(0.0001,t0+0.35);s.connect(f);f.connect(gg);gg.connect(out);s.start(t0);s.stop(t0+0.4)}
-  return{E:E,update:function(rpm,thr,on){var f=rpm/60*E.cyl/2,r=rpm/E.red;
-    if(E.ev){T(o.a.frequency,120+r*1900);T(o.b.frequency,(120+r*1900)*2.7);T(g.gain,on?(0.05+r*0.25+thr*0.08)*E.vol:0);T(ng.gain,0)}
-    else{T(o.a.frequency,f);T(o.s.frequency,f*0.5);T(o.h.frequency,f*1.5);T(o.b.frequency,f*2);
-      T(lp.frequency,300+r*E.bright*(0.55+0.45*thr));nbp.frequency.value=f*3;T(ng.gain,on?E.roar*(0.2+thr)*r:0);
-      T(g.gain,on?E.vol*(0.16+0.22*r+0.22*thr):0);
-      if(E.pops&&lastThr>0.6&&thr<0.2&&r>0.55)for(var i=0;i<3+Math.floor(Math.random()*4);i++)pop()}
-    if(tb){boost+=((thr>0.5&&r>0.35?1:0)-boost)*0.06;T(tb.frequency,1800+boost*4200);T(tg.gain,on?boost*0.02*E.vol:0);if(lastThr>0.6&&thr<0.2&&boost>0.5){blow();boost=0}}
-    lastThr=thr},
-   off:function(){try{T(g.gain,0);if(tg)T(tg.gain,0)}catch(e){}},
-   kill:function(){try{[o.a,o.s,o.h,o.b,ns,tb].forEach(function(x){if(x)x.stop()})}catch(e){}g.disconnect()}}}
-// rpm from speed with a 6-speed gearbox (the electric one has no gears)
+  var gi=AC.createGain(),gh=AC.createGain();gi.gain.value=1;gh.gain.value=0;gi.connect(g);gh.connect(g);
+  var si=null,sh=null;
+  function src(buf,L,dst){var s=AC.createBufferSource();s.buffer=buf;s.loop=true;s.loopStart=L[0];s.loopEnd=L[1];s.connect(dst);s.start(0,L[0]+Math.random()*(L[1]-L[0]-0.2));return s}
+  carBuf(AC,function(buf){if(dead)return;si=src(buf,E.L.idle,gi);sh=src(buf,E.L.hi,gh)});
+  return{E:E,update:function(rpm,thr,on){
+    // 0 = idle loop only, 1 = rev loop only
+    var x=Math.min(1,Math.max(0,(rpm-E.idle*1.15)/(E.hiRpm-E.idle*1.15)));x=x*x*(3-2*x);
+    if(si){T(si.playbackRate,Math.min(1.9,Math.max(1,rpm/E.idle)));T(sh.playbackRate,Math.min(1.9,Math.max(0.6,rpm/E.hiRpm)))}
+    T(gi.gain,(1-x)*1.6);T(gh.gain,x*(0.8+0.2*thr));
+    T(g.gain,on?E.vol:0,0.05)},
+   off:function(){try{T(g.gain,0)}catch(e){}},
+   kill:function(){dead=true;try{si&&si.stop();sh&&sh.stop()}catch(e){}g.disconnect()}}}
+// rpm from speed with a 6-speed gearbox (same sound for every engine)
 var GEARS=[0,13,22,31,40,50,80];
-function rpmAt(v,key){var E=ENGINES[key]||ENGINES.en_i4;v=Math.abs(v);if(E.ev)return Math.min(1,v/66)*E.red;var g=1;while(g<6&&v>GEARS[g])g++;var lo=GEARS[g-1],hi=GEARS[g],k=Math.min(1,(v-lo)/(hi-lo)),base=g===1?E.idle:E.red*0.6;return{rpm:base+k*(E.red*0.98-base),gear:g}.rpm}
+function rpmAt(v,key){var E=VOICE;v=Math.abs(v);var g=1;while(g<6&&v>GEARS[g])g++;var lo=GEARS[g-1],hi=GEARS[g],k=Math.min(1,(v-lo)/(hi-lo)),base=g===1?E.idle:E.red*0.6;return base+k*(E.red*0.98-base)}
 // in the shop: rev the engine for three seconds
 var PV=null;
 function preview(key){try{if(PV){PV.e.kill();PV.ac.close();PV=null}var AC=new(window.AudioContext||window.webkitAudioContext)(),c=AC.createDynamicsCompressor();c.connect(AC.destination);var e=Engine(AC,c,key),t0=performance.now();PV={ac:AC,e:e};
-  (function tick(){if(!PV||PV.e!==e)return;var t=(performance.now()-t0)/1000,E=e.E,rpm,thr;
+  function tick(){if(!PV||PV.e!==e)return;var t=(performance.now()-t0)/1000,E=e.E,rpm,thr;
     if(t<0.6){rpm=E.idle||800;thr=0}else if(t<2.2){var k=(t-0.6)/1.6;rpm=(E.idle||800)+k*k*(E.red*0.97-(E.idle||800));thr=1}else if(t<3.4){rpm=E.red*0.97-(t-2.2)*E.red*0.5;thr=0}else{e.off();setTimeout(function(){if(PV&&PV.e===e){e.kill();AC.close();PV=null}},400);return}
-    e.update(rpm,thr,true);requestAnimationFrame(tick)})()}catch(err){}}
+    e.update(rpm,thr,true);requestAnimationFrame(tick)}
+  carBuf(AC,function(){t0=performance.now();tick()})}catch(err){}}
 
 // ================= a car seen from the side, for the shop and the garage =================
 function draw2D(x,w,h,sk,hl,cname,photo){var cnm=cname||(sk&&sk.cname)||"";sk=look(sk);var CU=parseCus(sk.cus),P=PAINTS[sk.paint],S=STRIPES[sk.stripe],R=RIMS[sk.rim],Lt=LIGHTS[sk.light],Wg=WINGS[sk.wing],Gl=GLOWS[sk.glow],t=performance.now()/1000;
@@ -228,7 +225,7 @@ function draw2D(x,w,h,sk,hl,cname,photo){var cnm=cname||(sk&&sk.cname)||"";sk=lo
   x.globalAlpha=0.25+(P.refl>1.3?0.25:0);x.strokeStyle="#fff";x.lineWidth=2;x.beginPath();x.moveTo(40,58);x.quadraticCurveTo(150,50,270,56);x.stroke();x.restore();x.restore()}
 
 window.RCSK={stickers:STICKERS,drawSticker:drawSticker,cities:CITIES,cusdef:CUSDEF,parseCus:parseCus,packCus:packCus,cleanCus:cleanCus,lin:lin,tire:TIRE,lift:LIFT,drawPlate:drawPlate,sets:SETS,type:TYPE,def:DEF,bodies:BODIES,paints:PAINTS,engines:ENGINES,lights:LIGHTS,rims:RIMS,wings:WINGS,glows:GLOWS,stripes:STRIPES,
-  look:look,css:css,rainbow:rainbow,Engine:Engine,rpmAt:rpmAt,preview:preview,draw2D:draw2D};
+  voice:VOICE,carBuf:carBuf,look:look,css:css,rainbow:rainbow,Engine:Engine,rpmAt:rpmAt,preview:preview,draw2D:draw2D};
 if(!window.AG||!AG.addPack)return;
 // ---------- the shop ----------
 function cvs(w,h,fn,anim){var c=document.createElement("canvas"),d=Math.min(2,window.devicePixelRatio||1);c.width=w*d;c.height=h*d;c.style.cssText="width:"+w+"px;max-width:100%;height:auto;display:block;margin:0 auto";var x=c.getContext("2d");
@@ -246,7 +243,7 @@ AG.addPack({type:"rcgarage",def:"gr_off",items:{gr_off:{price:0,name:T4("گەر�
   preview:function(k){return cvs(170,80,function(x){draw2D(x,170,80,k==="gr_pro"?{body:"bd_coupe",cus:"c=1e6fd9,d=ffd400,t=2,h=2,s=2,p=krd,y=duhok,n=24A00000"}:{paint:"pt_white"},"body",k==="gr_pro"?"AG":"")})}});
 AG.addPack({type:"rcbody",def:"bd_sedan",items:BODIES,title:T4("🚗 جۆرێن ترومبێلان","🚗 جۆری ئۆتۆمبێل","🚗 أنواع السيارات","🚗 Car types"),desc:T4("سێدان، ستەیشن، سپۆرت، پیکاپ و تریلە. تریلە گرانە و هەمیان پاڵ ددەت!","سێدان، ستەیشن، سپۆرت، پیکاپ و تریلە.","سيدان، ستيشن، رياضية، بيك آب وتريلة. التريلة ثقيلة وتدفع الجميع!","Sedan, wagon, coupé, pickup and a semi truck — the truck is heavy and pushes everyone!"),preview:function(k){return cvs(170,80,function(x){draw2D(x,170,80,{body:k,paint:"pt_red"},"body")})}});
 AG.addPack({type:"rcpaint",def:"pt_white",items:PAINTS,title:T4("🎨 ڕەنگێن ترومبێلێ","🎨 ڕەنگی ئۆتۆمبێل","🎨 ألوان السيارة","🎨 Car paint"),desc:T4("ڕەنگێ ترومبێلا تە ل یاریا بەزینێ. هەمی یاریکەر دبینن!","ڕەنگی ئۆتۆمبێلەکەت لە یاری پێشبڕکێ.","لون سيارتك في لعبة السباق، ويراه الجميع!","Your car's colour in the race — everyone sees it!"),preview:car("paint")});
-AG.addPack({type:"rcengine",def:"en_i4",items:ENGINES,title:T4("🔊 مەکینێن ترومبێلێ","🔊 بزوێنەری ئۆتۆمبێل","🔊 محركات السيارة","🔊 Car engines"),desc:T4("هەر مەکینەکێ دەنگێ خۆ هەیە، و دژی ڕۆبۆتان بهێزترە. ل ئۆنلاین هەمی وەک ئێکن، تنێ دەنگ دگوهۆڕیت. 🔊 لێدە و گوهداری بکە!","هەر بزوێنەرێک دەنگی خۆی هەیە. لە ئۆنلاین هەموو وەک یەکن.","لكل محرك صوته، وهو أقوى ضد الروبوتات. في الأونلاين الجميع متساوون والصوت فقط يتغير. اضغط 🔊 واستمع!","Every engine has its own sound and more power against the robots. Online everyone is equal — only the sound changes. Tap 🔊 to listen!"),preview:bars});
+AG.addPack({type:"rcengine",def:"en_i4",items:ENGINES,title:T4("🔊 مەکینێن ترومبێلێ","🔊 بزوێنەری ئۆتۆمبێل","🔊 محركات السيارة","🔊 Car engines"),desc:T4("هەر مەکینەکا گرانتر دژی ڕۆبۆتان بهێزترە. دەنگێ هەمیان ئێکە: دەنگێ ترومبێلەکا ڕاستەقینە. ل ئۆنلاین هەمی وەک ئێکن.","هەر بزوێنەرێکی گرانتر دژی ڕۆبۆتەکان بەهێزترە. دەنگی هەموویان یەکە: دەنگی ئۆتۆمبێلێکی ڕاستەقینە. لە ئۆنلاین هەموو وەک یەکن.","كل محرك أغلى أقوى ضد الروبوتات. صوت الجميع واحد: صوت سيارة حقيقية. في الأونلاين الجميع متساوون.","Each pricier engine pulls harder against the robots. They all share one sound: a real car. Online everyone is equal."),preview:bars});
 AG.addPack({type:"rclight",def:"li_white",items:LIGHTS,title:T4("💡 ڕەنگێن لایتان","💡 ڕەنگی گڵۆپەکان","💡 ألوان الأضواء","💡 Light colours"),desc:T4("ڕەنگێ لایتێن پێشیێ یێن ترومبێلێ.","ڕەنگی گڵۆپی پێشەوە.","لون الأضواء الأمامية.","The colour of the front lights."),preview:car("light",true)});
 AG.addPack({type:"rcrim",def:"rm_silver",items:RIMS,title:T4("🛞 جانتێن ترومبێلێ","🛞 ڕینگی ئۆتۆمبێل","🛞 جنوط السيارة","🛞 Rims"),desc:T4("ڕەنگێ جانتێن تایەیان.","ڕەنگی ڕینگەکان.","لون الجنوط.","The colour of the rims."),preview:car("rim",true)});
 AG.addPack({type:"rcwing",def:"wg_none",items:WINGS,title:T4("🪽 باسکێن پشتێ","🪽 باڵی دواوە","🪽 الجناح الخلفي","🪽 Rear wings"),desc:T4("باسکەکێ ل سەر پشتا ترومبێلێ.","باڵێک لەسەر پشتی ئۆتۆمبێل.","جناح على مؤخرة السيارة.","A wing on the back of the car."),preview:car("wing")});
