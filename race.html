@@ -950,6 +950,7 @@ const S={
  saved:['✅ هاتە پاشەکەفتکرن','✅ پاشەکەوت کرا','✅ تم الحفظ','✅ Saved'],
  myCar:['ترومبێلا من','ئۆتۆمبێلەکەم','سيارتي','My car'],rev:['دەنگ','دەنگ','الصوت','Sound'],toShop:['دکانا ترومبێلێ','دووکانی ئۆتۆمبێل','متجر السيارة','Car shop'],
  maps:['خەریتە (یاریگەهـ)','نەخشە (یاریگا)','الخرائط','Tracks'],
+ buyQ:['بکڕە ب # AG؟ ✔','بیکڕە بە # AG؟ ✔','اشترِ بـ # AG؟ ✔','Buy for # AG? ✔'],noAG:['AG یا تە بەس ناکەت','AGت بەس نییە','رصيد AG غير كافٍ','Not enough AG'],notReady:['ئەڤ ترومبێلە هێشتا ل دکانێ چالاک نەبوویە','ئەم ئۆتۆمبێلە هێشتا لە دوکان چالاک نەکراوە','هذه السيارة غير مفعّلة في المتجر بعد','This car is not active in the shop yet'],buyFail:['کڕین سەرنەکەفت، دووبارە بکە','کڕین سەرکەوتوو نەبوو، دووبارە بکەوە','فشل الشراء، حاول مجددًا','Buying failed, try again'],needLogin:['ئێکەم بچە ژوور','سەرەتا بچۆ ژوورەوە','سجّل الدخول أولًا','Sign in first'],
  mapHere:['✓ تو ل ڤێرێ یی','✓ تۆ لێرەی','✓ أنت هنا','✓ Selected'],mapPick:['▶ هەلبژێرە','▶ هەڵبژێرە','▶ اختر','▶ Pick'],
  lockMsg:['ل نەخشەیا # ببە یێ ئێکێ 🥇 دا ئەڤ نەخشە ڤەبیت','لە نەخشەی # ببە بە یەکەم 🥇 تا ئەم نەخشەیە بکرێتەوە','احصل على المركز الأول 🥇 في الخريطة # لفتح هذه الخريطة','Finish 1st 🥇 on track # to open this one'],
  unlocked:['🔓 نەخشەیەکا نوو ڤەبوو:','🔓 نەخشەیەکی نوێ کرایەوە:','🔓 فُتحت خريطة جديدة:','🔓 New track opened:'],
@@ -1025,7 +1026,21 @@ async function setLook(k,v){MY[k]=v;MY=RCSK.look(MY);try{localStorage.setItem('r
   if(fdb&&me){try{await fdb.ref('profiles/'+me+'/private/'+RCSK.type[k]).set(v===RCSK.def[k]?null:v)}catch(e){}}}
 $('go').onclick=startRace;
 $('bShop').onclick=()=>{location.href='./#pack_rcbody'};
-$('cPrev').onclick=()=>carSwitch(-1);$('cNext').onclick=()=>carSwitch(1);$('gLock').onclick=()=>{location.href='./#pack_rcbody'};
+$('cPrev').onclick=()=>carSwitch(-1);$('cNext').onclick=()=>carSwitch(1);$('gLock').onclick=buyBody;
+// buy the locked car right here with AG (the same check as the shop: server price, AG goes down, the car becomes mine)
+let BUYING=false;
+async function buyBody(){const k=PREVB,lk=$('gLock');if(!k||BUYING)return;const B=RCSK.bodies[k];
+  if(!fdb||!me){toast(t('needLogin'));return}
+  if(lk.dataset.sure!==k){lk.dataset.sure=k;lk.textContent=t('buyQ').replace('#',num(B.price));clearTimeout(lk._t);lk._t=setTimeout(()=>{lk.dataset.sure='';drawCarSw()},6000);return}
+  BUYING=true;lk.dataset.sure='';lk.textContent='⏳';
+  try{const [w,sp]=await Promise.all([fdb.ref('wallets/'+me+'/ag').once('value'),fdb.ref('shop/'+k+'/price').once('value')]);
+    const ag=+w.val()||0,price=sp.val();
+    if(typeof price!=='number'){toast(t('notReady'));return}
+    const cost=Math.max(price,B.price);if(ag<cost){toast(t('noAG'));return}
+    await fdb.ref().update({['wallets/'+me+'/ag']:ag-cost,['wallets/'+me+'/lastBuy']:k,['owned/'+me+'/'+k]:true});
+    owned[k]=true;PREVB=null;toast('✅ '+nm(B.name));await setLook('body',k)}
+  catch(e){toast(t('buyFail'))}
+  finally{BUYING=false;drawCarSw()}}
 $('bRev').onclick=()=>RCSK.preview(MY.engine);
 $('bGar').onclick=openGarage;
 // what other phones get: no garage look unless I bought it, and never my name
