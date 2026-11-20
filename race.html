@@ -10,7 +10,8 @@
 <style>
   html,body{margin:0;height:100%;overflow:hidden;background:#000;font-family:system-ui,sans-serif;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
   #gl,#fx{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
-  .ov{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;background:linear-gradient(160deg,rgba(10,15,30,.82),rgba(60,10,20,.78));z-index:5}
+  .ov{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;background:linear-gradient(160deg,rgba(10,15,30,.82),rgba(60,10,20,.78));z-index:5;overflow-y:auto;justify-content:safe center;padding:10px 0}
+  @media (max-height:480px){.ov button{margin-top:8px;padding:8px 30px;font-size:17px}.ov h1{font-size:30px}}
   body.rot .ov{inset:auto;top:0;left:0;width:100vh;height:100vw;transform-origin:top left;transform:translateX(100vw) rotate(90deg)}
   .ov h1{margin:0 0 4px;font-size:40px;font-weight:900;letter-spacing:2px;font-style:italic}
   .ov p{margin:4px 18px;line-height:1.55;font-size:14px;opacity:.92}
@@ -40,8 +41,22 @@
   .ppl{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}.ppl div{display:flex;flex-direction:column;align-items:center;gap:4px;width:70px;font-size:12px;font-weight:800;text-align:center}
   .ppl img{width:48px;height:48px;border-radius:50%;object-fit:cover;border:3px solid #ff5a2a;background:#222}
   #gar{width:100%;height:210px;display:block;touch-action:pan-y;cursor:grab}
-  .maps{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.maps button{border:2px solid rgba(255,255,255,.18);border-radius:14px;padding:4px 4px 6px;color:#fff;background:rgba(0,0,0,.25);font-size:11px;font-weight:800;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
-  .maps button.on{border-color:#facc15;box-shadow:0 0 0 3px rgba(250,204,21,.3)}.maps canvas{width:100%;height:64px;display:block;border-radius:10px}
+  .mcar{position:relative;margin:0 -12px}
+  .maps{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;direction:ltr;padding:10px calc(50% - min(31vw,140px));scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .maps::-webkit-scrollbar{display:none}
+  .maps>button{flex:0 0 min(62vw,280px);scroll-snap-align:center;position:relative;border:3px solid rgba(255,255,255,.18);border-radius:22px;padding:8px 8px 12px;color:#fff;background:linear-gradient(160deg,#2a1830,#14101c);font-weight:900;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;transition:transform .12s,opacity .12s;direction:rtl}
+  .maps>button.on{border-color:#facc15;box-shadow:0 0 0 3px rgba(250,204,21,.25),0 10px 26px rgba(0,0,0,.45)}
+  .maps canvas{width:100%;height:150px;display:block;border-radius:15px}
+  .maps .mn{position:absolute;top:14px;inset-inline-start:14px;background:rgba(0,0,0,.65);border-radius:12px;padding:2px 10px;font-size:15px}
+  .maps .nm{font-size:18px}
+  .maps .pill{font-size:13px;padding:7px 16px;border-radius:12px;background:linear-gradient(180deg,#ffe066,#f5b301);color:#3a2500;box-shadow:0 3px 0 #b07800}
+  .maps button.lock canvas{filter:grayscale(1) brightness(.45)}.maps button.lock .nm{opacity:.6}
+  .maps button.lock .pill{background:rgba(255,255,255,.12);color:#ddd;box-shadow:none;font-size:12px;max-width:95%}
+  .maps .lk{position:absolute;top:52px;left:50%;transform:translateX(-50%);font-size:46px;filter:drop-shadow(0 3px 4px #000)}
+  .ma{position:absolute;top:92px;z-index:2;width:42px;height:42px;border-radius:50%;border:2px solid rgba(255,255,255,.55);background:rgba(0,0,0,.45);color:#fff;font-size:24px;font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+  .ma.l{left:6px}.ma.r{right:6px}
+  .mdots{display:flex;justify-content:center;gap:5px;margin-top:8px;direction:ltr;flex-wrap:wrap}.mdots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.25)}.mdots i.lk{background:rgba(255,255,255,.1)}.mdots i.on{width:20px;border-radius:5px;background:#facc15}
+  #ov .unl{background:linear-gradient(135deg,#16a34a,#15803d);border-radius:14px;padding:10px 16px;font-weight:900;margin:4px 0 10px;text-align:center}#ov .hint{opacity:.85;margin:0 0 10px;font-weight:700;text-align:center}
   .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}.chips button{width:34px;height:34px;border-radius:50%;border:3px solid rgba(255,255,255,.25);cursor:pointer}.chips button.on{border-color:#fff;transform:scale(1.15)}
   .mine{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;font-size:12px}.mine span{background:rgba(255,255,255,.1);border-radius:10px;padding:4px 8px}
   .garo{position:fixed;inset:0;z-index:30;overflow-y:auto;background:linear-gradient(#1a0a14,#070912);color:#fff;-webkit-overflow-scrolling:touch}
@@ -75,7 +90,7 @@
     <div class="mine" id="mine"></div>
     <div class="rowi"><button class="btn ghost" type="button" id="bRev" style="flex:1">🔊 <span data-t="rev"></span></button><button class="btn" type="button" id="bGar" style="flex:1.4">🔧 <span data-t="garage"></span></button><button class="btn blue" type="button" id="bShop" style="flex:1.6">🛒 <span data-t="toShop"></span></button></div>
   </section>
-  <section class="card"><h2>🗺️ <span data-t="maps"></span></h2><div class="maps" id="maps"></div></section>
+  <section class="card"><h2>🗺️ <span data-t="maps"></span></h2><div class="mcar"><button type="button" class="ma l" id="mPrev">‹</button><div class="maps" id="maps"></div><button type="button" class="ma r" id="mNext">›</button></div><div class="mdots" id="mdots"></div></section>
   <section class="card"><h2>🔁 <span data-t="laps"></span></h2><div class="seg" id="segLaps"></div></section>
   <section class="card" id="online"></section>
   <section class="card"><h2>🤖 <span data-t="vsBots"></span></h2><p data-t="vsBotsD"></p><div class="seg" id="segLv"></div><button class="btn" type="button" id="go" data-t="start"></button></section>
@@ -237,14 +252,28 @@ function makeTR(CP){const dense=[];const n=CP.length;
   for(let i=0;i<N;i++){let d=out[(i+1)%N].ang-out[i].ang;d=Math.atan2(Math.sin(d),Math.cos(d));out[i].k=Math.abs(d)/(L/N);}
   out.L=L;return out;}
 
-// the tracks: control points and a look (theme)
+// the tracks, easy to hard: a track opens when I win (1st) on the one before it
 const TRACKS={
- tr_green:{theme:'day',cp:[[0,-40],[0,170],[30,250],[120,285],[205,240],[200,160],[262,95],[335,125],[390,55],[360,-70],[255,-115],[160,-80],[95,-150],[25,-140]],name:['یاریگەها کەسک','یاریگای سەوز','الحلبة الخضراء','Green circuit'],ic:'🌳'},
  tr_oval:{theme:'sunset',cp:[[0,-120],[0,120],[30,200],[110,235],[190,200],[220,120],[220,-120],[190,-200],[110,-235],[30,-200]],name:['ئۆڤالا ئێڤاری','ئۆڤاڵی ئێوارە','البيضاوي عند الغروب','Sunset oval'],ic:'🌅'},
- tr_snow:{theme:'snow',cp:[[0,-80],[0,120],[40,200],[120,215],[160,160],[130,90],[170,30],[245,40],[290,110],[360,100],[390,10],[330,-60],[350,-140],[280,-200],[190,-175],[130,-110],[70,-160]],name:['چیایێن بەفری','چیای بەفراوی','الجبال الثلجية','Snowy mountains'],ic:'🏔️'},
  tr_desert:{theme:'desert',cp:[[0,-200],[0,200],[60,270],[380,270],[450,200],[420,100],[460,0],[440,-200],[380,-270],[60,-270]],name:['بیابان','بیابان','الصحراء','Desert'],ic:'🏜️'},
  tr_city:{theme:'night',cp:[[0,-150],[0,120],[50,190],[150,190],[200,140],[190,80],[240,40],[310,40],[350,-10],[340,-130],[290,-190],[60,-200]],name:['باژێر ب شەڤ','شار بە شەو','المدينة ليلاً','City at night'],ic:'🌃'},
- tr_autumn:{theme:'autumn',cp:[[0,-60],[0,140],[60,230],[170,250],[250,190],[230,100],[300,40],[400,60],[440,-40],[380,-140],[260,-170],[200,-110],[120,-170],[40,-140]],name:['دارستانا پاییزێ','دارستانی پاییز','غابة الخريف','Autumn forest'],ic:'🍂'}};
+ tr_green:{theme:'day',cp:[[0,-40],[0,170],[30,250],[120,285],[205,240],[200,160],[262,95],[335,125],[390,55],[360,-70],[255,-115],[160,-80],[95,-150],[25,-140]],name:['یاریگەها کەسک','یاریگای سەوز','الحلبة الخضراء','Green circuit'],ic:'🌳'},
+ tr_autumn:{theme:'autumn',cp:[[0,-60],[0,140],[60,230],[170,250],[250,190],[230,100],[300,40],[400,60],[440,-40],[380,-140],[260,-170],[200,-110],[120,-170],[40,-140]],name:['دارستانا پاییزێ','دارستانی پاییز','غابة الخريف','Autumn forest'],ic:'🍂'},
+ tr_snow:{theme:'snow',cp:[[0,-80],[0,120],[40,200],[120,215],[160,160],[130,90],[170,30],[245,40],[290,110],[360,100],[390,10],[330,-60],[350,-140],[280,-200],[190,-175],[130,-110],[70,-160]],name:['چیایێن بەفری','چیای بەفراوی','الجبال الثلجية','Snowy mountains'],ic:'🏔️'},
+ tr_dawn:{theme:'dawn',cp:[[0,0],[11,135],[95,193],[181,120],[220,19],[248,-36],[306,-58],[365,-101],[386,-168],[375,-238],[309,-281],[229,-281],[205,-322],[180,-425],[107,-484],[26,-459],[-38,-408],[-94,-354],[-104,-274],[-60,-199],[-43,-151],[-40,-103],[-4,-69]],name:["دەشتا بەرەبەیانێ","دەشتی بەرەبەیان","وادي الفجر","Dawn valley"],ic:'🌄'},
+ tr_canyon:{theme:'canyon',cp:[[0,0],[12,79],[78,123],[148,145],[215,152],[274,118],[349,131],[462,135],[466,36],[420,-47],[480,-123],[472,-213],[343,-197],[275,-177],[242,-281],[152,-355],[83,-288],[60,-198],[27,-138],[8,-72]],name:["گەلیێ سۆر","دۆڵی سوور","الوادي الأحمر","Red canyon"],ic:'🏜️'},
+ tr_pine:{theme:'day',cp:[[0,0],[-46,56],[-111,120],[-27,187],[-70,295],[-40,432],[80,487],[206,448],[230,285],[305,247],[368,171],[256,103],[275,17],[266,-130],[155,-218],[18,-189]],name:["گرێن کاژان","گردەکانی کاژ","تلال الصنوبر","Pine hills"],ic:'🌲'},
+ tr_harbour:{theme:'sunset',cp:[[0,0],[-7,66],[-96,54],[-113,109],[-124,163],[-179,233],[-142,294],[-96,345],[-71,428],[3,456],[80,450],[154,449],[213,404],[267,362],[315,313],[315,241],[307,180],[263,132],[220,103],[275,1],[279,-129],[193,-160],[105,-203],[12,-175]],name:["بەندەرا ئێڤاری","بەندەری ئێوارە","الميناء عند الغروب","Harbour at dusk"],ic:'🌆'},
+ tr_ice:{theme:'snow',cp:[[0,0],[13,120],[110,126],[195,28],[267,65],[357,75],[350,-43],[322,-121],[343,-158],[397,-205],[413,-271],[342,-298],[332,-368],[325,-517],[228,-520],[146,-458],[73,-439],[47,-354],[50,-280],[25,-240],[29,-193],[11,-144],[-5,-79]],name:["ئەلقا قەشایێ","ئەڵقەی سەهۆڵ","حلقة الجليد","Ice ring"],ic:'❄️'},
+ tr_neon:{theme:'night',cp:[[0,0],[10,133],[86,157],[156,91],[217,69],[286,53],[310,-17],[317,-81],[358,-129],[351,-189],[273,-227],[246,-258],[274,-339],[255,-413],[190,-428],[127,-432],[63,-442],[-5,-438],[-83,-427],[-147,-382],[-123,-284],[-50,-208],[-67,-168],[-125,-106],[-77,-67],[1,-71]],name:["جادێن نیۆنی","شەقامە نیۆنییەکان","شوارع النيون","Neon streets"],ic:'🌃'},
+ tr_leaf:{theme:'autumn',cp:[[0,0],[89,36],[168,-85],[219,-129],[326,-86],[383,-145],[353,-244],[372,-304],[376,-368],[310,-409],[307,-470],[311,-573],[223,-563],[150,-495],[99,-551],[8,-618],[-73,-590],[-158,-547],[-218,-470],[-133,-362],[1,-312],[33,-289],[17,-241],[-6,-146]],name:["ڕێکا بەلگێن زەر","ڕێگای گەڵای زەرد","طريق الأوراق الصفراء","Yellow-leaf road"],ic:'🍁'},
+ tr_fire:{theme:'canyon',cp:[[0,0],[12,115],[96,109],[166,40],[235,75],[307,66],[297,-47],[303,-101],[367,-124],[369,-177],[377,-231],[432,-313],[397,-378],[309,-385],[261,-420],[208,-461],[143,-449],[90,-411],[62,-351],[22,-330],[-108,-357],[-195,-307],[-105,-212],[-12,-164],[-6,-123],[5,-78]],name:["چیایێ ئاگری","چیای ئاگرین","جبل النار","Fire mountain"],ic:'🌋'},
+ tr_river:{theme:'dawn',cp:[[0,0],[-3,88],[-126,50],[-238,73],[-224,165],[-225,242],[-276,328],[-219,398],[-96,411],[-57,456],[-44,546],[24,569],[97,545],[160,550],[221,540],[281,518],[375,532],[478,514],[492,422],[458,329],[468,261],[476,189],[440,126],[421,56],[400,-26],[309,-30],[213,37],[171,-8],[104,-161],[12,-169]],name:["چەمێن ڕووباری","پێچەکانی ڕووبار","منعطفات النهر","River bends"],ic:'🏞️'},
+ tr_midnight:{theme:'night',cp:[[0,0],[10,92],[83,106],[164,17],[209,14],[281,85],[332,47],[338,-32],[384,-61],[405,-109],[381,-163],[446,-220],[501,-309],[410,-340],[324,-337],[305,-409],[252,-444],[188,-406],[132,-411],[81,-390],[80,-304],[37,-288],[-91,-296],[-128,-232],[-55,-162],[-13,-116],[-3,-67]],name:["بەزینا نیڤا شەڤێ","پێشبڕکێی نیوەشەو","سباق منتصف الليل","Midnight run"],ic:'🌌'},
+ tr_glacier:{theme:'snow',cp:[[0,0],[17,120],[-49,125],[-145,134],[-140,207],[-100,273],[-135,327],[-156,392],[-97,435],[-68,483],[-105,602],[-101,732],[-20,781],[79,771],[167,730],[233,645],[276,580],[340,584],[414,579],[441,516],[455,453],[498,406],[508,346],[478,286],[516,220],[587,116],[542,47],[410,65],[338,64],[316,-23],[266,-103],[190,-143],[100,-183],[15,-151]],name:["دەربەندا قەشایێ","گەرووی سەهۆڵ","ممر الجليد","Glacier pass"],ic:'🏔️'},
+ tr_serpent:{theme:'day',cp:[[0,0],[-43,30],[-89,60],[-103,114],[-237,145],[-281,229],[-212,301],[-257,422],[-233,543],[-75,496],[34,411],[87,438],[165,529],[244,505],[241,373],[258,318],[361,308],[485,257],[555,156],[424,84],[275,81],[293,-12],[265,-102],[189,-136],[110,-249],[13,-191]],name:["ڕێکا مارپێچ","ڕێگای مارپێچ","الطريق المتعرج","Serpent road"],ic:'🐍'},
+ tr_dragon:{theme:'canyon',cp:[[0,0],[-6,87],[-166,35],[-298,71],[-252,185],[-171,268],[-142,332],[-149,411],[-167,529],[-100,595],[32,518],[103,486],[165,603],[257,632],[302,530],[375,501],[494,490],[501,390],[463,296],[502,221],[464,148],[360,121],[379,27],[395,-123],[280,-105],[185,-38],[113,-142],[13,-175]],name:["گەلیێ ئەژدەهای","دۆڵی ئەژدیها","وادي التنين","Dragon canyon"],ic:'🔥'},
+ tr_king:{theme:'sunset',cp:[[0,0],[104,-9],[193,-51],[265,-78],[346,-84],[401,-143],[382,-246],[468,-276],[561,-340],[491,-421],[506,-508],[498,-605],[375,-603],[323,-660],[251,-684],[177,-596],[101,-673],[-5,-711],[-46,-620],[-137,-583],[-135,-486],[-57,-397],[-169,-322],[-141,-241],[21,-256],[-2,-153]],name:["یاریگەها پاشای","یاریگای پاشا","حلبة الملوك","King's circuit"],ic:'👑'}};
 // sky, ground, light and the colours of trees and mountains for each look
 const THEMES={
  day:{skyH:[.75,.84,.95],skyZ:[.25,.48,.86],skyG:[.28,.33,.24],sun:[1.5,1.4,1.25],amb:1,fog:.0011,g1:[.08,.2,.05],g2:[.2,.32,.08],p0:[.05,.18,.06],p1:[.09,.26,.07],p2:[.25,.15,.07],p8:[.3,.34,.24],trees:260},
@@ -252,8 +281,15 @@ const THEMES={
  snow:{skyH:[.85,.9,.98],skyZ:[.45,.6,.88],skyG:[.75,.8,.85],sun:[1.4,1.4,1.45],amb:1.15,fog:.0022,g1:[.72,.76,.82],g2:[.92,.94,.97],p0:[.03,.12,.07],p1:[.05,.17,.09],p2:[.2,.13,.07],p8:[.78,.82,.9],trees:300,snowcaps:1},
  desert:{skyH:[.98,.86,.68],skyZ:[.35,.58,.9],skyG:[.6,.45,.3],sun:[1.8,1.55,1.2],amb:1.05,fog:.0013,g1:[.62,.45,.24],g2:[.78,.6,.34],p0:[.12,.3,.1],p1:[.18,.38,.12],p2:[.12,.3,.1],p8:[.7,.42,.24],trees:120,cactus:1},
  night:{skyH:[.06,.08,.16],skyZ:[.005,.008,.03],skyG:[.02,.02,.03],sun:[.28,.32,.48],amb:.32,fog:.0025,g1:[.02,.04,.02],g2:[.04,.06,.03],p0:[.02,.06,.03],p1:[.03,.08,.04],p2:[.08,.05,.03],p8:[.05,.06,.1],trees:60,city:1,night:1,sunDir:[-.3,.7,.5]},
+ dawn:{skyH:[1.05,.72,.7],skyZ:[.35,.38,.7],skyG:[.25,.28,.22],sun:[1.6,1.2,1.0],amb:.95,fog:.0014,g1:[.1,.2,.07],g2:[.22,.32,.12],p0:[.06,.18,.08],p1:[.12,.27,.1],p2:[.25,.15,.07],p8:[.42,.3,.4],trees:240,sunDir:[-.7,.15,.3]},
+ canyon:{skyH:[1.0,.75,.55],skyZ:[.3,.5,.85],skyG:[.55,.3,.2],sun:[1.8,1.45,1.1],amb:1.0,fog:.0013,g1:[.55,.25,.12],g2:[.7,.36,.18],p0:[.12,.28,.1],p1:[.16,.34,.1],p2:[.12,.3,.1],p8:[.62,.28,.16],trees:110,cactus:1},
  autumn:{skyH:[.85,.8,.75],skyZ:[.4,.5,.75],skyG:[.3,.25,.15],sun:[1.5,1.3,1.0],amb:.95,fog:.0016,g1:[.2,.17,.06],g2:[.34,.26,.08],p0:[.55,.18,.03],p1:[.75,.42,.05],p2:[.25,.15,.07],p8:[.38,.3,.22],trees:300}};
-let CP,TR,N,TL,TH=THEMES.day,MAP='tr_green';
+let CP,TR,N,TL,TH=THEMES.day,MAP='tr_oval';
+// how many tracks are open (1 = only the first). Saved on the phone and in Firebase (rcp/<uid>).
+const MAPS=Object.keys(TRACKS);
+let PROG=(()=>{try{return Math.max(1,Math.min(MAPS.length,parseInt(localStorage.getItem('rc.prog'))||1))}catch(e){return 1}})();
+const mapOpen=k=>MAPS.indexOf(k)>=0&&MAPS.indexOf(k)<PROG;
+function saveProg(n){n=Math.min(MAPS.length,n);if(n<=PROG)return;PROG=n;try{localStorage.setItem('rc.prog',String(PROG))}catch(e){}if(typeof fdb!=='undefined'&&fdb&&me)fdb.ref('rcp/'+me).set(PROG).catch(()=>{})}
 function stripMesh(o0,o1,y0,y1,auxFn){return gridMesh(1,N,(u,v)=>{const p=TR[Math.round(v*N)%N],o=lerp(o0,o1,u);return[p.x+p.nx*o,lerp(y0,y1,u),p.z+p.nz*o];},false,(p,u,v)=>auxFn?auxFn(v*TL):0);}
 function merge(list){const pos=[],nrm=[],aux=[],idx=[];for(const m of list){const b=pos.length/3;pos.push(...m.pos);nrm.push(...m.nrm);aux.push(...m.aux);for(const i of m.idx)idx.push(i+b);}return{pos,nrm,aux,idx};}
 function quadMesh(a,b,c,d,n=[0,1,0]){return{pos:[...a,...b,...c,...d],nrm:[...n,...n,...n,...n],aux:[0,0,0,0],idx:[0,1,2,0,2,3]};}
@@ -466,10 +502,10 @@ for(const k in BODIES){const b0=buildBody(BODIES[k]),b=BODIES[k].cab?truckCab(b0
     bed:b.BED&&u(b.BED),trailer:b.TRAILER&&u(b.TRAILER),chassis:b.CHASSIS&&u(b.CHASSIS),mx:b.mx,def:BODIES[k]}}
 useBody(SEDAN);
 // put a track on the graphics card (the old one is thrown away)
-function buildTrack(key){if(!TRACKS[key])key='tr_green';MAP=key;const T=TRACKS[key];CP=T.cp;TR=makeTR(CP);N=TR.length;TL=TR.L;TH=THEMES[T.theme];trackMeshes();
+function buildTrack(key){if(!TRACKS[key])key='tr_oval';MAP=key;const T=TRACKS[key];CP=T.cp;TR=makeTR(CP);N=TR.length;TL=TR.L;TH=THEMES[T.theme];trackMeshes();
   for(const n of['road','edge','curb','rails','dash','start','scene','gantry']){const o=G[n];if(o){for(const b of[o.p,o.n,o.a,o.i])gl.deleteBuffer(b)}}
   Object.assign(G,{road:upload(TRK.ROAD),edge:upload(TRK.EDGE),curb:upload(TRK.CURB),rails:upload(TRK.RAILS),dash:upload(TRK.DASH),start:upload(TRK.START),scene:upload(TRK.SCENE),gantry:upload(TRK.GANTRY)})}
-buildTrack((()=>{try{return localStorage.getItem('rc.map')||'tr_green'}catch(e){return'tr_green'}})());
+buildTrack((()=>{let k='tr_oval';try{k=localStorage.getItem('rc.map')||k}catch(e){}return mapOpen(k)?k:'tr_oval'})());
 const plateTex=(()=>{const c=document.createElement('canvas');c.width=256;c.height=64;const x=c.getContext('2d');x.fillStyle='#f2f3f5';x.fillRect(0,0,256,64);x.fillStyle='#1d4fb8';x.fillRect(0,0,34,64);
   x.fillStyle='#fff';x.font='bold 16px sans-serif';x.textAlign='center';x.fillText('KRD',17,40);x.fillStyle='#111';x.font='900 40px system-ui';x.fillText('2026',150,47);
   const t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,c);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);return t;})();
@@ -514,7 +550,7 @@ let LV=(()=>{try{return localStorage.getItem('rc.lv')||'normal'}catch(e){return'
 // one car on the grid; g = place 0..5 (0 is the front)
 function gridCar(g,o){let c;const row=Math.floor(g/2),side=g%2?1:-1,idx=(N-6-row*7)%N,p=TR[idx];
   c=Object.assign({x:p.x+p.nx*side*3.2,z:p.z+p.nz*side*3.2,h:p.ang,v:0,steer:0,idx,laps:-1,wheel:0,brake:false,finished:false,finishT:0,lat:0,lane:(Math.random()-0.5)*5,acc:1,vm:1,dents:[]},o);c.mass=RCSK.bodies[c.sk.body]?RCSK.bodies[c.sk.body].mass:1;return c}
-function makeCars(){cars=[];let seed=Date.now()%100000;const r=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};const sk=SKILL[LV]||SKILL.normal;
+function makeCars(){cars=[];let seed=Date.now()%100000;const r=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};const sk0=SKILL[LV]||SKILL.normal,mk=1+Math.max(0,MAPS.indexOf(MAP))*0.0045,sk=[sk0[0]*mk,sk0[1]*mk];
   const E=RCSK.engines[MY.engine],BD=RCSK.bodies[MY.body]||RCSK.bodies.bd_sedan;
   for(let g=0;g<6;g++){const isP=g===5;const c=gridCar(g,isP?{player:true,name:myName(),sk:MY,skill:1,acc:E.acc*BD.acc,vm:E.vmax*BD.vmax}:(()=>{const bl=botLook(r),bb=RCSK.bodies[bl.body];return{name:BOTN[LI()][g],sk:bl,skill:sk[0]+(sk[1]-sk[0])*(g/5)+Math.random()*0.02,bot:true,vm:bb.vmax}})());
     cars.push(c);if(isP)player=c}}
@@ -684,6 +720,11 @@ function showResults(){if(state!=='done')return;const order=[...results,...cars.
   ov.innerHTML='<h1></h1><table></table><button id="again"></button><button id="toMenu" class="bt2"></button>';ov.querySelector('h1').textContent=medal+' '+t('place')+' '+pos;
   const tb=ov.querySelector('table');order.forEach((c,i)=>{const tr=document.createElement('tr');if(c.player)tr.className='me';[String(i+1),c.name+(c.bot?' 🤖':''),c.finished?fmt(c.finishT):'—'].forEach(x=>{const td=document.createElement('td');td.textContent=x;tr.append(td)});tb.append(tr)});
   const ag=$('again');ag.textContent=t('again');$('toMenu').textContent=t('menu');
+  // win on the newest open track -> the next one opens
+  const mi=MAPS.indexOf(MAP);if(MODE!=='net'&&mi>=0&&mi===PROG-1&&mi<MAPS.length-1){const h=ov.querySelector('h1');
+    if(pos===1){saveProg(mi+2);const nk=MAPS[mi+1],u=document.createElement('div');u.className='unl';u.textContent=t('unlocked')+' '+num(mi+2)+'. '+TRACKS[nk].ic+' '+nm(TRACKS[nk].name);h.after(u);
+      const nb=document.createElement('button');nb.textContent=t('nextMap');nb.onclick=()=>{buildTrack(nk);try{localStorage.setItem('rc.map',nk)}catch(e){}startRace()};ov.insertBefore(nb,ag)}
+    else{const u=document.createElement('div');u.className='hint';u.textContent=t('winToOpen');h.after(u)}}
   if(MODE==='net'){if(NET.d&&NET.d.host===me)ag.onclick=()=>{nStart()};else{ag.textContent=t('waitHost');ag.disabled=true}}else ag.onclick=startRace;
   $('toMenu').onclick=toMenu;ov.style.display='flex';}
 function toMenu(){if(MODE==='net')nLeave();state='menu';paused=false;ov.style.display='none';$('lobby').hidden=false;if(ENG)ENG.off();if(SCR)SCR.gain.value=0;cars=[];player=null;makeCars();drawLobby()}
@@ -855,7 +896,12 @@ const S={
  photoNote:['📷 وێنەیێ تە ب خۆ تنێ تو دبینی. وێنێن دی (☀️🔥⭐…) هەمی یاریکەر دبینن.','📷 وێنەکەی خۆت تەنها تۆ دەیبینیت.','📷 صورتك تراها أنت فقط، والملصقات يراها الجميع.','📷 Only you see your own photo; everyone sees the stickers.'],
  saved:['✅ هاتە پاشەکەفتکرن','✅ پاشەکەوت کرا','✅ تم الحفظ','✅ Saved'],
  myCar:['ترومبێلا من','ئۆتۆمبێلەکەم','سيارتي','My car'],rev:['دەنگ','دەنگ','الصوت','Sound'],toShop:['دکانا ترومبێلێ','دووکانی ئۆتۆمبێل','متجر السيارة','Car shop'],
- maps:['خەریتە (یاریگەهـ)','نەخشە (یاریگا)','الخرائط','Tracks'],randomMap:['🎲 کەیفی','🎲 هەڕەمەکی','🎲 عشوائي','🎲 Random'],
+ maps:['خەریتە (یاریگەهـ)','نەخشە (یاریگا)','الخرائط','Tracks'],
+ mapHere:['✓ تو ل ڤێرێ یی','✓ تۆ لێرەی','✓ أنت هنا','✓ Selected'],mapPick:['▶ هەلبژێرە','▶ هەڵبژێرە','▶ اختر','▶ Pick'],
+ lockMsg:['ل نەخشەیا # ببە یێ ئێکێ 🥇 دا ئەڤ نەخشە ڤەبیت','لە نەخشەی # ببە بە یەکەم 🥇 تا ئەم نەخشەیە بکرێتەوە','احصل على المركز الأول 🥇 في الخريطة # لفتح هذه الخريطة','Finish 1st 🥇 on track # to open this one'],
+ unlocked:['🔓 نەخشەیەکا نوو ڤەبوو:','🔓 نەخشەیەکی نوێ کرایەوە:','🔓 فُتحت خريطة جديدة:','🔓 New track opened:'],
+ nextMap:['▶ نەخشەیا دی','▶ نەخشەی داهاتوو','▶ الخريطة التالية','▶ Next track'],
+ winToOpen:['ببە یێ ئێکێ 🥇 دا نەخشەیا دی ڤەبیت','ببە بە یەکەم 🥇 تا نەخشەی داهاتوو بکرێتەوە','احصل على المركز الأول 🥇 لفتح الخريطة التالية','Finish 1st 🥇 to open the next track'],randomMap:['🎲 کەیفی','🎲 هەڕەمەکی','🎲 عشوائي','🎲 Random'],
  laps:['چەند دۆر؟','چەند خول؟','كم لفة؟','How many laps?'],vsBots:['دژی ڕۆبۆتان','دژی ڕۆبۆت','ضد الروبوتات','Against robots'],vsBotsD:['تو و ٥ ترومبێلێن ڕۆبۆت.','تۆ و ٥ ئۆتۆمبێلی ڕۆبۆت.','أنت و٥ سيارات روبوت.','You and 5 robot cars.'],
  easy:['😊 ب ساناهی','😊 ئاسان','😊 سهل','😊 Easy'],normal:['😐 ناڤنجی','😐 مامناوەند','😐 متوسط','😐 Normal'],hard:['😈 ب زەحمەت','😈 قورس','😈 صعب','😈 Hard'],
  start:['START ▶','START ▶','ابدأ ▶','START ▶'],keys:['📱 ◀ ▶ بۆ زڤڕینێ · GAS بۆ لەزێ · 🛑 برێک · ⏸ ڕاوەستان   ⌨️ تیر یان WASD · Space = برێک','📱 ◀ ▶ بۆ سووڕانەوە · GAS بۆ خێرایی · 🛑 بریک','📱 ◀ ▶ للتوجيه · GAS للسرعة · 🛑 فرامل','📱 ◀ ▶ steer · GAS · 🛑 brake · ⌨️ arrows/WASD, Space = brake'],
@@ -881,20 +927,46 @@ function drawLobby(){document.documentElement.dir=LG==='en'?'ltr':'rtl';document
   const lg=$('langs');lg.textContent='';LANGS.forEach(k=>{const b=document.createElement('button');b.type='button';b.textContent=LBL[k];if(k===LG)b.className='on';b.onclick=()=>{LG=k;try{localStorage.setItem('lang',k)}catch(e){}drawLobby()};lg.append(b)});
   const sl=$('segLaps');sl.textContent='';[1,3,5].forEach(n=>{const b=document.createElement('button');b.type='button';b.textContent=num(n);if(n===LAPS)b.className='on';b.onclick=()=>{LAPS=n;try{localStorage.setItem('rc.laps',n)}catch(e){}drawLobby()};sl.append(b)});
   const sv=$('segLv');sv.textContent='';['easy','normal','hard'].forEach(k=>{const b=document.createElement('button');b.type='button';b.textContent=t(k);if(k===LV)b.className='on';b.onclick=()=>{LV=k;try{localStorage.setItem('rc.lv',k)}catch(e){}drawLobby()};sv.append(b)});
-  const mp=$('maps');mp.textContent='';Object.keys(TRACKS).forEach(k=>{const T=TRACKS[k],b=document.createElement('button');b.type='button';if(k===MAP)b.className='on';
-    const c=document.createElement('canvas');b.append(c);const n=document.createElement('span');n.textContent=T.ic+' '+nm(T.name);b.append(n);b.onclick=()=>{if(state!=='menu')return;buildTrack(k);try{localStorage.setItem('rc.map',k)}catch(e){}makeCars();drawLobby()};mp.append(b);
-    requestAnimationFrame(()=>mapThumb(c,k))});
+  drawMaps();
   // the paints I can use: the free ones and the ones I bought
   const pc=$('paints');pc.textContent='';Object.keys(RCSK.paints).forEach(k=>{const P=RCSK.paints[k];if(P.price&&!owned[k])return;const b=document.createElement('button');b.type='button';b.title=nm(P.name);b.style.background=RCSK.css(P.col);if(P.col2)b.style.background='linear-gradient(135deg,'+RCSK.css(P.col)+','+RCSK.css(P.col2)+')';if(k===MY.paint)b.className='on';b.onclick=()=>setLook('paint',k);pc.append(b)});
   const mi=$('mine');mi.textContent='';['body','engine','light','rim','wing','glow','stripe'].forEach(k=>{const it=RCSK.sets[k][MY[k]];const sp=document.createElement('span');sp.textContent={body:'🚗',engine:'🔊',light:'💡',rim:'🛞',wing:'🪽',glow:'✨',stripe:'🏁'}[k]+' '+nm(it.name);mi.append(sp)});
   drawOnline()}
 const THUMB={};
-function mapThumb(c,k){const w=c.clientWidth||100,h=64,d=Math.min(2,devicePixelRatio||1);c.width=w*d;c.height=h*d;const x=c.getContext('2d');x.scale(d,d);const th=THEMES[TRACKS[k].theme],col=v=>RCSK.css(v);
+// ---------- the tracks as cards I swipe left and right ----------
+let MKEY='',MSET=null;
+function mapCard(k,i){const T=TRACKS[k],open=i<PROG,b=document.createElement('button');b.type='button';b.dataset.i=i;
+  const c=document.createElement('canvas');b.append(c);const mn=document.createElement('b');mn.className='mn';mn.textContent=num(i+1);b.append(mn);
+  if(!open){const lk=document.createElement('b');lk.className='lk';lk.textContent='🔒';b.append(lk)}
+  const n=document.createElement('span');n.className='nm';n.textContent=T.ic+' '+nm(T.name);b.append(n);
+  const pl=document.createElement('span');pl.className='pill';b.append(pl);
+  b.onclick=()=>{if(+b.dataset.i!==mapIdx())return goMap(i);if(!open)toast('🔒 '+t('lockMsg').replace('#',num(i)))};
+  requestAnimationFrame(()=>mapThumb(c,k));return b}
+function mapIdx(){const mp=$('maps'),cs=mp.children;if(!cs.length)return 0;const mid=mp.scrollLeft+mp.clientWidth/2;let best=0,bd=1e9;
+  for(let i=0;i<cs.length;i++){const d=Math.abs(cs[i].offsetLeft+cs[i].offsetWidth/2-mid);if(d<bd){bd=d;best=i}}return best}
+function goMap(i,inst){const mp=$('maps'),c=mp.children[i];if(!c)return;mp.scrollTo({left:c.offsetLeft-(mp.clientWidth-c.offsetWidth)/2,behavior:inst?'auto':'smooth'})}
+function mapLook(){const mp=$('maps'),cs=mp.children,mid=mp.scrollLeft+mp.clientWidth/2,ci=mapIdx();
+  for(let i=0;i<cs.length;i++){const b=cs[i],d=Math.min(1,Math.abs(b.offsetLeft+b.offsetWidth/2-mid)/b.offsetWidth),open=i<PROG;b.style.transform='scale('+(1-d*0.12)+')';b.style.opacity=String(1-d*0.35);
+    b.classList.toggle('on',MAPS[i]===MAP);b.classList.toggle('lock',!open);
+    b.querySelector('.pill').textContent=!open?'🔒 '+t('lockMsg').replace('#',num(i)):MAPS[i]===MAP?t('mapHere'):t('mapPick')}
+  const dt=$('mdots');[...dt.children].forEach((e,i)=>{e.className=(i===ci?'on':'')+(i<PROG?'':' lk')})}
+function drawMaps(){const mp=$('maps'),key=PROG+'|'+LG;
+  if(key!==MKEY||!mp.children.length){MKEY=key;mp.textContent='';MAPS.forEach((k,i)=>mp.append(mapCard(k,i)));
+    const dt=$('mdots');dt.textContent='';MAPS.forEach(()=>dt.append(document.createElement('i')));
+    requestAnimationFrame(()=>{goMap(MAPS.indexOf(MAP),true);mapLook()})}
+  else mapLook();
+  if(!mp.dataset.on){mp.dataset.on=1;
+    mp.addEventListener('scroll',()=>{requestAnimationFrame(mapLook);clearTimeout(MSET);MSET=setTimeout(()=>{const i=mapIdx(),k=MAPS[i];
+      // swiping onto an open track picks it
+      if(state==='menu'&&i<PROG&&k!==MAP){buildTrack(k);try{localStorage.setItem('rc.map',k)}catch(e){}makeCars();mapLook()}},160)},{passive:true});
+    $('mPrev').onclick=()=>goMap(Math.max(0,mapIdx()-1));$('mNext').onclick=()=>goMap(Math.min(MAPS.length-1,mapIdx()+1));
+    addEventListener('resize',()=>{if(!$('lobby').hidden){MKEY='';drawMaps()}})}}
+function mapThumb(c,k){const w=c.clientWidth||100,h=c.clientHeight||64,d=Math.min(2,devicePixelRatio||1);c.width=w*d;c.height=h*d;const x=c.getContext('2d');x.scale(d,d);const th=THEMES[TRACKS[k].theme],col=v=>RCSK.css(v);
   const g=x.createLinearGradient(0,0,0,h);g.addColorStop(0,col(th.skyH));g.addColorStop(1,col(th.g2));x.fillStyle=g;x.fillRect(0,0,w,h);
   const P=THUMB[k]||(THUMB[k]=makeTR(TRACKS[k].cp));let x0=1e9,x1=-1e9,z0=1e9,z1=-1e9;for(const p of P){x0=Math.min(x0,p.x);x1=Math.max(x1,p.x);z0=Math.min(z0,p.z);z1=Math.max(z1,p.z)}
   const sc=Math.min((w-14)/(x1-x0),(h-12)/(z1-z0)),ox=w/2-(x0+x1)/2*sc*-1,oz=h/2+(z0+z1)/2*sc;
-  x.lineJoin='round';for(const [lw,st] of [[7,'rgba(0,0,0,.45)'],[4,'#555'],[1.2,'#fff']]){x.lineWidth=lw;x.strokeStyle=st;x.beginPath();P.forEach((p,i)=>{const a=w/2-(p.x-(x0+x1)/2)*sc,b=h/2-(p.z-(z0+z1)/2)*sc;i?x.lineTo(a,b):x.moveTo(a,b)});x.closePath();x.stroke()}
-  const s0=P[0];x.fillStyle='#facc15';x.beginPath();x.arc(w/2-(s0.x-(x0+x1)/2)*sc,h/2-(s0.z-(z0+z1)/2)*sc,3,0,7);x.fill()}
+  x.lineJoin='round';for(const [lw,st] of (h>100?[[12,'rgba(0,0,0,.45)'],[7,'#555'],[2,'#fff']]:[[7,'rgba(0,0,0,.45)'],[4,'#555'],[1.2,'#fff']])){x.lineWidth=lw;x.strokeStyle=st;x.beginPath();P.forEach((p,i)=>{const a=w/2-(p.x-(x0+x1)/2)*sc,b=h/2-(p.z-(z0+z1)/2)*sc;i?x.lineTo(a,b):x.moveTo(a,b)});x.closePath();x.stroke()}
+  const s0=P[0];x.fillStyle='#facc15';x.beginPath();x.arc(w/2-(s0.x-(x0+x1)/2)*sc,h/2-(s0.z-(z0+z1)/2)*sc,h>100?5:3,0,7);x.fill()}
 function drawGarage(){const c=$('gar');if(!c||$('lobby').hidden||GAR3D)return;const w=c.clientWidth||320,h=150,d=Math.min(2,devicePixelRatio||1);if(c.width!==Math.round(w*d)){c.width=w*d;c.height=h*d}const x=c.getContext('2d');x.setTransform(d,0,0,d,0,0);x.clearRect(0,0,w,h);RCSK.draw2D(x,w,h,garageOn()?MY:skNet(),null,garageOn()?CNAME:'')}
 async function setLook(k,v){MY[k]=v;MY=RCSK.look(MY);try{localStorage.setItem('rc.look',JSON.stringify(MY))}catch(e){}drawLobby();
   if(fdb&&me){try{await fdb.ref('profiles/'+me+'/private/'+RCSK.type[k]).set(v===RCSK.def[k]?null:v)}catch(e){}}}
@@ -967,6 +1039,7 @@ function fbBoot(){if(typeof firebase==='undefined')return;try{firebase.initializ
   firebase.auth().onAuthStateChanged(u=>{user=u;me=u?u.uid:null;drawOnline();if(!u)return;
     fdb.ref('profiles/'+me+'/public').on('value',s=>{prof=s.val()||{};drawOnline()},()=>{});
     fdb.ref('owned/'+me).on('value',s=>{owned=s.val()||{};drawLobby()},()=>{});
+    fdb.ref('rcp/'+me).once('value',s=>{const v=parseInt(s.val())||0;if(v>PROG){PROG=Math.min(MAPS.length,v);try{localStorage.setItem('rc.prog',String(PROG))}catch(e){}drawLobby()}else if(PROG>v)fdb.ref('rcp/'+me).set(PROG).catch(()=>{})},()=>{});
     fdb.ref('profiles/'+me+'/private').on('value',s=>{const v=s.val()||{},o={};for(const k in RCSK.type)if(v[RCSK.type[k]])o[k]=v[RCSK.type[k]];if(v.rccus)o.cus=v.rccus;CNAME=typeof v.rcname==='string'?v.rcname.slice(0,12):'';try{localStorage.setItem('rc.cname',CNAME)}catch(e){}MY=RCSK.look(o);try{localStorage.setItem('rc.look',JSON.stringify(MY))}catch(e){}
       if(player&&MODE!=='net')player.sk=MY;drawLobby();if(NET.ref&&NET.d&&(NET.d.p||{})[me])NET.ref.child('p/'+me+'/sk').set(skNet()).catch(()=>{})},()=>{})})}catch(e){}}
 
@@ -1014,7 +1087,7 @@ function nOpen(c){if(NET.ref)NET.ref.off();NET.code=c;NET.ref=fdb.ref('race/'+c)
 async function nLeave(){clearInterval(RND);NET.startAt=0;const d=NET.d,c=NET.code;if(NET.ref){NET.ref.child('p/'+me+'/left').onDisconnect().cancel();if(d&&d.rnd&&d.host===me)NET.ref.onDisconnect().cancel();NET.ref.off()}NET.ref=null;NET.code=null;NET.d=null;
   try{if(d&&d.host===me)await fdb.ref('race/'+c).remove();else if(c)await fdb.ref('race/'+c+'/p/'+me).remove()}catch(e){}if(MODE==='net'){MODE='bot'}drawOnline()}
 function nStart(){const d=NET.d;if(!d||d.host!==me)return;const ps=Object.entries(d.p||{}).filter(([u,x])=>!x.left).sort((a,b)=>(a[1].j||0)-(b[1].j||0));
-  const ks=Object.keys(TRACKS),up={status:'play',round:(d.round||0)+1,laps:d.rnd?3:LAPS,map:d.rnd?ks[Math.floor(Math.random()*ks.length)]:MAP,startAt:now()+5000,c:null,bt:null,open:null};
+  const ks=Object.keys(TRACKS),up={status:'play',round:(d.round||0)+1,laps:d.rnd?3:LAPS,map:d.rnd?ks[Math.floor(Math.random()*Math.min(ks.length,PROG))]:MAP,startAt:now()+5000,c:null,bt:null,open:null};
   // places on the grid: people at the back so the robots are not all behind them
   const slots=d.bots===false?[0,1,2,3,4,5]:[5,4,3,2,1,0];ps.forEach(([u],i)=>{up['p/'+u+'/slot']=slots[i];up['p/'+u+'/left']=null});
   Object.keys(d.p||{}).forEach(u=>{if(d.p[u].left)up['p/'+u]=null});NET.ref.update(up)}
