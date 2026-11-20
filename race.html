@@ -55,6 +55,10 @@
   .maps .lk{position:absolute;top:52px;left:50%;transform:translateX(-50%);font-size:46px;filter:drop-shadow(0 3px 4px #000)}
   .ma{position:absolute;top:92px;z-index:2;width:42px;height:42px;border-radius:50%;border:2px solid rgba(255,255,255,.55);background:rgba(0,0,0,.45);color:#fff;font-size:24px;font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
   .ma.l{left:6px}.ma.r{right:6px}
+  .gcar{position:relative}.gcar .ma{top:84px}
+  .gname{text-align:center;font-weight:900;font-size:17px;margin-top:2px}
+  .glock{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);background:rgba(0,0,0,.72);border:2px solid #facc15;border-radius:14px;padding:7px 14px;font-weight:900;white-space:nowrap;cursor:pointer;z-index:2}
+  .gcar.lk #gar{filter:grayscale(.85) brightness(.6)}
   .mdots{display:flex;justify-content:center;gap:5px;margin-top:8px;direction:ltr;flex-wrap:wrap}.mdots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.25)}.mdots i.lk{background:rgba(255,255,255,.1)}.mdots i.on{width:20px;border-radius:5px;background:#facc15}
   #ov .unl{background:linear-gradient(135deg,#16a34a,#15803d);border-radius:14px;padding:10px 16px;font-weight:900;margin:4px 0 10px;text-align:center}#ov .hint{opacity:.85;margin:0 0 10px;font-weight:700;text-align:center}
   .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}.chips button{width:34px;height:34px;border-radius:50%;border:3px solid rgba(255,255,255,.25);cursor:pointer}.chips button.on{border-color:#fff;transform:scale(1.15)}
@@ -85,7 +89,8 @@
   <h1>🏁 <span data-t="title"></span></h1>
   <p class="sub" data-t="tag"></p>
   <section class="card"><h2>🏎️ <span data-t="myCar"></span></h2>
-    <canvas id="gar"></canvas>
+    <div class="gcar"><canvas id="gar"></canvas><button type="button" class="ma l" id="cPrev">‹</button><button type="button" class="ma r" id="cNext">›</button><div class="glock" id="gLock" hidden></div></div>
+    <div class="gname" id="gName"></div><div class="mdots" id="cDots"></div>
     <div class="chips" id="paints"></div>
     <div class="mine" id="mine"></div>
     <div class="rowi"><button class="btn ghost" type="button" id="bRev" style="flex:1">🔊 <span data-t="rev"></span></button><button class="btn" type="button" id="bGar" style="flex:1.4">🔧 <span data-t="garage"></span></button><button class="btn blue" type="button" id="bShop" style="flex:1.6">🛒 <span data-t="toShop"></span></button></div>
@@ -739,13 +744,23 @@ function pauseMenu(){if(state==='menu'||ov.style.display==='flex')return;paused=
 const fmt=t=>`${Math.floor(t/60)}:${(t%60).toFixed(2).padStart(5,'0')}`;
 
 // ================= my car in the lobby: the real 3D car, turning; drag it to turn it yourself =================
+// ---------- change my car with the arrows beside it; a car I don't own is shown locked ----------
+let PREVB=null;
+const BODYK=()=>Object.keys(RCSK.bodies),hasBody=k=>!RCSK.bodies[k].price||!!owned[k];
+function carSwitch(d){const ks=BODYK(),cur=PREVB||MY.body;let i=(ks.indexOf(cur)+d+ks.length)%ks.length,k=ks[i];
+  if(hasBody(k)){PREVB=null;if(k!==MY.body)setLook('body',k);else drawCarSw()}else{PREVB=k;drawCarSw()}SPIN.vel=1.2}
+function drawCarSw(){const ks=BODYK(),cur=PREVB||MY.body,B=RCSK.bodies[cur];if(!B)return;
+  $('gName').textContent=({bd_truck:'🚛',bd_pickup:'🛻',bd_wagon:'🚙',bd_coupe:'🏎️'}[cur]||'🚗')+' '+nm(B.name);
+  const lk=$('gLock'),box=lk.parentNode;box.classList.toggle('lk',!!PREVB);lk.hidden=!PREVB;if(PREVB)lk.textContent='🔒 '+num(B.price)+' AG · 🛒';
+  const dt=$('cDots');if(dt.children.length!==ks.length){dt.textContent='';ks.forEach(()=>dt.append(document.createElement('i')))}
+  [...dt.children].forEach((e,i)=>{e.className=(ks[i]===cur?'on':'')+(hasBody(ks[i])?'':' lk')})}
 const SPIN={yaw:2.3,pitch:0.32,vel:0.5,zoom:1,drag:null,pinch:0,ptrs:new Map(),idle:0};
 const STUDIO={x:0,z:0,h:0,v:0,steer:0,wheel:0,brake:false,player:true,dents:[],sk:null};
 function renderGarage(dt){const gc=$('gar');if(!gc)return false;const cw=gc.clientWidth,ch=gc.clientHeight;if(!cw||!ch)return false;
   const vw=Math.min(cv.width,Math.round(cw*DPR)),vh=Math.min(cv.height,Math.round(ch*DPR));if(gc.width!==vw||gc.height!==vh){gc.width=vw;gc.height=vh}
   // turning by itself, slower when just let go
   if(!SPIN.drag&&SPIN.ptrs.size===0){SPIN.vel+=(0.45-SPIN.vel)*Math.min(1,dt*1.5);SPIN.yaw+=SPIN.vel*dt}
-  STUDIO.sk=garageOn()?MY:skNet();const BD=(G.T[STUDIO.sk.body]||G.T.bd_sedan).def,big=BD.trailer?2.1:1;
+  STUDIO.sk=garageOn()?MY:skNet();if(PREVB)STUDIO.sk=Object.assign({},STUDIO.sk,{body:PREVB});const BD=(G.T[STUDIO.sk.body]||G.T.bd_sedan).def,big=BD.trailer?2.1:1;
   const d=(7.2*big)/SPIN.zoom,ty=BD.trailer?1.4:0.62,eye=[Math.sin(SPIN.yaw)*Math.cos(SPIN.pitch)*d,ty+Math.sin(SPIN.pitch)*d,Math.cos(SPIN.yaw)*Math.cos(SPIN.pitch)*d],tgt=[0,ty,BD.trailer?-3:0];
   const VP=M4.mul(M4.persp(0.62,vw/vh,0.3,200),M4.look(eye,tgt,[0,1,0]));
   const th=THEMES.day,keep=TH;TH=th;
@@ -935,7 +950,7 @@ function drawLobby(){document.documentElement.dir=LG==='en'?'ltr':'rtl';document
   drawMaps();
   // the paints I can use: the free ones and the ones I bought
   const pc=$('paints');pc.textContent='';Object.keys(RCSK.paints).forEach(k=>{const P=RCSK.paints[k];if(P.price&&!owned[k])return;const b=document.createElement('button');b.type='button';b.title=nm(P.name);b.style.background=RCSK.css(P.col);if(P.col2)b.style.background='linear-gradient(135deg,'+RCSK.css(P.col)+','+RCSK.css(P.col2)+')';if(k===MY.paint)b.className='on';b.onclick=()=>setLook('paint',k);pc.append(b)});
-  const mi=$('mine');mi.textContent='';['body','engine','light','rim','wing','glow','stripe'].forEach(k=>{const it=RCSK.sets[k][MY[k]];const sp=document.createElement('span');sp.textContent={body:'🚗',engine:'🔊',light:'💡',rim:'🛞',wing:'🪽',glow:'✨',stripe:'🏁'}[k]+' '+nm(it.name);mi.append(sp)});
+  drawCarSw();const mi=$('mine');mi.textContent='';['body','engine','light','rim','wing','glow','stripe'].forEach(k=>{const it=RCSK.sets[k][MY[k]];const sp=document.createElement('span');sp.textContent={body:'🚗',engine:'🔊',light:'💡',rim:'🛞',wing:'🪽',glow:'✨',stripe:'🏁'}[k]+' '+nm(it.name);mi.append(sp)});
   drawOnline()}
 const THUMB={};
 // ---------- the tracks as cards I swipe left and right ----------
@@ -977,6 +992,7 @@ async function setLook(k,v){MY[k]=v;MY=RCSK.look(MY);try{localStorage.setItem('r
   if(fdb&&me){try{await fdb.ref('profiles/'+me+'/private/'+RCSK.type[k]).set(v===RCSK.def[k]?null:v)}catch(e){}}}
 $('go').onclick=startRace;
 $('bShop').onclick=()=>{location.href='./#pack_rcbody'};
+$('cPrev').onclick=()=>carSwitch(-1);$('cNext').onclick=()=>carSwitch(1);$('gLock').onclick=()=>{location.href='./#pack_rcbody'};
 $('bRev').onclick=()=>RCSK.preview(MY.engine);
 $('bGar').onclick=openGarage;
 // what other phones get: no garage look unless I bought it, and never my name
