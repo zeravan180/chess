@@ -125,7 +125,7 @@ function curve(K,z){if(z<=K[0][0])return K[0][1];if(z>=K[K.length-1][0])return K
 // =====================================================================
 //  Car shape definition (original design)
 // =====================================================================
-let Z0,Z1,CAPL=0.075,WY,RA,WZS,KHW,KYT,KYB,KROOF,G0,G1;
+let NEXP=4.6,Z0,Z1,CAPL=0.075,WY,RA,WZS,KHW,KYT,KYB,KROOF,G0,G1;
 // every kind of car is a set of curves along its length (z: back is negative, front positive)
 const SEDAN={Z0:-2.3,Z1:2.36,WY:0.34,RA:0.435,WZS:[-1.36,1.42],WX:0.79,
   KHW:[[-2.3,.78],[-2.1,.87],[-1.6,.905],[-0.5,.91],[1.2,.905],[1.8,.88],[2.15,.86],[2.36,.8]],
@@ -139,6 +139,13 @@ const BODIES={bd_sedan:SEDAN,
  bd_coupe:Object.assign({},SEDAN,{ck:[-0.15,1.03],back:[1,-2.24,-1.3,0.72,0],rw:[-0.64,-1.23,0.5,1.4],KYT:[[-2.3,.8],[-2.08,.92],[-1.6,.95],[-1.2,.95],[-0.4,.94],[0.6,.92],[1.05,.89],[1.6,.83],[2.05,.74],[2.36,.64]],
    KYB:[[-2.3,.36],[-2.1,.28],[-1.75,.25],[1.8,.24],[2.15,.27],[2.36,.33]],
    KROOF:[[-1.25,0],[-0.95,.17],[-0.6,.31],[-0.2,.35],[0.2,.34],[0.55,.25],[0.85,.12],[1.15,0]],G0:-1.25,G1:1.15,roof:[-0.6,0.5],doors:[-1.15,0.95],handles:[-0.4],mirror:[0.95,0.82]}),
+ // muscle car (original design): wide hips over the wheels, long flat hood with a bulge, low roof, high flat tail, split tail lights, four exhaust tips
+ bd_muscle:Object.assign({},SEDAN,{ck:[-0.2,1.06],Z0:-2.36,Z1:2.42,WX:0.83,back:[1,-2.3,-1.36,0.74,0],rw:[-0.74,-1.27,0.48,1.4],muscle:1,nexp:7,
+   KHW:[[-2.36,.84],[-2.22,.93],[-1.75,.975],[-1.36,.985],[-0.95,.95],[-0.2,.925],[0.8,.935],[1.42,.965],[1.95,.93],[2.25,.89],[2.42,.83]],
+   KYT:[[-2.36,.9],[-2.27,.99],[-1.9,1.01],[-1.4,1.0],[-0.6,.99],[0.4,.975],[1.2,.965],[1.9,.945],[2.25,.91],[2.42,.84]],
+   KYB:[[-2.36,.38],[-2.18,.29],[-1.75,.265],[1.8,.265],[2.2,.29],[2.42,.37]],
+   KROOF:[[-1.32,0],[-1.02,.13],[-0.72,.27],[-0.3,.335],[0.15,.33],[0.5,.24],[0.8,.12],[1.06,0]],G0:-1.32,G1:1.06,roof:[-0.7,0.5],
+   doors:[-1.12,0.92],handles:[-0.45],mirror:[0.94,0.88],cam:[7.9,2.85,1.1]}),
  bd_pickup:Object.assign({},SEDAN,{ck:[0.1,1.4],rw:[-0.54,1.04,0.46,3.0,1.34],back:[2,-2.4,0.63,0.62,0.78],WY:0.4,RA:0.5,WZS:[-1.5,1.5],Z0:-2.55,Z1:2.45,
    KHW:[[-2.55,.86],[-2.3,.92],[-1.6,.94],[-0.5,.95],[1.2,.94],[1.8,.92],[2.2,.9],[2.45,.84]],
    KYT:[[-2.55,1.02],[-2.4,1.1],[-0.6,1.12],[0.6,1.1],[1.1,1.07],[1.7,1.0],[2.15,.94],[2.45,.84]],
@@ -151,12 +158,12 @@ const BODIES={bd_sedan:SEDAN,
    KYB:[[-1.6,.6],[-1.2,.55],[2.2,.55],[2.6,.62]],
    KROOF:[[0.5,0],[0.6,.55],[0.9,1.0],[1.85,1.05],[2.2,.7],[2.45,0]],G0:0.5,G1:2.45,roof:[0.9,1.8],
    doors:[0.6,2.2],handles:[1.6],mirror:[2.45,2.05],trailer:1,cab:1,cp:[-8.6,-6.4,-4.2,-2,0.2,2.2],rad:1.3,cam:[14,4.6,2.2],shadow:[1.35,2.6]})};
-function useBody(T){Z0=T.Z0;Z1=T.Z1;WY=T.WY;RA=T.RA;WZS=T.WZS;KHW=T.KHW;KYT=T.KYT;KYB=T.KYB;KROOF=T.KROOF;G0=T.G0;G1=T.G1}
+function useBody(T){NEXP=T.nexp||4.6;Z0=T.Z0;Z1=T.Z1;WY=T.WY;RA=T.RA;WZS=T.WZS;KHW=T.KHW;KYT=T.KYT;KYB=T.KYB;KROOF=T.KROOF;G0=T.G0;G1=T.G1}
 useBody(SEDAN);
 function archY(z){let y=-9;for(const wz of WZS){const d=z-wz;if(Math.abs(d)<RA)y=Math.max(y,WY+Math.sqrt(RA*RA-d*d));}return y;}
 function ybAt(z){let y=curve(KYB,clamp(z,Z0,Z1));for(const wz of WZS){const d=z-wz;if(Math.abs(d)<RA)y=Math.max(y,WY+Math.sqrt(RA*RA-d*d));}return y;}
 function sec(z){let s=1;if(z>Z1)s=Math.pow(Math.max(0,1-((z-Z1)/CAPL)**3),1/3);else if(z<Z0)s=Math.pow(Math.max(0,1-((Z0-z)/CAPL)**3),1/3);
-  const zc=clamp(z,Z0,Z1),yt=curve(KYT,zc),yb=curve(KYB,zc),yc=(yt+yb)/2,hh=(yt-yb)/2;return{yc,hh:hh*s,hw:curve(KHW,zc)*s,n:4.6,yt,yb};}
+  const zc=clamp(z,Z0,Z1),yt=curve(KYT,zc),yb=curve(KYB,zc),yc=(yt+yb)/2,hh=(yt-yb)/2;return{yc,hh:hh*s,hw:curve(KHW,zc)*s,n:NEXP,yt,yb};}
 const tumble=v=>1-0.11*Math.max(0,v)-0.05*Math.max(0,-v);
 function sideX(z,y){if(y<archY(z))return 0;const s=sec(z);if(s.hh<=1e-4)return 0;const v=(y-s.yc)/s.hh;if(Math.abs(v)>=1)return 0;return s.hw*Math.pow(1-Math.pow(Math.abs(v),s.n),1/s.n)*tumble(v);}
 function frontZ(x,y){let lo=Z1-0.3,hi=Z1+CAPL;if(Math.abs(x)>sideX(lo,y))return null;for(let i=0;i<30;i++){const m=(lo+hi)/2;if(Math.abs(x)<=sideX(m,y))lo=m;else hi=m;}return lo;}
@@ -217,9 +224,9 @@ const INTAKE=frontStrip(-0.66,0.66,x=>0.425,x=>0.395,0.012,30,2);
 const EMBLEM=(()=>{const N=40,pos=[],idx=[];for(let i=0;i<=N;i++){const a=i/N*Math.PI*2;for(const r of[1,0.75]){const x=Math.cos(a)*0.075*r,y=0.62+Math.sin(a)*0.045*r;pos.push(x,y,(frontZ(x,y)??Z1)+0.018);}}
   for(let i=0;i<N;i++){const a=i*2;idx.push(a,a+1,a+2,a+1,a+3,a+2);}const nrm=[];for(let i=0;i<pos.length;i+=3)nrm.push(0,0.2,1);normalize(nrm);return{pos,nrm,aux:new Array(pos.length/3).fill(0),idx};})();
 const rxMax=y=>sideX(Z0+0.15,y);
-const TAILS=rearStrip(-rxMax(0.8)*0.985,rxMax(0.8)*0.985,x=>0.835-0.02*x*x,x=>0.79-0.02*x*x,0.012,60,3);
+const TAILS=BT.muscle?merge([-1,1].map(sd=>rearStrip(sd*0.3,sd*rxMax(0.86)*0.93,x=>0.905,x=>0.835,0.012,24,3))):rearStrip(-rxMax(0.8)*0.985,rxMax(0.8)*0.985,x=>0.835-0.02*x*x,x=>0.79-0.02*x*x,0.012,60,3);
 const PLATE=rearStrip(-0.24,0.24,x=>0.62,x=>0.5,0.014,8,2);
-const DIFF=rearStrip(-0.7,0.7,x=>0.45,x=>0.4,0.012,30,2);
+const DIFF=BT.muscle?rearStrip(-0.76,0.76,x=>0.47,x=>0.33,0.012,30,2):rearStrip(-0.7,0.7,x=>0.45,x=>0.4,0.012,30,2);
 const DOORLINES=[],HANDLES=[],SKIRT=[];
 for(const s of[-1,1]){for(const z of BT.doors){const yb=ybAt(z);DOORLINES.push(sideStrip(s,z-0.004,z+0.004,yb+0.06,sec(z).yt-0.04,0.0025,1,16));}
   for(const z of BT.handles)HANDLES.push(sideStrip(s,z-0.09,z+0.09,0.845,0.875,0.012,6,3));}
@@ -227,6 +234,13 @@ for(const s of[-1,1]){for(const z of BT.doors){const yb=ybAt(z);DOORLINES.push(s
   const dz=Z0+2.3,dy=curve(KYT,Z0+0.22)-0.965,W=WINGM_();for(let i=1;i<W.length;i++)shiftMesh(W[i],dy,dz);
   const out={BODY,GLASS,ROOF,CHROME_W,HEAD,DRL,GRILLE,INTAKE,EMBLEM,TAILS,PLATE,DIFF,DOORLINES,HANDLES,LINERS,WINGM:W,mx:sideX(BT.mirror[0],BT.mirror[1])};
   // the open box of a pickup, and the trailer of the truck
+  if(BT.muscle){// a bulge on the hood, and two pairs of round exhaust tips under the tail
+    const bump=t=>Math.pow(Math.max(0,Math.sin(Math.PI*t)),0.45);
+    out.HOODB=flipIfInward(gridMesh(24,40,(u,v)=>{const x=lerp(-0.3,0.3,u),z=lerp(0.95,2.05,v);return[x,curve(KYT,z)-0.004+0.07*bump(u)*bump(v)*(1-0.3*v),z]}),(x,y,z)=>[0,y-1,z]);
+    const tube=(cx,cy,r,z0,z1)=>gridMesh(16,2,(u,v)=>{const a=u*Math.PI*2;return[cx+Math.cos(a)*r,cy+Math.sin(a)*r,lerp(z0,z1,v)]},true);
+    const disc=(cx,cy,r,z)=>gridMesh(16,1,(u,v)=>{const a=u*Math.PI*2,rr=r*(1-v);return[cx+Math.cos(a)*rr,cy+Math.sin(a)*rr,z]},true);
+    const E=[],EI=[];for(const ex of[-0.62,-0.48,0.48,0.62]){E.push(flipIfInward(tube(ex,0.36,0.05,Z0-0.07,Z0+0.12),(x,y,z)=>[ex,0.36,z]));EI.push(disc(ex,0.36,0.04,Z0-0.06))}
+    out.EXH=merge(E);out.EXHI=merge(EI)}
   if(BT.bed){const yt=curve(KYT,-1.5);out.BED=boxMesh(-0.8,0.8,yt-0.32,yt+0.01,BT.bed[0],BT.bed[1])}
   if(BT.trailer){out.TRAILER=boxMesh(-1.18,1.18,1.25,3.7,-9.7,-1.8);out.CHASSIS=merge([boxMesh(-0.55,0.55,0.62,1.25,-9.5,-1.4),boxMesh(-1.1,1.1,0.95,1.1,-9.2,-6.6)])}
   return out}
@@ -509,7 +523,7 @@ function truckDecal(stk,name){return decCache('t'+(stk||0)+'|'+(name||'')+'|'+(M
 for(const k in BODIES){const b0=buildBody(BODIES[k]),b=BODIES[k].cab?truckCab(b0):b0,u=m=>Array.isArray(m)?m.map(upload):upload(m);
   G.T[k]={body:u(b.BODY),glass:u(b.GLASS),roof:u(b.ROOF),chrome:u(b.CHROME_W),head:u(b.HEAD),drl:u(b.DRL),grille:u(b.GRILLE),intake:u(b.INTAKE),emblem:u(b.EMBLEM),
     tails:u(b.TAILS),plate:u(b.PLATE),diff:u(b.DIFF),doors:u(b.DOORLINES),handles:u(b.HANDLES),liners:u(b.LINERS),wings:[null,u(b.WINGM[1]),u(b.WINGM[2]),u(b.WINGM[3])],
-    bed:b.BED&&u(b.BED),trailer:b.TRAILER&&u(b.TRAILER),chassis:b.CHASSIS&&u(b.CHASSIS),mx:b.mx,def:BODIES[k]}}
+    bed:b.BED&&u(b.BED),hoodb:b.HOODB&&u(b.HOODB),exh:b.EXH&&u(b.EXH),exhi:b.EXHI&&u(b.EXHI),trailer:b.TRAILER&&u(b.TRAILER),chassis:b.CHASSIS&&u(b.CHASSIS),mx:b.mx,def:BODIES[k]}}
 useBody(SEDAN);
 // put a track on the graphics card (the old one is thrown away)
 function buildTrack(key){if(!TRACKS[key])key='tr_oval';MAP=key;const T=TRACKS[key];CP=T.cp;TR=makeTR(CP);N=TR.length;TL=TR.L;TH=THEMES[T.theme];trackMeshes();
@@ -554,7 +568,7 @@ let MY=(()=>{try{return RCSK.look(JSON.parse(localStorage.getItem('rc.look'))||{
 let CNAME=(()=>{try{return localStorage.getItem('rc.cname')||''}catch(e){return''}})();
 // the robots get a random look, so every race looks different
 function botLook(r){const pick=o=>{const k=Object.keys(o);return k[Math.floor(r()*k.length)]};
-  const bd=r()<.1?'bd_truck':['bd_sedan','bd_sedan','bd_wagon','bd_coupe','bd_pickup'][Math.floor(r()*5)];return RCSK.look({body:bd,paint:pick(RCSK.paints),light:r()<.6?'li_white':pick(RCSK.lights),rim:pick(RCSK.rims),wing:r()<.5?'wg_none':pick(RCSK.wings),glow:r()<.75?'gl_none':pick(RCSK.glows),stripe:r()<.6?'st_none':pick(RCSK.stripes),engine:'en_i4'})}
+  const bd=r()<.1?'bd_truck':['bd_sedan','bd_sedan','bd_wagon','bd_coupe','bd_pickup','bd_muscle'][Math.floor(r()*6)];return RCSK.look({body:bd,paint:pick(RCSK.paints),light:r()<.6?'li_white':pick(RCSK.lights),rim:pick(RCSK.rims),wing:r()<.5?'wg_none':pick(RCSK.wings),glow:r()<.75?'gl_none':pick(RCSK.glows),stripe:r()<.6?'st_none':pick(RCSK.stripes),engine:'en_i4'})}
 const SKILL={easy:[.8,.86],normal:[.88,.94],hard:[.95,1.0]};
 let LV=(()=>{try{return localStorage.getItem('rc.lv')||'normal'}catch(e){return'normal'}})();
 // one car on the grid; g = place 0..5 (0 is the front)
@@ -581,7 +595,7 @@ function drawCar(c){
   const bk=BD.back,backOn=()=>{const asp=bk[0]===1?2*bk[3]/(bk[2]-bk[1]):2*bk[3]/(bk[4]-bk[2]);gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,backTex(sk2,asp));gl.activeTexture(gl.TEXTURE0);
     gl.uniform1f(U.uBackOn,bk[0]);gl.uniform4f(U.uBackR,bk[1],bk[2],bk[3],bk[4])};
   if(sk2&&bk&&!BD.trailer)backOn();
-  draw(B.body,I);gl.uniform1f(U.uDecOn,0);gl.uniform1f(U.uBackOn,0);draw(B.roof,I);gl.uniform1f(U.uStrOn,0);gl.uniform4fv(U.uDent,NODENT);
+  draw(B.body,I);gl.uniform1f(U.uDecOn,0);gl.uniform1f(U.uBackOn,0);if(B.hoodb)draw(B.hoodb,I);draw(B.roof,I);gl.uniform1f(U.uStrOn,0);gl.uniform4fv(U.uDent,NODENT);
   // the trailer: my picture on its big back door
   if(B.trailer){gl.uniform3fv(U.uCol2,[0,0,0]);setMat(0,[0.8,0.82,0.85],0,0.2,0.8);if(sk2&&bk)backOn();
     if(sk1){gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,trailerSide(sk1));gl.activeTexture(gl.TEXTURE0);gl.uniform1f(U.uDecOn,3)}
@@ -595,7 +609,8 @@ function drawCar(c){
   gl.enable(gl.POLYGON_OFFSET_FILL);gl.polygonOffset(-2,-4);
   setMat(5);for(const g of B.liners)draw(g,I);draw(B.intake,I);draw(B.diff,I);for(const g of B.doors)draw(g,I);if(B.bed)draw(B.bed,I);
   setMat(5,[0,0,0],0,1);draw(B.grille,I);
-  setMat(2);for(const g of B.chrome)draw(g,I);draw(B.emblem,I);for(const g of B.handles)draw(g,I);
+  if(B.exhi){setMat(5,[0,0,0],0,1);draw(B.exhi,I)}
+  setMat(2);for(const g of B.chrome)draw(g,I);if(B.exh)draw(B.exh,I);draw(B.emblem,I);for(const g of B.handles)draw(g,I);
   const lc=LT.rainbow?RCSK.rainbow(t+c.x*.01).map(v=>v*1.4):LT.col,hc=LT.rainbow?lc.map(v=>v*.8):LT.head;
   setMat(6,lc,3);for(const g of B.drl)draw(g,I);setMat(6,hc,TH.night?2.2:0.15);for(const g of B.head)draw(g,I);
   setMat(6,[1,0.03,0.04],c.brake?3.2:(TH.night?1.6:0.9));draw(B.tails,I);
@@ -750,7 +765,7 @@ const BODYK=()=>Object.keys(RCSK.bodies),hasBody=k=>!RCSK.bodies[k].price||!!own
 function carSwitch(d){const ks=BODYK(),cur=PREVB||MY.body;let i=(ks.indexOf(cur)+d+ks.length)%ks.length,k=ks[i];
   if(hasBody(k)){PREVB=null;if(k!==MY.body)setLook('body',k);else drawCarSw()}else{PREVB=k;drawCarSw()}SPIN.vel=1.2}
 function drawCarSw(){const ks=BODYK(),cur=PREVB||MY.body,B=RCSK.bodies[cur];if(!B)return;
-  $('gName').textContent=({bd_truck:'🚛',bd_pickup:'🛻',bd_wagon:'🚙',bd_coupe:'🏎️'}[cur]||'🚗')+' '+nm(B.name);
+  $('gName').textContent=({bd_truck:'🚛',bd_pickup:'🛻',bd_wagon:'🚙',bd_coupe:'🏎️',bd_muscle:'💪'}[cur]||'🚗')+' '+nm(B.name);
   const lk=$('gLock'),box=lk.parentNode;box.classList.toggle('lk',!!PREVB);lk.hidden=!PREVB;if(PREVB)lk.textContent='🔒 '+num(B.price)+' AG · 🛒';
   const dt=$('cDots');if(dt.children.length!==ks.length){dt.textContent='';ks.forEach(()=>dt.append(document.createElement('i')))}
   [...dt.children].forEach((e,i)=>{e.className=(ks[i]===cur?'on':'')+(hasBody(ks[i])?'':' lk')})}

@@ -79,6 +79,7 @@ var BODIES={
  bd_sedan:{price:0,name:L4("سێدان","سێدان","سيدان","Sedan"),acc:1,vmax:1,mass:1},
  bd_wagon:{price:150,name:L4("ستەیشن","ستەیشن","ستيشن","Station wagon"),acc:1,vmax:0.99,mass:1.1},
  bd_coupe:{price:200,name:L4("سپۆرت (کووپێ)","سپۆرت (کووپێ)","رياضية (كوبيه)","Sports coupé"),acc:1.02,vmax:1.03,mass:0.9},
+ bd_muscle:{price:400,name:L4("ماسڵ کار 💪","ماسڵ کار 💪","سيارة عضلية 💪","Muscle car 💪"),acc:1.05,vmax:1.04,mass:1.1},
  bd_pickup:{price:250,name:L4("پیکاپ","پیکاپ","بيك آب","Pickup"),acc:0.97,vmax:0.97,mass:1.4},
  bd_truck:{price:600,rare:1,name:L4("تریلە 🚛","تریلە 🚛","تريلة 🚛","Semi truck 🚛"),acc:0.85,vmax:0.92,mass:3}};
 var DEF={body:"bd_sedan",paint:"pt_white",engine:"en_i4",light:"li_white",rim:"rm_silver",wing:"wg_none",glow:"gl_none",stripe:"st_none"};
@@ -189,6 +190,7 @@ function draw2D(x,w,h,sk,hl,cname,photo){var cnm=cname||(sk&&sk.cname)||"";sk=lo
   x.beginPath();
   if(B==="bd_pickup"){x.moveTo(22,86);x.quadraticCurveTo(14,66,24,52);x.lineTo(132,50);x.lineTo(140,20);x.lineTo(196,20);x.quadraticCurveTo(214,24,232,46);x.lineTo(272,52);x.quadraticCurveTo(290,58,284,84);x.lineTo(276,92);x.lineTo(30,92)}
   else if(B==="bd_coupe"){x.moveTo(22,86);x.quadraticCurveTo(14,72,26,62);x.lineTo(70,58);x.quadraticCurveTo(110,34,150,32);x.lineTo(180,32);x.quadraticCurveTo(212,36,236,54);x.lineTo(272,60);x.quadraticCurveTo(290,64,284,86);x.lineTo(276,92);x.lineTo(30,92)}
+  else if(B==="bd_muscle"){x.moveTo(20,88);x.lineTo(18,58);x.lineTo(80,54);x.quadraticCurveTo(112,36,146,35);x.lineTo(176,35);x.quadraticCurveTo(206,38,226,52);x.lineTo(276,58);x.quadraticCurveTo(290,62,286,88);x.lineTo(278,92);x.lineTo(28,92)}
   else if(B==="bd_wagon"){x.moveTo(22,86);x.quadraticCurveTo(14,66,22,52);x.lineTo(30,26);x.quadraticCurveTo(34,22,46,22);x.lineTo(190,22);x.quadraticCurveTo(214,26,232,48);x.lineTo(270,54);x.quadraticCurveTo(288,58,284,84);x.lineTo(276,92);x.lineTo(30,92)}
   else{x.moveTo(22,86);x.quadraticCurveTo(14,70,26,60);x.lineTo(70,52);x.quadraticCurveTo(100,26,140,24);x.lineTo(190,24);x.quadraticCurveTo(214,26,232,48);x.lineTo(270,54);x.quadraticCurveTo(288,58,284,84);x.lineTo(276,92);x.lineTo(30,92)}
   x.closePath();x.fillStyle=bg;x.fill();
@@ -197,6 +199,7 @@ function draw2D(x,w,h,sk,hl,cname,photo){var cnm=cname||(sk&&sk.cname)||"";sk=lo
   x.beginPath();
   if(B==="bd_pickup"){x.moveTo(146,26);x.lineTo(192,26);x.quadraticCurveTo(206,30,220,46);x.lineTo(146,48);x.closePath();x.fillStyle="#2a2a2e";x.fillRect(26,48,104,5)}
   else if(B==="bd_coupe"){x.moveTo(96,56);x.quadraticCurveTo(118,38,150,37);x.lineTo(178,37);x.quadraticCurveTo(204,40,222,54);x.closePath()}
+  else if(B==="bd_muscle"){x.moveTo(100,54);x.quadraticCurveTo(120,40,148,40);x.lineTo(174,40);x.quadraticCurveTo(200,42,216,53);x.closePath()}
   else if(B==="bd_wagon"){x.moveTo(36,48);x.lineTo(40,28);x.lineTo(96,28);x.lineTo(96,50);x.closePath();x.moveTo(102,28);x.lineTo(156,28);x.lineTo(156,52);x.lineTo(102,51);x.closePath();x.moveTo(162,28);x.lineTo(188,28);x.quadraticCurveTo(206,32,222,50);x.lineTo(162,52);x.closePath()}
   else{x.moveTo(84,52);x.quadraticCurveTo(108,32,140,30);x.lineTo(156,30);x.lineTo(156,52);x.closePath();x.moveTo(162,30);x.lineTo(188,30);x.quadraticCurveTo(206,32,222,50);x.lineTo(162,52);x.closePath()}
   var wg=x.createLinearGradient(0,30,0,52);wg.addColorStop(0,"#9fb4c8");wg.addColorStop(1,"#1a2430");x.fillStyle=wg;x.fill();
