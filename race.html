@@ -323,10 +323,15 @@ TRK.SCENE=(()=>{const L=[];let seed=7+CP.length*31;const R=()=>{seed=(seed*16807
     // street lamps along the track
     for(let i=0;i<N;i+=22){const p=TR[i];for(const sd of[-1,1]){const lx=p.x+p.nx*sd*(RAIL+1.5),lz=p.z+p.nz*sd*(RAIL+1.5);L.push(boxW(lx-0.12,lx+0.12,0,6,lz-0.12,lz+0.12,3),boxW(lx-0.4,lx+0.4,6,6.3,lz-0.4,lz+0.4,10))}}}
   for(let i=0;i<36;i++){const a=i/36*Math.PI*2,d=900+R()*250,x=cx+Math.cos(a)*d,z=cz+Math.sin(a)*d;L.push(cone(x,z,180+R()*150,90+R()*120,0,10,8));}
-  // grandstand beside the start straight
-  const a=TR[0];const gx=a.x-a.nx*(RAIL+6);
-  for(let t=0;t<5;t++){L.push(boxW(gx-6-t*2.2,gx-4-t*2.2,0,1.2+t*1.4,-45,45,3));for(let k=-44;k<44;k+=1.4)L.push(boxW(gx-5.6-t*2.2,gx-4.6-t*2.2,1.2+t*1.4,1.9+t*1.4,k,k+0.9,[5,6,7,9,4][Math.floor(R()*5)]));}
-  L.push(boxW(gx-18,gx-16,0,13,-46,46,4),boxW(gx-17,gx-3,13,13.5,-46,46,4));
+  // grandstand beside the start straight: pick a side and a length where it does not touch the road
+  const a=TR[0];let GS=null;
+  const clear=(sd,z0,z1,dg)=>{const gx=a.x+sd*a.nx*(RAIL+3+dg),x0=Math.min(gx,gx+sd*17.5),x1=Math.max(gx,gx+sd*17.5);
+    for(const p of TR){const dx=Math.max(x0-p.x,0,p.x-x1),dz=Math.max(z0-p.z,0,p.z-z1);if(hyp(dx,dz)<RAIL+2.5)return false}return true};
+  for(const dg of[0,10,22])for(const sd of[-1,1]){if(GS)break;for(let h=45;h>=12&&!GS;h-=3){for(const [z0,z1] of[[-h,h],[-h*1.4,h*0.6],[-h*1.8,h*0.2],[-h*2,0]]){if(clear(sd,z0,z1,dg)){GS={sd,z0,z1,dg};break}}}}
+  if(GS){const sd=GS.sd,gx=a.x+sd*a.nx*(RAIL+6+GS.dg),X=(u0,u1)=>[Math.min(gx+sd*u0,gx+sd*u1),Math.max(gx+sd*u0,gx+sd*u1)],z0=GS.z0,z1=GS.z1;
+    for(let t=0;t<5;t++){const [b0,b1]=X(-2+t*2.2,t*2.2);L.push(boxW(b0,b1,0,1.2+t*1.4,z0,z1,3));const [s0,s1]=X(-1.6+t*2.2,-0.6+t*2.2);
+      for(let k=z0+1;k<z1-1;k+=1.4)L.push(boxW(s0,s1,1.2+t*1.4,1.9+t*1.4,k,k+0.9,[5,6,7,9,4][Math.floor(R()*5)]));}
+    const [w0,w1]=X(12,14),[r0,r1]=X(-1,13);L.push(boxW(w0,w1,0,13,z0-1,z1+1,4),boxW(r0,r1,13,13.5,z0-1,z1+1,4));}
   // start gantry
   for(const s of[-1,1])L.push(boxW(a.x+a.nx*s*(RAIL-0.5)-0.4,a.x+a.nx*s*(RAIL-0.5)+0.4,0,8,a.z-0.4,a.z+0.4,4));
   return merge(L);})();
