@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ckb" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>تاقیکرنا دەنگی · AG</title>
+<style>
+  body{margin:0;min-height:100vh;background:#0b3d2a;color:#fff;font:600 17px/1.6 system-ui,'Noto Sans Arabic',sans-serif;display:flex;flex-direction:column;align-items:center;gap:14px;padding:22px;box-sizing:border-box;text-align:center}
+  h1{font-size:24px;margin:6px 0}
+  button{font:900 22px system-ui,sans-serif;padding:18px 34px;border:0;border-radius:18px;background:linear-gradient(#ffe27a,#d6a21e);color:#3a2500;box-shadow:0 5px 0 #8a5a00;cursor:pointer}
+  #out{direction:ltr;text-align:left;background:rgba(0,0,0,.35);border-radius:14px;padding:12px 14px;font:500 13px/1.5 ui-monospace,monospace;width:100%;max-width:520px;white-space:pre-wrap;word-break:break-word}
+  .big{font-size:20px;font-weight:900}
+</style>
+</head>
+<body>
+<h1>🔊 تاقیکرنا دەنگی</h1>
+<div>دەنگێ <b>میدیا</b> ل مۆبایلێ بلند بکە، پاشی ل دوگمێ بدە.</div>
+<button id="b" type="button">▶ دەنگەکی لێ بدە</button>
+<div id="res" class="big"></div>
+<div>وێنەیەکێ ژ ڤێ پەڕێ بگرە و بۆ خودانێ یاریێ بهنێرە.</div>
+<div id="out"></div>
+<script>
+var out=document.getElementById('out'),res=document.getElementById('res'),ctx=null,log=[];
+function w(s){log.push(s);out.textContent=log.join('\n')}
+w('Browser: '+navigator.userAgent);
+w('Standalone app: '+(matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches));
+var A=window.AudioContext||window.webkitAudioContext;w('Web Audio: '+(A?'yes':'NO'));
+try{w('Autoplay policy: '+(navigator.getAutoplayPolicy?navigator.getAutoplayPolicy('audiocontext'):'unknown'))}catch(e){w('Autoplay policy: ?')}
+try{w('sfx setting (ag.sfx): '+localStorage.getItem('ag.sfx'))}catch(e){}
+document.getElementById('b').onclick=function(){
+  try{
+    if(!ctx){ctx=new A();w('Context made, state: '+ctx.state)}
+    var p=ctx.resume();
+    (p&&p.then?p:Promise.resolve()).then(function(){
+      w('After tap, state: '+ctx.state+'  rate: '+ctx.sampleRate);
+      var t=ctx.currentTime;[523,659,784,1047].forEach(function(f,i){var o=ctx.createOscillator(),g=ctx.createGain();o.type='triangle';o.frequency.value=f;
+        g.gain.setValueAtTime(0.25,t+i*0.15);g.gain.exponentialRampToValueAtTime(0.001,t+i*0.15+0.3);o.connect(g);g.connect(ctx.destination);o.start(t+i*0.15);o.stop(t+i*0.15+0.32)});
+      setTimeout(function(){w('Clock moved: '+(ctx.currentTime>t+0.3?'yes':'NO')+' ('+ctx.currentTime.toFixed(2)+')');
+        res.textContent=ctx.state==='running'&&ctx.currentTime>t+0.3?'✅ یاری دەنگی ددەت. ئەگەر تە گوهـ لێ نەبوو، دەنگێ میدیا یێ نزمە.':'❌ مۆبایلێ دەنگ گرت ('+ctx.state+')'},900)
+    }).catch(function(e){w('resume failed: '+e);res.textContent='❌ resume failed'})
+  }catch(e){w('Error: '+e);res.textContent='❌ '+e}
+};
+</script>
+</body>
+</html>
