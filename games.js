@@ -65,6 +65,14 @@ window.AG={games:GAMES,route:route,fillSwitch:fillSwitch,packs:PACKS,addPack:fun
 GAMES.forEach(function(g){if(g.skins&&(here()==="./"||here()===g.page))document.write('<script>window.AG_G="'+g.id+'"<\/script><script src="'+g.skins+'"><\/script><script>window.AG_G=""<\/script>')});
 
 /* ---- opening screen: the animated logo, once per visit; tap to skip ---- */
+// Keep every page from sliding left and right. Some phones (older Samsung browsers, big system fonts)
+// let the whole page move sideways when something is a few pixels wider than the screen,
+// and the bottom bar slides away with it. Clip the sides, and if the page still moves, put it back.
+(function(){try{var st=document.createElement("style");st.id="agNoSide";
+  st.textContent="html,body{max-width:100%}@supports (overflow:clip){html,body{overflow-x:clip}}@supports not (overflow:clip){html,body{overflow-x:hidden}}";
+  (document.head||document.documentElement).appendChild(st);
+  var X0=null;function home(){if(X0===null)X0=window.scrollX||0;if((window.scrollX||0)!==X0)window.scrollTo(X0,window.scrollY)}
+  addEventListener("load",function(){X0=window.scrollX||0});addEventListener("scroll",home,{passive:true});addEventListener("resize",function(){X0=null;setTimeout(home,50)})}catch(e){}})();
 (function(){var seen=false;try{seen=!!sessionStorage.getItem("ag.splash");sessionStorage.setItem("ag.splash","1")}catch(e){}
   if(seen||!document.body)return;
   var s=document.createElement("div");s.id="agSplash";s.setAttribute("aria-hidden","true");
