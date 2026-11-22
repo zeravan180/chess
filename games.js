@@ -65,6 +65,16 @@ window.AG={games:GAMES,route:route,fillSwitch:fillSwitch,packs:PACKS,addPack:fun
 GAMES.forEach(function(g){if(g.skins&&(here()==="./"||here()===g.page))document.write('<script>window.AG_G="'+g.id+'"<\/script><script src="'+g.skins+'"><\/script><script>window.AG_G=""<\/script>')});
 
 /* ---- opening screen: the animated logo, once per visit; tap to skip ---- */
+// Sound on every phone. Phones only let a page make sound after a touch. On the owner's phone the
+// browser already trusts the game, so sound worked there, but on new phones the sound stayed asleep.
+// Every sound engine of every game is woken up again on each touch, tap or key.
+(function(){try{var A=window.AudioContext||window.webkitAudioContext;if(!A||A.__ag)return;var L=[];
+  var W=function(o){var c=o?new A(o):new A();L.push(c);return c};W.prototype=A.prototype;W.__ag=1;
+  window.AudioContext=W;if(window.webkitAudioContext)window.webkitAudioContext=W;
+  var wake=function(){for(var i=0;i<L.length;i++){var c=L[i];if(c.state!=="running"&&c.state!=="closed"){try{c.resume()}catch(e){}
+    try{var b=c.createBuffer(1,1,22050),s=c.createBufferSource();s.buffer=b;s.connect(c.destination);s.start(0)}catch(e){}}}};
+  ["pointerdown","pointerup","touchstart","touchend","mousedown","click","keydown"].forEach(function(e){addEventListener(e,wake,{capture:true,passive:true})});
+  document.addEventListener("visibilitychange",function(){if(!document.hidden)wake()});window.AG_wakeSound=wake}catch(e){}})();
 // Keep every page from sliding left and right. Some phones (older Samsung browsers, big system fonts)
 // let the whole page move sideways when something is a few pixels wider than the screen,
 // and the bottom bar slides away with it. Clip the sides, and if the page still moves, put it back.
