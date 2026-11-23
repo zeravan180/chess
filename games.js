@@ -42,6 +42,8 @@ var GAMES=[
    icon:"<svg viewBox=\"0 0 40 40\" aria-hidden=\"true\"><rect x=\"8\" y=\"3\" width=\"24\" height=\"34\" rx=\"6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\"/><path d=\"M8 20h24\" stroke=\"currentColor\" stroke-width=\"2\"/><circle cx=\"23\" cy=\"14\" r=\"3.5\" fill=\"currentColor\"/><circle cx=\"17\" cy=\"28\" r=\"5.5\" fill=\"currentColor\"/></svg>"},
   {id:"race", page:"race.html", skins:"raceskins.js", name:["بەزینا ترومبێلان", "پێشبڕکێی ئۆتۆمبێل", "سباق السيارات", "Car Racing"],
    icon:"<svg viewBox=\"0 0 40 40\" aria-hidden=\"true\"><path d=\"M6 25l3-8c1-2 2-3 4-3h14c2 0 3 1 4 3l3 8v5H6z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\" stroke-linejoin=\"round\"/><path d=\"M11 17h18\" stroke=\"currentColor\" stroke-width=\"2\"/><circle cx=\"12\" cy=\"30\" r=\"3.5\" fill=\"currentColor\"/><circle cx=\"28\" cy=\"30\" r=\"3.5\" fill=\"currentColor\"/></svg>"},
+  {id:"blocks", page:"blocks.html", name:["جیهانا بلۆکان", "جیهانی بلۆکەکان", "عالم المكعبات", "Block World"],
+   icon:"<svg viewBox=\"0 0 40 40\" aria-hidden=\"true\"><path d=\"M20 4l14 7v16l-14 8-14-8V11z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\" stroke-linejoin=\"round\"/><path d=\"M6 11l14 8 14-8M20 19v16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\"/><path d=\"M6 11l14-7 14 7-14 8z\" fill=\"currentColor\" opacity=\".45\"/></svg>"},
 ];
 var LI={kmr:0,ckb:1,ar:2,en:3};
 function lang(){try{var v=LI[localStorage.getItem("lang")];return v==null?0:v}catch(e){return 0}}
@@ -124,7 +126,7 @@ function fzWatchAll(){var tries=0;(function go(){try{if(!window.firebase||!fireb
     firebase.database().ref("frozen/"+u.uid).on("value",function(s){fzShow(s.exists())},function(){})})}catch(e){}})()}
 
 /* ---- the game picker on every lobby: big cards under the title that you swipe one by one (the old icon row is hidden) ---- */
-var THEME={chess:["#7c3aed","#2e1065","♟️"],domino:["#16a34a","#064e3b","🁣"],snakes:["#f97316","#7c2d12","🐍"],tawla:["#b45309","#451a03","🎲"],
+var THEME={blocks:["#3c8527","#1d4d13","🧱"],chess:["#7c3aed","#2e1065","♟️"],domino:["#16a34a","#064e3b","🁣"],snakes:["#f97316","#7c2d12","🐍"],tawla:["#b45309","#451a03","🎲"],
   dama:["#2563eb","#172554","⚫"],ludo:["#db2777","#500724","🎯"],zar:["#0d9488","#042f2e","🃏"],kon:["#dc2626","#450a0a","♠️"],
   worms:["#0ea5e9","#082f49","🪱"],xo:["#4f46e5","#1e1b4b","❌"],dots:["#d97706","#451a03","▦"],kustirk:["#be185d","#4a0420","💍"],pool:["#0f766e","#042f2e","🎱"],quiz:["#7c3aed","#2e1065","🧠"],spy:["#dc2626","#1e1b4b","🕵️"],fruit:["#16a34a","#0f3d2e","🍎"],hockey:["#7b5cff","#070b24","🏒"],race:["#ef4444","#1a0a0e","🏎️"]};
 AG.theme=THEME;
