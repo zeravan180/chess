@@ -67,7 +67,7 @@ input[type=range]{width:100%;accent-color:var(--g);height:32px}
 /* HUD */
 #hud{position:fixed;inset:0;display:none;pointer-events:none}
 #hud.on{display:block}
-#hud button,#hud .dp{pointer-events:auto}
+#hud button,#hud .dp,#hud .pad,body.lay #hud [data-lay]{pointer-events:auto}
 .cross{position:absolute;left:50%;top:50%;width:20px;height:20px;margin:-10px 0 0 -10px;display:none}
 .cross:before,.cross:after{content:"";position:absolute;background:rgba(255,255,255,.9);mix-blend-mode:difference}
 .cross:before{left:9px;top:0;width:2px;height:20px}.cross:after{top:9px;left:0;height:2px;width:20px}
@@ -109,6 +109,22 @@ body.joy .stick{display:block;left:100px;top:calc(100% - 100px)}
 html.rot body{position:fixed;top:0;left:0;transform-origin:0 0;max-width:none!important}
 html.rot .scr,html.rot .grid,html.rot .rl{touch-action:pan-x pan-y}
 html.rot{--s:min(44px,calc((100vh - 40px)/10.5))}html.rot .pbar{width:min(560px,86vh)}
+.pad{position:absolute;left:max(18px,env(safe-area-inset-left));bottom:max(18px,env(safe-area-inset-bottom));width:clamp(140px,26vmin,190px);height:clamp(140px,26vmin,190px);border-radius:50%;background:rgba(40,40,40,.35);border:3px solid rgba(255,255,255,.45);display:none;touch-action:none;direction:ltr}
+body.padm .pad{display:block}body.padm .dp{display:none}
+.pad i{position:absolute;width:0;height:0;border:11px solid transparent;opacity:.85}
+.pad .u{left:50%;top:6px;margin-left:-11px;border-bottom:15px solid #fff;border-top:0}.pad .d{left:50%;bottom:6px;margin-left:-11px;border-top:15px solid #fff;border-bottom:0}
+.pad .l{top:50%;left:6px;margin-top:-11px;border-right:15px solid #fff;border-left:0}.pad .r{top:50%;right:6px;margin-top:-11px;border-left:15px solid #fff;border-right:0}
+.pad .pk{position:absolute;left:50%;top:50%;width:42%;height:42%;margin:-21% 0 0 -21%;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#bbb 60%,#888);box-shadow:0 3px 8px rgba(0,0,0,.5);pointer-events:none}
+.pad.on{border-color:#fff;background:rgba(80,80,80,.45)}
+@media(orientation:portrait){html:not(.rot) .pad{bottom:calc(var(--s)*2.4 + 30px)}}
+/* moving the buttons */
+body.lay #hud{display:block!important}
+body.lay #hud [data-lay]{outline:3px dashed #ffd84a;outline-offset:4px;cursor:move}
+body.lay #hud [data-lay].pick{outline:3px solid #6cc349}
+#sLay{pointer-events:none;background:rgba(0,0,0,.12);justify-content:flex-start;z-index:20}
+#sLay .lt{pointer-events:auto;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center;background:rgba(30,30,30,.85);border:2px solid #111;padding:8px 10px;margin-top:56px}
+#sLay .lt .b{min-height:42px;padding:4px 14px 7px}
+#sLay .lt b{font-weight:700;min-width:58px;text-align:center}
 .hurt{position:fixed;inset:0;background:radial-gradient(transparent 40%,rgba(200,0,0,.55));opacity:0;pointer-events:none;transition:opacity .25s}
 .hurt.on{opacity:1;transition:none}
 .water{position:fixed;inset:0;background:rgba(30,80,200,.35);display:none;pointer-events:none}
@@ -238,7 +254,8 @@ body.net .netb{display:block}
   <div class="bar"><button class="b" id="setBack">→ زڤڕین</button><h2>ڕێکخستن</h2></div>
   <div class="pn" style="width:min(620px,100%)">
     <div class="fld"><label for="oSens">هەستیاریا زڤڕینێ: <span id="oSensV"></span></label><input type="range" id="oSens" min="0.3" max="2.5" step="0.1"></div>
-    <div class="fld"><label>جۆرێ کۆنترۆلێ</label><div class="row" id="oCtrl"><button class="b" data-v="dpad">دوگمەیێن تیران</button><button class="b" data-v="joy">جۆیستیک</button></div></div>
+    <div class="fld"><label>جۆرێ کۆنترۆلێ</label><div class="row" id="oCtrl"><button class="b" data-v="dpad">دوگمەیێن تیران</button><button class="b" data-v="joy">جۆیستیک</button><button class="b" data-v="pad">🕹️ جۆیستیکا تیران</button></div></div>
+    <div class="fld"><button class="b g" id="oLay" style="width:100%">🛠️ جهـ و مەزنیا دوگمەیان بگوهۆڕە</button><p>دوگمەیان ب تبلێ ڕاکێشە بۆ هەر جهەکێ تە دڤێت.</p></div>
     <div class="fld"><label>دووراتیا دیتنێ</label><div class="row" id="oView"><button class="b" data-v="0">نێزیک</button><button class="b" data-v="1">ناڤنجی</button><button class="b" data-v="2">دوور</button></div><p>ئەگەر یاری هێدی بیت، «نێزیک» هەلبژێرە.</p></div>
     <div class="fld"><label>دەنگ</label><div class="row" id="oSnd"><button class="b" data-v="1">ڤەکری 🔊</button><button class="b" data-v="0">گرتی 🔇</button></div></div>
     <div class="fld"><label>بازدانا خۆکار</label><div class="row" id="oAuto"><button class="b" data-v="1">ڤەکری</button><button class="b" data-v="0">گرتی</button></div></div>
@@ -263,7 +280,7 @@ body.net .netb{display:block}
 <!-- HUD -->
 <div id="hud">
   <div class="cross"></div>
-  <div class="tl">
+  <div class="tl" data-lay="tl">
     <button class="hbtn" id="hPause" aria-label="راوەستان"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="5" height="16" fill="#fff"/><rect x="14" y="4" width="5" height="16" fill="#fff"/></svg></button>
     <button class="hbtn" id="hView" aria-label="گوهۆڕینا دیتنێ"><svg viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" fill="none" stroke="#fff" stroke-width="2.4"/><circle cx="12" cy="12" r="3.4" fill="#fff"/></svg></button>
   </div>
@@ -272,7 +289,8 @@ body.net .netb{display:block}
   <div class="stats" id="stats"><div id="hearts"></div><div class="fd" id="food"></div></div>
   <div class="iname" id="iname"></div>
   <div class="hb" id="hotbar"></div>
-  <div class="dp" id="dpad">
+  <div class="pad" id="pad" data-lay="mv"><i class="u"></i><i class="d"></i><i class="l"></i><i class="r"></i><div class="pk" id="padK"></div></div>
+  <div class="dp" id="dpad" data-lay="mv">
     <b data-d="u"><svg viewBox="0 0 10 10"><path d="M5 1 9 8H1z" fill="#fff"/></svg></b>
     <b data-d="l"><svg viewBox="0 0 10 10"><path d="M1 5 8 1v8z" fill="#fff"/></svg></b>
     <b data-d="c"><svg viewBox="0 0 10 10"><path d="M5 9 1 4h8z" fill="#fff" opacity=".8"/><rect x="1" y="1" width="8" height="1.6" fill="#fff"/></svg></b>
@@ -280,7 +298,7 @@ body.net .netb{display:block}
     <b data-d="d"><svg viewBox="0 0 10 10"><path d="M5 9 1 2h8z" fill="#fff"/></svg></b>
   </div>
   <div class="stick" id="stick"><div class="knob" id="knob"></div></div>
-  <div class="rb">
+  <div class="rb" data-lay="rb">
     <button id="bDown" aria-label="خوار"><svg viewBox="0 0 10 10"><path d="M5 9 1 3h2.5V1h3v2H9z" fill="#fff"/></svg></button>
     <button id="bJump" aria-label="بازدان"><svg viewBox="0 0 10 10"><path d="M5 1 9 7H6.5v2h-3V7H1z" fill="#fff"/></svg></button>
   </div>
@@ -288,6 +306,11 @@ body.net .netb{display:block}
 <div id="tags"></div>
 <div class="water" id="water"></div>
 <div class="hurt" id="hurt"></div>
+
+<!-- MOVE THE BUTTONS -->
+<section class="scr" id="sLay">
+  <div class="lt"><span>👆 دوگمەیان ڕاکێشە</span><button class="b" id="lMinus">－</button><b id="lSize">100%</b><button class="b" id="lPlus">＋</button><button class="b" id="lReset">↺ وەکی بەرێ</button><button class="b g" id="lDone">✔ پاشەکەفت</button></div>
+</section>
 
 <!-- PAUSE -->
 <section class="scr dim" id="sPause" style="justify-content:center">
@@ -331,7 +354,7 @@ function wideLock(){try{if(screen.orientation&&screen.orientation.lock)screen.or
 addEventListener('resize',()=>setTimeout(setRot,60));addEventListener('orientationchange',()=>setTimeout(setRot,300));setRot();
 addEventListener('pointerdown',function f(){wideLock();removeEventListener('pointerdown',f)},{once:true});
 const errBox=$('#err');
-addEventListener('error',e=>{errBox.style.display='block';errBox.textContent='Error: '+(e.message||e)+' @'+(e.lineno||'')});
+let errT;addEventListener('error',e=>{errBox.style.display='block';errBox.textContent='Error: '+(e.message||e)+' @'+(e.lineno||'');clearTimeout(errT);errT=setTimeout(()=>errBox.style.display='none',6000)});errBox.addEventListener('click',()=>errBox.style.display='none');
 
 /* ================= utils ================= */
 function rng(seed){let a=seed>>>0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
@@ -510,8 +533,9 @@ const IF={f:pix(FROWS,'#c3762b','#2a1405'),h:pix(FROWS,'#c3762b','#2a1405',1),e:
 /* ================= settings ================= */
 const S=Object.assign({snd:1,sens:1,ctrl:'dpad',view:1,auto:1,info:0,skin:0,hair:0,shirt:0,pants:0},LS.get('bw_set',{}));
 const SKINS=['#e8b48a','#c68e5f','#8d5a3b','#f3d0b5'],HAIRS=['#3a2414','#111111','#c9a24a','#8a3b18'],SHIRTS=['#e06a2c','#e3a72f','#c23b3b','#3b5bc2','#4ea33a','#8a4fc9'],PANTS=['#5a5a5a','#2d3f7a','#333333','#6b4a2b','#1e5c4a'];
-function saveSet(){LS.set('bw_set',S);document.body.classList.toggle('joy',S.ctrl==='joy')}
-document.body.classList.toggle('joy',S.ctrl==='joy');
+function saveSet(){LS.set('bw_set',S);ctrlClass()}
+function ctrlClass(){document.body.classList.toggle('joy',S.ctrl==='joy');document.body.classList.toggle('padm',S.ctrl==='pad');if(typeof applyLay==='function')applyLay()}
+ctrlClass();
 
 /* ================= GL ================= */
 const cv=$('#gl');
@@ -870,7 +894,7 @@ addEventListener('keyup',e=>{keys[e.code]=false});
 addEventListener('wheel',e=>{if(state==='game')selectSlot((sel+(e.deltaY>0?1:8))%9)},{passive:true});
 
 /* ================= screens ================= */
-const SCR=['sOnline','sLoad','sMenu','sWorlds','sCreate','sEdit','sSet','sSkin','sPause','sInv','sDead'];
+const SCR=['sLay','sOnline','sLoad','sMenu','sWorlds','sCreate','sEdit','sSet','sSkin','sPause','sInv','sDead'];
 function showScreen(id){for(const s of SCR)$('#'+s).classList.toggle('on',s===id);$('#hud').classList.toggle('on',id===null)}
 document.querySelectorAll('[data-back]').forEach(b=>b.addEventListener('click',()=>{const t=b.dataset.back;showScreen(t);if(t==='sWorlds')renderWorlds()}));
 function toMenu(){netLeave();state='menu';cur=null;mobs=[];document.body.classList.remove('fly');showScreen('sMenu')}
@@ -995,6 +1019,35 @@ function renderOpt(){for(const[id,k]of[['#oSnd','snd'],['#oCtrl','ctrl'],['#oVie
 for(const[id,k,num]of[['#oSnd','snd',1],['#oCtrl','ctrl',0],['#oView','view',1],['#oAuto','auto',1],['#oInfo','info',1]])$(id).addEventListener('click',e=>{const b=e.target.closest('.b');if(!b)return;S[k]=num?+b.dataset.v:b.dataset.v;saveSet();renderOpt()});
 $('#oSens').addEventListener('input',e=>{S.sens=+e.target.value;$('#oSensV').textContent=S.sens.toFixed(1);saveSet()});
 $('#setBack').addEventListener('click',()=>{showScreen(setFrom)});
+/* ---- the round stick with four arrows (fixed in its place) ---- */
+const padEl=$('#pad'),padK=$('#padK');let padId=null;
+function pageCenter(el){const r=el.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;return ROT?[y,innerWidth-x]:[x,y]}
+function padSet(e){const c=pageCenter(padEl),R=padEl.offsetWidth/2*((S.lay&&S.lay.mv&&S.lay.mv.s)||1)*.62;let dx=PX(e)-c[0],dy=PY(e)-c[1];const L=Math.hypot(dx,dy);if(L>R){dx*=R/L;dy*=R/L}
+ joy.x=dx/R;joy.y=dy/R;if(Math.hypot(joy.x,joy.y)<.18)joy.x=joy.y=0;padK.style.transform=`translate(${dx/((S.lay&&S.lay.mv&&S.lay.mv.s)||1)}px,${dy/((S.lay&&S.lay.mv&&S.lay.mv.s)||1)}px)`}
+padEl.addEventListener('pointerdown',e=>{if(document.body.classList.contains('lay'))return;e.preventDefault();e.stopPropagation();padId=e.pointerId;padEl.classList.add('on');try{padEl.setPointerCapture(e.pointerId)}catch(_){}padSet(e)});
+padEl.addEventListener('pointermove',e=>{if(e.pointerId===padId)padSet(e)});
+const padEnd=e=>{if(e.pointerId!==padId)return;padId=null;joy.x=joy.y=0;padK.style.transform='';padEl.classList.remove('on')};
+padEl.addEventListener('pointerup',padEnd);padEl.addEventListener('pointercancel',padEnd);
+/* ---- move and size the buttons; kept in S.lay as {key:{x,y,s}} (x,y = middle, 0..1 of the screen) ---- */
+function applyLay(){const L=S.lay||{};document.querySelectorAll('#hud [data-lay]').forEach(el=>{const q=L[el.dataset.lay];
+  if(q){el.style.left=(q.x*100)+'%';el.style.top=(q.y*100)+'%';el.style.right='auto';el.style.bottom='auto';el.style.transform=`translate(-50%,-50%) scale(${q.s||1})`}
+  else{el.style.left=el.style.top=el.style.right=el.style.bottom=el.style.transform=''}})}
+applyLay();
+let layFrom=null,layPick=null,layDrag=null;
+function layShowSize(){const q=layPick&&(S.lay||{})[layPick.dataset.lay];$('#lSize').textContent=Math.round(((q&&q.s)||1)*100)+'%'}
+function layHold(el){const W=cv.clientWidth,H=cv.clientHeight,c=pageCenter(el),k=el.dataset.lay;S.lay=S.lay||{};const old=S.lay[k];S.lay[k]={x:c[0]/W,y:c[1]/H,s:(old&&old.s)||1};return S.lay[k]}
+$('#oLay').addEventListener('click',()=>{layFrom=state;state='lay';document.body.classList.add('lay');showScreen('sLay');$('#hud').classList.add('on');layPick=null;layShowSize()});
+$('#hud').addEventListener('pointerdown',e=>{if(!document.body.classList.contains('lay'))return;const el=e.target.closest('[data-lay]');if(!el)return;e.preventDefault();e.stopPropagation();
+ document.querySelectorAll('#hud [data-lay]').forEach(x=>x.classList.toggle('pick',x===el));layPick=el;const q=layHold(el),W=cv.clientWidth,H=cv.clientHeight;
+ layDrag={id:e.pointerId,ox:q.x*W-PX(e),oy:q.y*H-PY(e)};applyLay();layShowSize()},true);
+addEventListener('pointermove',e=>{if(!layDrag||e.pointerId!==layDrag.id||!layPick)return;const W=cv.clientWidth,H=cv.clientHeight,q=S.lay[layPick.dataset.lay];
+ q.x=clamp((PX(e)+layDrag.ox)/W,.04,.96);q.y=clamp((PY(e)+layDrag.oy)/H,.05,.95);applyLay()});
+addEventListener('pointerup',e=>{if(layDrag&&e.pointerId===layDrag.id)layDrag=null});
+$('#hud').addEventListener('click',e=>{if(document.body.classList.contains('lay')){e.preventDefault();e.stopPropagation()}},true);
+const laySize=d=>{if(!layPick){toast('ئێکەم دوگمەیەکێ هەلبژێرە');return}const q=layHold(layPick);q.s=clamp(Math.round(((q.s||1)+d)*10)/10,.6,1.6);applyLay();layShowSize()};
+$('#lMinus').addEventListener('click',()=>laySize(-.1));$('#lPlus').addEventListener('click',()=>laySize(.1));
+$('#lReset').addEventListener('click',()=>{S.lay={};applyLay();layPick=null;document.querySelectorAll('#hud [data-lay]').forEach(x=>x.classList.remove('pick'));layShowSize()});
+$('#lDone').addEventListener('click',()=>{saveSet();document.body.classList.remove('lay');document.querySelectorAll('#hud [data-lay]').forEach(x=>x.classList.remove('pick'));state=layFrom||'menu';layFrom=null;openSet();toast('جهێ دوگمەیان هاتە پاشەکەفت ✓')});
 /* skin */
 function renderSkin(){const sw=(id,arr,k)=>{$(id).innerHTML=arr.map((c,i)=>`<button style="background:${c}" class="${S[k]===i?'on':''}" data-i="${i}" aria-label="${i+1}"></button>`).join('')};
  sw('#kSkin',SKINS,'skin');sw('#kHair',HAIRS,'hair');sw('#kShirt',SHIRTS,'shirt');sw('#kPants',PANTS,'pants');drawSkin($('#skinCv'))}
@@ -1058,6 +1111,7 @@ $('#invBody').addEventListener('click',e=>{const b=e.target.closest('button');if
  if(b.dataset.inv){const i=+b.dataset.inv;
   if(selSlot==null){if(inv[i])selSlot=i}
   else if(selSlot===i)selSlot=null;
+  else if(!inv[selSlot])selSlot=inv[i]?i:null;
   else{const a=inv[selSlot],c=inv[i];if(!c){inv[i]=a;inv[selSlot]=null}else if(c.id===a.id){const k=Math.min(DEF[c.id].max-c.n,a.n);c.n+=k;a.n-=k;if(!a.n)inv[selSlot]=null}else{inv[i]=a;inv[selSlot]=c}selSlot=null}
   renderInv();renderHotbar();return}
  if(b.dataset.grid){const i=+b.dataset.grid;
