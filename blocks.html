@@ -835,7 +835,7 @@ const ckey=(cx,cz)=>cx+','+cz,li=(lx,y,lz)=>(y*CS+lz)*CS+lx;
 function h2(x,z,k){let h=Math.imul(x|0,374761393)^Math.imul(z|0,668265263)^Math.imul((SEED+k)|0,1274126177);h=Math.imul(h^(h>>>13),1274126177);h^=h>>>16;return(h>>>0)/4294967296}
 function vnoise(r){const p=new Float32Array(65536);for(let i=0;i<65536;i++)p[i]=r();const g=(a,b)=>p[((a&255)<<8)|(b&255)];
  return(x,z)=>{const xi=Math.floor(x),zi=Math.floor(z),xf=x-xi,zf=z-zi,u=xf*xf*(3-2*xf),v=zf*zf*(3-2*zf);return lerp(lerp(g(xi,zi),g(xi+1,zi),u),lerp(g(xi,zi+1),g(xi+1,zi+1),u),v)}}
-function newWorld(seed,legacy,edits){for(const c of CH.values())freeMesh(c);CH.clear();SEED=seed|0;NZ=vnoise(rng(SEED));LEG=legacy||null;EDITS=edits||{}}
+function newWorld(seed,legacy,edits){drops=[];for(const c of CH.values())freeMesh(c);CH.clear();SEED=seed|0;NZ=vnoise(rng(SEED));LEG=legacy||null;EDITS=edits||{}}
 function chunk(cx,cz){const k=ckey(cx,cz);let c=CH.get(k);if(!c){c={cx,cz,k,d:genChunk(cx,cz),m:null,need:true};CH.set(k,c)}return c}
 function get(x,y,z){if(y<0)return BE;if(y>=Y)return 0;return chunk(x>>4,z>>4).d[li(x&15,y,z&15)]}
 function put(x,y,z,t){if(y>0&&y<Y)chunk(x>>4,z>>4).d[li(x&15,y,z&15)]=t}
@@ -995,13 +995,30 @@ function updateMobs(dt){
    if(!creative()&&dist<T.w+HW+.15&&m.y<P.y+PH&&m.y+T.h>P.y&&m.atk<=0){m.atk=1;damage([0,1,2,3][diff]);const k=6/(dist||1);P.kx=dx*k;P.kz=dz*k;P.vy=Math.max(P.vy,4)}
    if(!night){m.hp-=dt*3;m.burn=true}}
   if(m.y<-5)m.hp=0}
- mobs=mobs.filter(m=>{if(m.hp>0&&Math.hypot(m.x-P.x,m.z-P.z)<70)return true;if(m.killed&&!creative()){const dr=MT[m.type].drop;if(dr){addItem(dr[0],dr[1]);toast('+'+dr[1]+' '+DEF[dr[0]].name)}const d2=MT[m.type].drop2;if(d2&&Math.random()<.6)addItem(d2[0],d2[1]);if(m.type==='slime'&&Math.random()<.5)addItem(STRG,1)}return false});
+ mobs=mobs.filter(m=>{if(m.hp>0&&Math.hypot(m.x-P.x,m.z-P.z)<70)return true;if(m.killed&&!creative()){const dr=MT[m.type].drop,X0=m.x,Y0=m.y+.5,Z0=m.z;if(dr)dropItem(dr[0],dr[1],X0,Y0,Z0);const d2=MT[m.type].drop2;if(d2&&Math.random()<.6)dropItem(d2[0],d2[1],X0,Y0,Z0);if(m.type==='slime'&&Math.random()<.5)dropItem(STRG,1,X0,Y0,Z0)}return false});
 }
 function hitMob(m){SFX('hit');SFX(m.type==='cow'?'moo':m.type==='sheep'?'baa':'slime');const h=held(),dmg=(h&&DEF[h.id].dmg)||1;m.hp-=dmg;m.hurt=.35;const dx=m.x-P.x,dz=m.z-P.z,d=Math.hypot(dx,dz)||1;m.kx=dx/d*6;m.kz=dz/d*6;m.vy=4.5;m.mv=true;m.t=3;
  if(!MT[m.type].host)m.yaw=Math.atan2(dx,dz);if(m.hp<=0)m.killed=true;P.swing=1}
 
 /* ================= inventory ================= */
 const held=()=>inv[sel];
+/* ---- things that fall on the ground when broken; walk near to pick them up ---- */
+let drops=[];
+function dropItem(id,n,x,y,z){if(!DEF[id]||n<=0)return;const a=Math.random()*6.28;drops.push({id,n,x,y,z,vx:Math.cos(a)*1.2,vy:3.2,vz:Math.sin(a)*1.2,t:0,r:Math.random()*6.28});if(drops.length>300)drops.shift()}
+function updateDrops(dt){for(const q of drops){q.t+=dt;q.r+=dt*1.8;
+  q.vy-=18*dt;const ny=q.y+q.vy*dt;if(solid(get(Math.floor(q.x),Math.floor(ny-.12),Math.floor(q.z)))){q.y=Math.floor(ny-.12)+1.12;q.vy=0;q.vx*=.5;q.vz*=.5}else q.y=ny;
+  const nx=q.x+q.vx*dt,nz=q.z+q.vz*dt;if(!solid(get(Math.floor(nx),Math.floor(q.y),Math.floor(q.z))))q.x=nx;else q.vx=0;if(!solid(get(Math.floor(q.x),Math.floor(q.y),Math.floor(nz))))q.z=nz;else q.vz=0;
+  if(solid(get(Math.floor(q.x),Math.floor(q.y),Math.floor(q.z))))q.y=Math.floor(q.y)+1.12;
+  // pull toward the player, then into the bag
+  const dx=P.x-q.x,dy=P.y+.6-q.y,dz=P.z-q.z,d=Math.hypot(dx,dy,dz);
+  if(q.t>.45&&d<2.4&&state==='game'){if(d<.9){const left=addItem(q.id,q.n);if(left<q.n){SFX('pop');toast('+'+(q.n-left)+' '+DEF[q.id].name)}q.n=left;if(!left)q.gone=1}else{const k=Math.min(1,dt*9/d);q.x+=dx*k;q.y+=dy*k;q.z+=dz*k}}
+  if(q.t>300||q.y<-10)q.gone=1}
+ if(drops.some(q=>q.gone))drops=drops.filter(q=>!q.gone)}
+function modelDrops(o){for(const q of drops){if(Math.hypot(q.x-camE[0],q.z-camE[2])>40)continue;const d=DEF[q.id],bob=Math.sin(q.t*3)*.06,y=q.y+bob;
+  if(d.block&&!d.plant){const S2=.13,c=Math.cos(q.r),sn=Math.sin(q.r),rot=(x,z)=>[q.x+x*c-z*sn,q.z+x*sn+z*c];
+   for(let f=0;f<6;f++){const F=FACES[f];const v=F.c.map(cc=>{const p=rot((cc[0]-.5)*2*S2,(cc[2]-.5)*2*S2);return[p[0],y+(cc[1]-.5)*2*S2,p[1]]});const u=tuv(d.t[f===4?1:f===5?2:0]),k=F.s;quad(o,v,u,[[k,k,k],[k,k,k],[k,k,k],[k,k,k]])}}
+  else{const u=tuv(d.block?d.t[0]:d.tile),w=.24,c=Math.cos(camYaw)*w,sn=-Math.sin(camYaw)*w,cl=[[1,1,1],[1,1,1],[1,1,1],[1,1,1]];
+   const v=[[q.x-c,y-w,q.z-sn],[q.x+c,y-w,q.z+sn],[q.x+c,y+w,q.z+sn],[q.x-c,y+w,q.z-sn]];quad(o,v,u,cl);quad(o,[v[1],v[0],v[3],v[2]],u,cl)}}}
 function addItem(id,n){const mx=DEF[id].max;
  for(let i=0;i<36&&n>0;i++){const s=inv[i];if(s&&s.id===id&&s.n<mx){const k=Math.min(mx-s.n,n);s.n+=k;n-=k}}
  for(let i=0;i<36&&n>0;i++)if(!inv[i]){const k=Math.min(mx,n);inv[i]={id,n:k};n-=k}
@@ -1043,8 +1060,8 @@ function doBreak(b){if(roNet())return;const id=get(b.x,b.y,b.z);if(!id||id===BE|
  netEdit(b.x,b.y,b.z);if(isB(up)&&DEF[up].plant)netEdit(b.x,b.y+1,b.z);
  if(!creative()){const h=held(),hd=h&&DEF[h.id];
   if(d.need&&!(hd&&hd.tool==='pick'))toast('پێدڤی ب قازمێ یە');
-  else if(id===LE||id===DLEF){if(Math.random()<.12){addItem(APL,1);toast('+1 '+DEF[APL].name)}}
-  else if(d.drop)addItem(d.drop,1)}
+  else if(id===LE||id===DLEF){if(Math.random()<.12)dropItem(APL,1,b.x+.5,b.y+.5,b.z+.5)}
+  else if(d.drop)dropItem(d.drop,1,b.x+.5,b.y+.5,b.z+.5)}
  rebuildAt(b.x,b.z);dirty=true;P.swing=1;SFX('brk',id)}
 function useAt(sx,sy){const h=pick(sx,sy);
  if(h&&h.mob){hitMob(h.mob);return}
@@ -1154,7 +1171,7 @@ addEventListener('wheel',e=>{if(state==='game')selectSlot((sel+(e.deltaY>0?1:8))
 const SCR=['sLay','sOnline','sLoad','sMenu','sWorlds','sCreate','sEdit','sSet','sSkin','sPause','sInv','sDead'];
 function showScreen(id){for(const s of SCR)$('#'+s).classList.toggle('on',s===id);$('#hud').classList.toggle('on',id===null)}
 document.querySelectorAll('[data-back]').forEach(b=>b.addEventListener('click',()=>{const t=b.dataset.back;showScreen(t);if(t==='sWorlds')renderWorlds()}));
-function toMenu(){netLeave();state='menu';cur=null;mobs=[];document.body.classList.remove('fly');showScreen('sMenu')}
+function toMenu(){drops=[];netLeave();state='menu';cur=null;mobs=[];document.body.classList.remove('fly');showScreen('sMenu')}
 $('#mPlay').addEventListener('click',()=>{renderWorlds();showScreen('sWorlds')});
 document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('.b,.hs,.sl,.tabs button,.sw button'))SFX('click')},true);
 /* ================= online: up to 10 players in one world =================
@@ -1477,6 +1494,7 @@ function render(dt){
  const md=[];for(const m of mobs)if(Math.hypot(m.x-camE[0],m.z-camE[2])<vw[1])modelMob(md,m);
  if(state!=='menu'&&state!=='load'&&view)modelPlayer(md,P.x,P.y-(P.sneak?.15:0),P.z,P.yaw);
  netDraw(md,dt,mvp,W,H);
+ modelDrops(md);
  dynDraw(dynB.a,md);
  /* highlight */
  if(state==='game'){const pt=lookPtr&&lookPtr.k!=='look'?lookPtr:null;const tg=locked()?pick():pt?pick(pt.x,pt.y):null;
@@ -1513,7 +1531,7 @@ function update(dt){
  else if(lookPtr&&lookPtr.k!=='look'&&lookPtr.k!=='stick'){if(lookPtr.k==='pend'&&performance.now()-lookPtr.t>=300)lookPtr.k='brk';if(lookPtr.k==='brk')bp=lookPtr}
  if(bp){if(bp.cool>0)bp.cool-=dt;else updateBreak(dt,bp.x==null?{x:null,y:null}:bp)}else brk=null;
  step(dt/2);step(dt/2);
- updateMobs(dt);
+ updateMobs(dt);updateDrops(dt);
  P.swing=Math.max(0,P.swing-dt*3);
  time=(time+dt/480)%1;
  /* hunger */
