@@ -169,6 +169,10 @@ body.lay #hud [data-lay].pick{outline:3px solid #6cc349}
 body.net .netb{display:block}
 .lockb{position:absolute;top:max(8px,env(safe-area-inset-top));left:calc(50% + 110px);background:rgba(0,0,0,.55);border:2px solid #111;color:#fff;font:700 14px Vazirmatn;padding:6px 10px;cursor:pointer;display:none;white-space:nowrap}
 body.netown .lockb{display:block}
+.plb{position:absolute;top:max(48px,calc(env(safe-area-inset-top) + 44px));left:calc(50% + 110px);background:rgba(0,0,0,.55);border:2px solid #111;color:#fff;font:700 14px Vazirmatn;padding:6px 10px;cursor:pointer;display:none;white-space:nowrap}
+body.netown .plb{display:block}
+#plist{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(380px,92%);max-height:80%;overflow:auto;background:var(--pn);border:3px solid #111;box-shadow:inset 0 2px 0 #5a5b5c;padding:12px;z-index:30;display:none}
+#plist.on{display:block}#plist h3{margin:0 0 8px;text-align:center}#plist .pr{display:flex;align-items:center;gap:8px;background:#48494a;border:2px solid #1e1e1e;padding:6px;margin-bottom:6px}#plist .pr span{flex:1;font-weight:700}#plist .b{min-height:40px;padding:2px 12px 5px}
 .mym{display:flex;flex-direction:column;gap:6px}.mym .wr{cursor:default}.mym .wr .b{min-height:40px;padding:2px 12px 5px}
 #tags{position:fixed;inset:0;pointer-events:none;overflow:hidden}
 #tags div{position:absolute;transform:translate(-50%,-100%);background:rgba(0,0,0,.5);color:#fff;font:700 13px Vazirmatn;padding:1px 8px;white-space:nowrap}
@@ -295,6 +299,7 @@ body.netown .lockb{display:block}
   <div class="info" id="info"></div>
   <button class="netb" id="netInfo" type="button"></button>
   <button class="lockb" id="lockB" type="button"></button>
+  <button class="plb" id="plB" type="button">👥 یاریکەر</button>
   <div class="stats" id="stats"><div id="hearts"></div><div class="fd" id="food"></div></div>
   <div class="iname" id="iname"></div>
   <div class="hb" id="hotbar"></div>
@@ -313,6 +318,7 @@ body.netown .lockb{display:block}
   </div>
 </div>
 <div id="tags"></div>
+<div id="plist"></div>
 <div class="water" id="water"></div>
 <div class="hurt" id="hurt"></div>
 
@@ -1215,6 +1221,7 @@ function drawMine(){const box=$('#oMine');if(!box)return;box.textContent='';cons
 $('#oMineNew').addEventListener('click',async()=>{if(busy||!fdb||!me)return;if(Object.keys(MINE).length>=3){toast('هەتا ٣ جیهانان دشێی هەبن');return}busy=true;try{await netCreate(false,oMode,true)}catch(e){toast('✖ ئۆنلاین کار نەکر')}finally{busy=false}});
 async function netJoin(code,silent){const s=await fdb.ref('blk/'+code).once('value'),d=s.val();
   if(!d||!d.host){if(!silent)toast('ئەڤ کۆدە نینە');return false}
+  if(d.kick&&d.kick[me]){if(!silent)toast('🚫 خودانێ جیهانێ تو دەرئێخستی');return false}
   const n=Object.keys(d.p||{}).length,mx=d.keep?5:MAXP;if(n>=mx&&!(d.p||{})[me]){if(!silent)toast('ئەڤ جیهانە پڕە ('+mx+'/'+mx+')');return false}
   NET.host=d.host===me;NET.rnd=!!d.rnd;NET.keep=!!d.keep;NET.lock=!!d.lock;await enterNet(code,d);return true}
 async function findOpen(){const s=await fdb.ref('blk').orderByChild('open').startAt(now()-60000).limitToLast(20).once('value'),out=[];
@@ -1244,6 +1251,8 @@ async function enterNet(code,d){
 function netStart(code){NET.code=code;NET.others={};const r=NET.ref=fdb.ref('blk/'+code);document.body.classList.add('net');
  r.child('p/'+me).set({n:myName(),c:myCols(),x:+P.x.toFixed(2),y:+P.y.toFixed(2),z:+P.z.toFixed(2),yw:+P.yaw.toFixed(2),t:now()}).catch(()=>{});
  r.child('p/'+me).onDisconnect().remove();if(NET.host&&!NET.keep)r.onDisconnect().remove();document.body.classList.toggle('netown',NET.host&&NET.keep);
+ r.child('kick/'+me).on('value',s=>{if(s.val()&&NET.code===code&&!NET.host){toast('🚫 خودانێ جیهانێ تو دەرئێخستی');toMenu()}});
+ r.child('kick').on('value',s=>{NET.kick=s.val()||{};drawPlist()});
  r.child('lock').on('value',s=>{const v=!!s.val();if(NET.keep&&v!==NET.lock&&!NET.host)toast(v?'🔒 خودان ڕێ نادەت تو بگوهۆڕی':'🔓 نوکە دشێی ئاڤا بکەی');NET.lock=v;netLabel()});
  const onE=s=>{const q=s.key.split('_').map(Number),v=s.val()|0;if(q.length===3&&q.every(Number.isFinite)&&get(q[0],q[1],q[2])!==v){put(q[0],q[1],q[2],v);keepEdit(q[0],q[1],q[2]);const c=CH.get(ckey(q[0]>>4,q[2]>>4));if(c&&c.m)rebuildAt(q[0],q[2])}};
  r.child('e').on('child_added',onE);r.child('e').on('child_changed',onE);
@@ -1252,20 +1261,31 @@ function netStart(code){NET.code=code;NET.others={};const r=NET.ref=fdb.ref('blk
      if(!o){o=NET.others[u]={x:q.x,y:q.y,z:q.z,yw:q.yw||0,wk:0,el:null};toast('👋 '+String(q.n||'').slice(0,20)+' هات');SFX('join')}
      o.tx=q.x;o.ty=q.y;o.tz=q.z;o.tyw=q.yw||0;o.n=String(q.n||'').slice(0,20);o.c=String(q.c||'0,0,0,0').split(',').map(Number);o.t=q.t||0}
    for(const u in NET.others)if(!seen[u]){const o=NET.others[u];if(o.el)o.el.remove();toast('👋 '+o.n+' چوو');delete NET.others[u]}
-   NET.n=n;netLabel()});
+   NET.n=n;netLabel();drawPlist()});
  r.child('host').on('value',s=>{if(!s.exists()&&NET.code===code){toast(NET.keep?'ئەڤ جیهانە هاتە ژێبرن':'خودانێ جیهانێ دەرکەفت، جیهان هاتە گرتن');toMenu()}});
  clearInterval(NET.hb);if(NET.host&&NET.rnd)NET.hb=setInterval(()=>{if(NET.ref)NET.ref.child('open').set(NET.n<MAXP?now():0).catch(()=>{})},20000);
  netLabel()}
 function netLabel(){$('#netInfo').textContent=(NET.keep?'🏠 ':'🎟️ ')+(NET.code||'')+'  ·  👥 '+NET.n+'/'+maxP()+(roNet()?'  ·  🔒 تنێ دبینی':'');
  $('#lockB').textContent=NET.lock?'🔒 هەڤال تنێ دبینن':'🔓 هەڤال دشێن ئاڤا بکەن'}
 $('#lockB').addEventListener('click',()=>{if(!NET.ref||!NET.host||!NET.keep)return;NET.lock=!NET.lock;NET.ref.child('lock').set(NET.lock).catch(()=>{});netLabel();toast(NET.lock?'🔒 هەڤالێن تە نەشێن چ بگوهۆڕن':'🔓 هەڤالێن تە دشێن دگەل تە ئاڤا بکەن')});
+// the owner sees who is in the world and can put someone out (they cannot come back until allowed again)
+let PLK='';
+function drawPlist(force){const box=$('#plist');if(!box.classList.contains('on'))return;const key=Object.keys(NET.others).sort().join()+'|'+Object.keys(NET.kick||{}).sort().join();if(!force&&key===PLK)return;PLK=key;box.textContent='';const h=document.createElement('h3');h.textContent='👥 یاریکەرێن ناڤ جیهانا تە';box.append(h);
+ const row=(name,btn)=>{const r=document.createElement('div');r.className='pr';const sp=document.createElement('span');sp.textContent=name;r.append(sp);if(btn)r.append(btn);box.append(r)};
+ row('👑 '+myName());
+ for(const u in NET.others){const b=document.createElement('button');b.className='b r';b.textContent='🚫 دەربێخە';b.onclick=()=>{if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='پشتڕاستی؟';return}
+   NET.ref.update({['kick/'+u]:true,['p/'+u]:null,['sv/'+u]:null}).then(()=>toast('🚫 '+NET.others[u].n+' هاتە دەرئێخستن')).catch(()=>toast('✖'))};row(NET.others[u].n||'?',b)}
+ const ks=Object.keys(NET.kick||{});if(ks.length){const p=document.createElement('p');p.textContent='دەرئێخستی ('+ks.length+')';p.style.margin='10px 0 4px';box.append(p);
+  ks.forEach(u=>{const b=document.createElement('button');b.className='b';b.textContent='↩ ڕێ بدە';b.onclick=()=>NET.ref.child('kick/'+u).remove().catch(()=>{});row('🚫 یاریکەرەک',b)})}
+ const x=document.createElement('button');x.className='b';x.style.width='100%';x.textContent='گرتن';x.onclick=()=>box.classList.remove('on');box.append(x)}
+$('#plB').addEventListener('click',()=>{if(!NET.ref||!NET.host)return;$('#plist').classList.toggle('on');drawPlist(true)});
 function netSave(){if(!NET.ref||!NET.keep)return;const a=inv.map(q=>q?[q.id,q.n]:0);NET.ref.child('sv/'+me).set({i:JSON.stringify(a),x:+P.x.toFixed(2),y:+P.y.toFixed(2),z:+P.z.toFixed(2),h:P.hp,f:P.food}).catch(()=>{});
  if(NET.host)fdb.ref('bwmine/'+me+'/'+NET.code+'/t').set(now()).catch(()=>{})}
 $('#netInfo').addEventListener('click',async()=>{if(!NET.code)return;const t='وەرە دگەل من ل «جیهانا بلۆکان» یاری بکە! کۆد: '+NET.code;
   if(navigator.share){try{await navigator.share({text:t});return}catch(e){if(e&&e.name==='AbortError')return}}
   try{await navigator.clipboard.writeText(NET.code);toast('کۆد هاتە کۆپیکرن ✓')}catch(e){toast(NET.code)}});
 function netLeave(){const r=NET.ref;if(!r)return;netSave();NET.ref=null;
- try{r.child('e').off();r.child('p').off();r.child('host').off();r.child('lock').off();r.child('p/'+me).onDisconnect().cancel();if(NET.host&&!NET.keep)r.onDisconnect().cancel()}catch(e){}
+ try{r.child('e').off();r.child('p').off();r.child('host').off();r.child('lock').off();r.child('kick').off();r.child('kick/'+me).off();$('#plist').classList.remove('on');r.child('p/'+me).onDisconnect().cancel();if(NET.host&&!NET.keep)r.onDisconnect().cancel()}catch(e){}
  (NET.host&&!NET.keep?r.remove():r.child('p/'+me).remove()).catch(()=>{});document.body.classList.remove('netown');NET.keep=false;NET.lock=false;
  clearInterval(NET.hb);for(const u in NET.others){const o=NET.others[u];if(o.el)o.el.remove()}NET.others={};NET.code=null;NET.n=0;document.body.classList.remove('net')}
 function netEdit(x,y,z){keepEdit(x,y,z);if(NET.ref&&cur&&cur.net)NET.ref.child('e/'+x+'_'+y+'_'+z).set(get(x,y,z)).catch(()=>{})}
