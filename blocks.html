@@ -171,6 +171,16 @@ body.net .netb{display:block}
 body.netown .lockb{display:block}
 .plb{position:absolute;top:max(48px,calc(env(safe-area-inset-top) + 44px));left:calc(50% + 110px);background:rgba(0,0,0,.55);border:2px solid #111;color:#fff;font:700 14px Vazirmatn;padding:6px 10px;cursor:pointer;display:none;white-space:nowrap}
 body.netown .plb{display:block}
+#hChat{display:none;position:relative}body.net #hChat{display:grid}
+#hChat i{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;border-radius:9px;background:#e02424;color:#fff;font:700 11px/18px Vazirmatn;font-style:normal;text-align:center;display:none;padding:0 4px}
+#chat{position:fixed;left:max(10px,env(safe-area-inset-left));top:60px;width:min(360px,60%);max-height:calc(100% - 140px);display:none;flex-direction:column;background:rgba(20,20,20,.86);border:2px solid #111;z-index:25}
+#chat.on{display:flex}
+#chatL{flex:1;overflow-y:auto;padding:6px 8px;display:flex;flex-direction:column;gap:3px;touch-action:pan-y;min-height:80px}
+#chatL div{font:500 14px/1.45 Vazirmatn;color:#fff;word-break:break-word}#chatL b{color:#ffd84a;font-weight:700}#chatL .me b{color:#6cc349}#chatL .sys{color:#bbb;font-size:12px}
+#chatF{display:flex;gap:4px;padding:6px;border-top:2px solid #111}
+#chatF input{flex:1;padding:8px 10px;font-size:15px}#chatF .b{min-height:40px;padding:2px 12px 5px}
+#chatPop{position:fixed;left:max(10px,env(safe-area-inset-left));top:60px;max-width:60%;display:flex;flex-direction:column;gap:3px;pointer-events:none;z-index:24}
+#chatPop div{background:rgba(0,0,0,.6);color:#fff;font:500 14px Vazirmatn;padding:3px 10px;transition:opacity .5s}#chatPop b{color:#ffd84a}
 #plist{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(380px,92%);max-height:80%;overflow:auto;background:var(--pn);border:3px solid #111;box-shadow:inset 0 2px 0 #5a5b5c;padding:12px;z-index:30;display:none}
 #plist.on{display:block}#plist h3{margin:0 0 8px;text-align:center}#plist .pr{display:flex;align-items:center;gap:8px;background:#48494a;border:2px solid #1e1e1e;padding:6px;margin-bottom:6px}#plist .pr span{flex:1;font-weight:700}#plist .b{min-height:40px;padding:2px 12px 5px}
 .mym{display:flex;flex-direction:column;gap:6px}.mym .wr{cursor:default}.mym .wr .b{min-height:40px;padding:2px 12px 5px}
@@ -294,6 +304,7 @@ body.netown .plb{display:block}
   <div class="tl" data-lay="tl">
     <button class="hbtn" id="hPause" aria-label="راوەستان"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="5" height="16" fill="#fff"/><rect x="14" y="4" width="5" height="16" fill="#fff"/></svg></button>
     <button class="hbtn" id="hExit" aria-label="دەرکەفتن"><svg viewBox="0 0 24 24"><path d="M4 3h10v18H4z" fill="none" stroke="#fff" stroke-width="2.2"/><circle cx="11" cy="12" r="1.3" fill="#fff"/><path d="M15 12h7M19 8.5 22.5 12 19 15.5" fill="none" stroke="#fff" stroke-width="2.4"/></svg></button>
+    <button class="hbtn" id="hChat" aria-label="نامە"><svg viewBox="0 0 24 24"><path d="M3 4h18v12H9l-5 4v-4H3z" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/><path d="M7 9h10M7 12h6" stroke="#fff" stroke-width="2"/></svg><i id="chatN"></i></button>
     <button class="hbtn" id="hView" aria-label="گوهۆڕینا دیتنێ"><svg viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" fill="none" stroke="#fff" stroke-width="2.4"/><circle cx="12" cy="12" r="3.4" fill="#fff"/></svg></button>
   </div>
   <div class="info" id="info"></div>
@@ -319,6 +330,8 @@ body.netown .plb{display:block}
 </div>
 <div id="tags"></div>
 <div id="plist"></div>
+<div id="chatPop"></div>
+<div id="chat"><div id="chatL"></div><form id="chatF" autocomplete="off"><input type="text" id="chatI" maxlength="120" placeholder="نامەیەکێ بنڤیسە…"><button class="b g" type="submit">بهنێرە</button><button class="b" type="button" id="chatX">✕</button></form></div>
 <div class="water" id="water"></div>
 <div class="hurt" id="hurt"></div>
 
@@ -961,7 +974,7 @@ function step(dt){
  let nz=P.z+vz*dt;if(!collide(P.x,P.y,nz,HW,PH))P.z=nz;else if(moving&&inW)P.vy=Math.max(P.vy,collide(P.x,P.y+1.3,nz,HW,PH)?3:6.5);else if(S.auto&&moving&&P.ground&&!inW&&!collide(P.x,P.y+1.05,nz,HW,PH))P.vy=8.3;
  const ny=P.y+P.vy*dt,was=P.ground;
  if(!collide(P.x,ny,P.z,HW,PH)){P.y=ny;P.ground=false}
- else{if(P.vy<0){const fy=Math.floor(ny)+1;if(!collide(P.x,fy,P.z,HW,PH))P.y=fy;P.ground=true;if(P.fly&&!creative())P.fly=false}P.vy=0}
+ else{if(P.vy<0){const fy=Math.floor(ny)+1;if(!collide(P.x,fy,P.z,HW,PH))P.y=fy;P.ground=true;if(P.fly&&!canFly()){P.fly=false;document.body.classList.remove('fly')}}P.vy=0}
  if(P.ground||inW||P.fly){if(P.ground&&!was&&!inW&&!P.fly){const fall=P.air-P.y;if(fall>1.2)SFX('land',get(Math.floor(P.x),Math.floor(P.y-.2),Math.floor(P.z)));if(fall>3.5)damage(Math.floor(fall-3))}P.air=P.y}else P.air=Math.max(P.air,P.y);
  if(P.y<-6){if(creative()){P.x=spawn[0];P.y=spawn[1];P.z=spawn[2];P.vy=0}else damage(40)}
  P.walk=moving&&P.ground?P.walk+dt*9:P.walk*.8;
@@ -1150,7 +1163,9 @@ const dpEnd=e=>{if(e.pointerId!==dpId)return;dpId=null;dp.u=dp.d=dp.l=dp.r=0;dpE
 dpEl.addEventListener('pointerup',dpEnd);dpEl.addEventListener('pointercancel',dpEnd);
 /* jump & down */
 let lastJump=0;
-function toggleFly(){if(!creative())return;P.fly=!P.fly;P.vy=0;document.body.classList.toggle('fly',P.fly);toast(P.fly?'فڕین ڤەبوو':'فڕین گرتی بوو')}
+// creative players, and the owner in his own kept world, can fly (double-tap jump)
+function canFly(){return creative()||!!(NET.ref&&NET.host&&NET.keep)}
+function toggleFly(){if(!canFly())return;P.fly=!P.fly;P.vy=0;document.body.classList.toggle('fly',P.fly);toast(P.fly?'فڕین ڤەبوو':'فڕین گرتی بوو')}
 function jumpPress(){const n=performance.now();if(n-lastJump<300)toggleFly();lastJump=n}
 const bJ=$('#bJump'),bD=$('#bDown');
 bJ.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();jumpHeld=true;bJ.classList.add('on');jumpPress();try{bJ.setPointerCapture(e.pointerId)}catch(_){}});
@@ -1247,10 +1262,12 @@ async function enterNet(code,d){
  P.vy=0;P.air=P.y;P.kx=P.kz=0;sel=0;
  await buildWorldMesh(35,100);
  for(let i=0;i<8;i++){const a=Math.random()*6.28,dd=6+Math.random()*24;spawnMob(Math.random()<.5?'cow':'sheep',P.x+Math.cos(a)*dd,P.z+Math.sin(a)*dd)}
- renderHotbar();lastHF='';state='game';showScreen(null);netStart(code)}
+ renderHotbar();lastHF='';state='game';showScreen(null);netStart(code);
+ if(NET.host&&NET.keep&&cur.mode!=='c')setTimeout(()=>toast('👑 جیهانا تە یە: دوو جاران ل بازدانێ بدە بۆ فڕینێ'),1500)}
 function netStart(code){NET.code=code;NET.others={};const r=NET.ref=fdb.ref('blk/'+code);document.body.classList.add('net');
  r.child('p/'+me).set({n:myName(),c:myCols(),x:+P.x.toFixed(2),y:+P.y.toFixed(2),z:+P.z.toFixed(2),yw:+P.yaw.toFixed(2),t:now()}).catch(()=>{});
  r.child('p/'+me).onDisconnect().remove();if(NET.host&&!NET.keep)r.onDisconnect().remove();document.body.classList.toggle('netown',NET.host&&NET.keep);
+ chatStart(r);
  r.child('kick/'+me).on('value',s=>{if(s.val()&&NET.code===code&&!NET.host){toast('🚫 خودانێ جیهانێ تو دەرئێخستی');toMenu()}});
  r.child('kick').on('value',s=>{NET.kick=s.val()||{};drawPlist()});
  r.child('lock').on('value',s=>{const v=!!s.val();if(NET.keep&&v!==NET.lock&&!NET.host)toast(v?'🔒 خودان ڕێ نادەت تو بگوهۆڕی':'🔓 نوکە دشێی ئاڤا بکەی');NET.lock=v;netLabel()});
@@ -1279,13 +1296,36 @@ function drawPlist(force){const box=$('#plist');if(!box.classList.contains('on')
   ks.forEach(u=>{const b=document.createElement('button');b.className='b';b.textContent='↩ ڕێ بدە';b.onclick=()=>NET.ref.child('kick/'+u).remove().catch(()=>{});row('🚫 یاریکەرەک',b)})}
  const x=document.createElement('button');x.className='b';x.style.width='100%';x.textContent='گرتن';x.onclick=()=>box.classList.remove('on');box.append(x)}
 $('#plB').addEventListener('click',()=>{if(!NET.ref||!NET.host)return;$('#plist').classList.toggle('on');drawPlist(true)});
+/* ---- chat: only inside an online world; a message with a phone number is not sent ---- */
+const DIG='0-9٠-٩۰-۹';
+function hasPhone(t){const d=t.replace(/[٠-٩]/g,c=>c.charCodeAt(0)-1632).replace(/[۰-۹]/g,c=>c.charCodeAt(0)-1776);
+ if(/(\d[\s\-.()_\/+]*){7,}/.test(d))return true;                       // 7 digits or more, even with spaces between
+ const w=d.toLowerCase().replace(/[^a-z؀-ۿ]/g,' ');            // numbers written as words
+ const nums=['sifir','zero','one','two','three','four','five','six','seven','eight','nine','صفر','واحد','اثنين','ثلاثة','اربعة','خمسة','ستة','سبعة','ثمانية','تسعة','سفر','یەک','دوو','سێ','چار','پێنج','شەش','حەوت','هەشت','نەه','ئێک'];
+ let k=0;for(const x of w.split(/\s+/))if(nums.includes(x))k++;if(k>=7)return true;
+ return /wa\.me|whatsapp|واتس|t\.me|telegram|snapchat|instagram|insta\b/i.test(t)}
+let chatRef=null,chatLast=0,chatUnread=0,chatSeen={};
+function chatLine(m){const d=document.createElement('div');if(m.u===me)d.className='me';const b=document.createElement('b');b.textContent=String(m.n||'?').slice(0,20)+': ';d.append(b,document.createTextNode(String(m.x||'').slice(0,120)));return d}
+function chatStart(r){chatSeen={};chatUnread=0;$('#chatL').textContent='';chatBadge();const sys=document.createElement('div');sys.className='sys';sys.textContent='💬 نامە تنێ ل ناڤ ڤێ جیهانێ دهێنە دیتن. ژمارێن مۆبایلێ نایێنە هنارتن.';$('#chatL').append(sys);
+ chatRef=r.child('m').limitToLast(40);chatRef.on('child_added',s=>{const m=s.val();if(!m||chatSeen[s.key])return;chatSeen[s.key]=1;if(typeof m.x!=='string'||hasPhone(m.x))return;
+  const L=$('#chatL');L.append(chatLine(m));while(L.children.length>60)L.children[1].remove();L.scrollTop=L.scrollHeight;
+  if(m.u!==me){SFX('pop');if(!$('#chat').classList.contains('on')){chatUnread++;chatBadge();const p=chatLine(m);$('#chatPop').append(p);setTimeout(()=>{p.style.opacity='0';setTimeout(()=>p.remove(),600)},5000);while($('#chatPop').children.length>3)$('#chatPop').firstChild.remove()}}})}
+function chatStop(){if(chatRef)chatRef.off();chatRef=null;$('#chat').classList.remove('on');$('#chatPop').textContent=''}
+function chatBadge(){const n=$('#chatN');n.style.display=chatUnread?'block':'none';n.textContent=chatUnread>9?'9+':chatUnread}
+$('#hChat').addEventListener('click',()=>{if(!NET.ref)return;const c=$('#chat');c.classList.toggle('on');if(c.classList.contains('on')){chatUnread=0;chatBadge();$('#chatPop').textContent='';const L=$('#chatL');L.scrollTop=L.scrollHeight;setTimeout(()=>$('#chatI').focus(),50)}});
+$('#chatX').addEventListener('click',()=>{$('#chat').classList.remove('on');$('#chatI').blur()});
+$('#chatF').addEventListener('submit',e=>{e.preventDefault();const i=$('#chatI'),t=i.value.replace(/\s+/g,' ').trim().slice(0,120);if(!t||!NET.ref)return;
+ if(hasPhone(t)){toast('🚫 ژمارێن مۆبایلێ و لینک نایێنە هنارتن');i.value='';return}
+ if(Date.now()-chatLast<1500){toast('هێدی ببە…');return}chatLast=Date.now();
+ NET.ref.child('m').push({u:me,n:myName(),x:t,t:now()}).catch(()=>toast('✖ نەهاتە هنارتن'));i.value=''});
+$('#chatI').addEventListener('keydown',e=>e.stopPropagation());
 function netSave(){if(!NET.ref||!NET.keep)return;const a=inv.map(q=>q?[q.id,q.n]:0);NET.ref.child('sv/'+me).set({i:JSON.stringify(a),x:+P.x.toFixed(2),y:+P.y.toFixed(2),z:+P.z.toFixed(2),h:P.hp,f:P.food}).catch(()=>{});
  if(NET.host)fdb.ref('bwmine/'+me+'/'+NET.code+'/t').set(now()).catch(()=>{})}
 $('#netInfo').addEventListener('click',async()=>{if(!NET.code)return;const t='وەرە دگەل من ل «جیهانا بلۆکان» یاری بکە! کۆد: '+NET.code;
   if(navigator.share){try{await navigator.share({text:t});return}catch(e){if(e&&e.name==='AbortError')return}}
   try{await navigator.clipboard.writeText(NET.code);toast('کۆد هاتە کۆپیکرن ✓')}catch(e){toast(NET.code)}});
-function netLeave(){const r=NET.ref;if(!r)return;netSave();NET.ref=null;
- try{r.child('e').off();r.child('p').off();r.child('host').off();r.child('lock').off();r.child('kick').off();r.child('kick/'+me).off();$('#plist').classList.remove('on');r.child('p/'+me).onDisconnect().cancel();if(NET.host&&!NET.keep)r.onDisconnect().cancel()}catch(e){}
+function netLeave(){const r=NET.ref;if(!r)return;if(!creative()){P.fly=false;document.body.classList.remove('fly')}netSave();NET.ref=null;
+ try{chatStop(r);r.child('e').off();r.child('p').off();r.child('host').off();r.child('lock').off();r.child('kick').off();r.child('kick/'+me).off();$('#plist').classList.remove('on');r.child('p/'+me).onDisconnect().cancel();if(NET.host&&!NET.keep)r.onDisconnect().cancel()}catch(e){}
  (NET.host&&!NET.keep?r.remove():r.child('p/'+me).remove()).catch(()=>{});document.body.classList.remove('netown');NET.keep=false;NET.lock=false;
  clearInterval(NET.hb);for(const u in NET.others){const o=NET.others[u];if(o.el)o.el.remove()}NET.others={};NET.code=null;NET.n=0;document.body.classList.remove('net')}
 function netEdit(x,y,z){keepEdit(x,y,z);if(NET.ref&&cur&&cur.net)NET.ref.child('e/'+x+'_'+y+'_'+z).set(get(x,y,z)).catch(()=>{})}
