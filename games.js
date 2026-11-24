@@ -174,7 +174,7 @@ function buildCarousel(){var lob=document.getElementById("lobby");if(!lob||lob.q
   trk.addEventListener("scroll",function(){requestAnimationFrame(paint)},{passive:true});
   var tries=0;(function go(){if(!trk.clientWidth&&++tries<60){setTimeout(go,150);return}center(cur,false);paint()})();
   addEventListener("resize",function(){center(near(),false);paint()})}
-/* ---- the play-time gift: 3 hours of play in a day = 1500 coins, 6 hours = 100 AG.
+/* ---- the play-time gift: 3 hours of play in a day = 50 AG, 6 hours = 100 AG.
    The clock only runs while the app is on screen and the player is touching it; leaving and coming back carries on from the same time; at midnight (Baghdad) it starts again from 3:00:00.
    Every minute is saved in ptime/{uid} and the database rules check that a real minute has passed, so it can't be faked. ---- */
 var GT={gift:["دیاری","دیاری","هدية","Gift"],take:["وەرگرە!","وەریبگرە!","استلم!","Claim!"],
@@ -183,7 +183,7 @@ var GT={gift:["دیاری","دیاری","هدية","Gift"],take:["وەرگرە!"
         "🎁 دیارییەکی شاراوە!\nیاری بکە تا کاتژمێرەکە دەگاتە 00:00:00، پاشان بیکەرەوە و بزانە چی تێدایە.\nکات تەنها کاتێک دەڕوات کە لە ناو یارییەکەیت. ئەگەر دەرچیت و بگەڕێیتەوە، لە هەمان شوێن بەردەوام دەبێت. هەموو شەوێک لە نیوەشەو لە سەرەتاوە دەست پێدەکاتەوە.",
         "🎁 هدية مخفية!\nالعب حتى يصل العداد إلى 00:00:00، ثم افتحها واكتشف ما بداخلها.\nالوقت يُحسب فقط وأنت داخل اللعبة، ويتوقف عند خروجك. إذا خرجت ورجعت يكمل من حيث توقف. يبدأ من جديد كل ليلة عند منتصف الليل.",
         "🎁 A mystery gift!\nPlay until the timer reaches 00:00:00, then open it to see what's inside.\nThe clock only runs while you are in the game and stops when you leave. Leave and come back and it carries on where it stopped. It starts again every night at midnight."],
-  got1:["🎉 تە 1500 کۆین وەرگرتن!","🎉 1500 کۆینت وەرگرت!","🎉 حصلت على 1500 عملة!","🎉 You got 1500 coins!"],
+  got1:["🎉 تە 50 AG وەرگرتن!","🎉 50 AG ت وەرگرت!","🎉 حصلت على 50 AG!","🎉 You got 50 AG!"],
   got2:["🎉 تە 100 AG وەرگرتن!","🎉 100 AG ت وەرگرت!","🎉 حصلت على 100 AG!","🎉 You got 100 AG!"],
   next:["🎁 دیاریەکا دی یا ڤەشارتی ل هیڤیا تە یە!","🎁 دیارییەکی تری شاراوە چاوەڕێتە!","🎁 هدية مخفية أخرى بانتظارك!","🎁 Another mystery gift is waiting for you!"],
   err:["نەهاتە وەرگرتن، دووبارە بکە","وەرنەگیرا، دووبارە بکەرەوە","تعذر الاستلام، أعد المحاولة","Could not claim, try again"]};
@@ -237,10 +237,10 @@ function ptDiag(){var S=PT.S;return"\n\n[v4 · "+(PT.uid?"✓":"✗")+" · m="+(
 function ptClaim(){var st=ptState();if(st.k!=="rd"){gPop(gtx("info")+ptDiag(),"🎁");return}if(PT.busy)return;PT.busy=true;
   var db=firebase.database(),u=PT.uid,S=PT.S,TS=firebase.database.ServerValue.TIMESTAMP,up={};
   up["ptime/"+u+"/t"]=TS;
-  if(st.g===1){up["ptime/"+u+"/g1"]=true;up["coins/"+u+"/c"]=firebase.database.ServerValue.increment(1500)}
+  if(st.g===1){up["ptime/"+u+"/g1"]=true;up["wallets/"+u+"/ag"]=firebase.database.ServerValue.increment(50)}
   else{up["ptime/"+u+"/g2"]=true;up["wallets/"+u+"/ag"]=firebase.database.ServerValue.increment(100)}
   db.ref().update(up).then(function(){PT.busy=false;try{navigator.vibrate&&navigator.vibrate([60,40,120])}catch(e){}
-      gPop(st.g===1?gtx("got1")+"\n\n"+gtx("next"):gtx("got2"),st.g===1?"🪙":"AG")},
+      gPop(st.g===1?gtx("got1")+"\n\n"+gtx("next"):gtx("got2"),"AG")},
     function(){PT.busy=false;gPop(gtx("err"),"⚠️")})}
 function buildGift(){var lob=document.getElementById("lobby");if(!lob||document.querySelector(".aggift"))return;gCss();
   var el=document.createElement("div");el.className="aggift no-tr";el.title=gtx("gift");
