@@ -687,6 +687,8 @@ html,body{touch-action:pan-y;overscroll-behavior-x:none;-webkit-text-size-adjust
 .rich-hist .warn{color:#ffb15c;font-weight:800}.rich-hist .okk{color:#2fd27a;font-weight:800}
   #waitBox{display:flex;flex-direction:column;gap:8px;align-items:center;text-align:center;background:rgba(28,12,18,.96)!important;z-index:6}#waitBox[hidden]{display:none}
   .bigcode{font-family:var(--f-mono);font-size:44px;font-weight:900;letter-spacing:10px;background:rgba(0,0,0,.3);border:2px dashed #facc15;color:#facc15;border-radius:16px;padding:8px 22px;user-select:all}
+
+/*NOSTAKE*/#stakeInfo,#stakeBox,#cStakeBox,.coin-res,#cardTour,a.tb-pill[href="./#coins"],#tbCoin,.tab[data-tab="coins"],#tab-coins{display:none!important}
 </style>
 <style id="no-move-icons">/* the lobby icons stay still on every phone */.card .art>svg,.art .vs,.art .beat,.bnav .on .bi{animation:none!important}</style>
 </head>
@@ -1542,16 +1544,16 @@ function startLive(){
 /*CSTAKE-BEGIN*/
 // chess entry fee in coins (online games only); the winner takes double, a draw gives it back
 const C_STAKES=[25,100,250,500,1000,2000];let cStake=25,searchStake=25;
-try{const v=+localStorage.getItem("chess.stake");if(C_STAKES.includes(v))cStake=v}catch(e){}
-function cStakeUI(){const b=$("cStakeBox");if(!b)return;b.hidden=!user||OFFLINE;$("cStakeVal").textContent=cStake.toLocaleString("en-US");
+
+function cStakeUI(){const b=$("cStakeBox");if(!b)return;b.hidden=true;$("cStakeVal").textContent=cStake.toLocaleString("en-US");
   $("cStakeWin").textContent="🏆 یێ بەت +"+(cStake*2).toLocaleString("en-US")+" 🪙"}
 function cStakeStep(d){const i=Math.max(0,Math.min(C_STAKES.length-1,C_STAKES.indexOf(cStake)+d));cStake=C_STAKES[i];try{localStorage.setItem("chess.stake",cStake)}catch(e){}cStakeUI()}
 async function cCoins(){try{let v=(await fdb.ref("coins/"+me+"/c").once("value")).val();
   if(v==null){await fdb.ref("coins/"+me).update({c:150,since:now()});v=150;toast("🎁 150 🪙 دیاری بۆ تە!")}return v}catch(e){return coinsNow||0}}
-async function cEnough(st){const c=await cCoins();if(c>=st)return true;toast("🪙 کۆینێن تە بەس ناکەن (پێدڤی "+st+"). ل دکانێ ب AG بکڕە.");return false}
+async function cEnough(st){return true;const c=await cCoins();if(c>=st)return true;toast("🪙 کۆینێن تە بەس ناکەن (پێدڤی "+st+"). ل دکانێ ب AG بکڕە.");return false}
 const colName=c=>c==="w"?"white":"black";
 let cPayBusy=false,cClaimBusy=false;
-async function cPay(g){const mc=myColor();if(!g||!g.stake||!mc||cPayBusy||(g.staked&&g.staked[colName(mc)]))return;cPayBusy=true;
+async function cPay(g){return;const mc=myColor();if(!g||!g.stake||!mc||cPayBusy||(g.staked&&g.staked[colName(mc)]))return;cPayBusy=true;
   try{await fdb.ref().update({["coins/"+me+"/c"]:firebase.database.ServerValue.increment(-g.stake),["games/"+g.code+"/staked/"+colName(mc)]:true})}catch(e){}
   cPayBusy=false}
 function cWon(g){const mc=myColor(),both=g.staked&&g.staked.white&&g.staked.black;
