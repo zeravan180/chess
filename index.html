@@ -688,7 +688,7 @@ html,body{touch-action:pan-y;overscroll-behavior-x:none;-webkit-text-size-adjust
   #waitBox{display:flex;flex-direction:column;gap:8px;align-items:center;text-align:center;background:rgba(28,12,18,.96)!important;z-index:6}#waitBox[hidden]{display:none}
   .bigcode{font-family:var(--f-mono);font-size:44px;font-weight:900;letter-spacing:10px;background:rgba(0,0,0,.3);border:2px dashed #facc15;color:#facc15;border-radius:16px;padding:8px 22px;user-select:all}
 
-/*NOSTAKE*/#stakeInfo,#stakeBox,#cStakeBox,.coin-res,#cardTour,a.tb-pill[href="./#coins"],#tbCoin,.tab[data-tab="coins"],#tab-coins{display:none!important}
+/*NOSTAKE*/#tab-sell,.tab[data-tab="sell"],#stakeInfo,#stakeBox,#cStakeBox,.coin-res,#cardTour,a.tb-pill[href="./#coins"],#tbCoin,.tab[data-tab="coins"],#tab-coins{display:none!important}
 </style>
 <style id="no-move-icons">/* the lobby icons stay still on every phone */.card .art>svg,.art .vs,.art .beat,.bnav .on .bi{animation:none!important}</style>
 </head>
@@ -2966,7 +2966,7 @@ function renderSell(){
     li.append(top,m);ul.append(li)})}
 function payLogo(k){const src=(typeof PAY_LOGO!=="undefined"&&PAY_LOGO[k])||"";if(src){const im=document.createElement("img");im.alt="";im.src=src;return im}
   const d=document.createElement("span");d.className="lg";d.style.background="#2b6cb0";return d}
-async function sendSell(){
+async function sendSell(){toast("فرۆتنا AG ب پارە هاتیە ڕاوەستاندن.");return;
   const ag=sellAmount(),bal=(wallet&&wallet.ag)||0,acc=$("sellAcc").value.trim(),name=$("sellName").value.trim();
   if(ag<SELL_MIN){toast("کێمترین فرۆتن "+SELL_MIN+" AG یە.");return}
   if(ag>bal){toast("AG یا تە بەس ناکەت.");return}
