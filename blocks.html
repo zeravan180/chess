@@ -145,7 +145,7 @@ body.lay #hud [data-lay].pick{outline:3px solid #6cc349}
 .sl.tg{outline:3px solid #fff;background:#a0a0a0}
 .g9{--s:min(42px,calc((100cqw - 18px)/9));display:grid;grid-template-columns:repeat(9,var(--s));gap:2px;direction:ltr}
 .craft{--s:min(42px,calc((100cqw - 18px)/9));display:flex;align-items:center;gap:10px;direction:ltr;margin:4px 0 8px;flex-wrap:wrap}
-.c2{display:grid;grid-template-columns:repeat(2,var(--s));gap:2px}
+.c2{display:grid;grid-template-columns:repeat(2,var(--s));gap:2px}.c3{display:grid;grid-template-columns:repeat(3,var(--s));gap:2px}
 .arrow{font:900 26px Vazirmatn;color:#666}
 .pv{width:calc(var(--s)*1.8);height:calc(var(--s)*2.6);background:#000;border:2px solid #373737;image-rendering:pixelated}
 .rl{overflow:auto;flex:1;min-height:0;display:flex;flex-direction:column;gap:4px;touch-action:pan-y}
@@ -946,7 +946,13 @@ const saveList=()=>LS.set('bw_list',worlds);
 let state='load',cur=null,thumb='';
 const P={x:48,y:30,z:48,vy:0,ground:false,fly:false,sneak:false,hp:20,food:20,yaw:0,pitch:-.2,air:0,kx:0,kz:0,walk:0,swing:0};
 let inv=new Array(36).fill(null),sel=0,time=.08,spawn=[48,30,48],mobs=[],view=0,dirty=false;
-let grid=[null,null,null,null],atTable=false;
+let grid=new Array(9).fill(null),atTable=false;
+// every kind of plank works where a recipe asks for planks
+const PLANKS=()=>[PL,BPLK,SPLK,DPLK,APLK,JPLK];
+const grp=id=>+id===PL?PLANKS():[+id];
+const countG=id=>grp(id).reduce((a,k)=>a+countItem(k),0);
+function takeG(id,n){for(const k of grp(id)){const h=Math.min(n,countItem(k));if(h){takeItem(k,h);n-=h}if(!n)break}}
+const gN=()=>atTable?9:4;
 
 function saveWorld(){if(!cur||cur.net)return;
  const ok=LS.set('bw_w_'+cur.id,{v:2,seed:cur.seed,leg:cur.leg||null,ed:EDITS,p:[P.x,P.y,P.z,P.yaw,P.pitch],hp:P.hp,food:P.food,inv,time,spawn,mode:cur.mode});
@@ -1434,7 +1440,7 @@ let invTab='c',invSearch='',target=0,selSlot=null;
 const SVGSEARCH='<svg viewBox="0 0 24 24"><circle cx="10" cy="10" r="6" fill="none" stroke="#fff" stroke-width="3"/><path d="M15 15l6 6" stroke="#fff" stroke-width="3.5"/></svg>';
 const catalog=()=>Object.values(DEF).filter(d=>d.cat&&d.id!==BE);
 function openInv(table){if(state!=='game')return;atTable=!!table;state='inv';exitLock();selSlot=null;target=sel;renderInv();showScreen('sInv')}
-function closeInv(){for(let i=0;i<4;i++)if(grid[i]){addItem(grid[i].id,grid[i].n);grid[i]=null}selSlot=null;state='game';renderHotbar();showScreen(null)}
+function closeInv(){for(let i=0;i<9;i++)if(grid[i]){addItem(grid[i].id,grid[i].n);grid[i]=null}selSlot=null;state='game';renderHotbar();showScreen(null)}
 $('#invX').addEventListener('click',closeInv);
 function slotHTML(s,attr,cls=''){return `<button class="sl ${cls}" ${attr}>${s?iconImg(s.id)+(s.n>1?`<span>${s.n}</span>`:''):''}</button>`}
 function renderInv(){const body=$('#invBody');
@@ -1451,22 +1457,22 @@ function renderInv(){const body=$('#invBody');
   const q=$('#invQ');if(q){q.addEventListener('input',()=>{invSearch=q.value;const pos=q.selectionStart;renderInv();const n=$('#invQ');n.focus();try{n.setSelectionRange(pos,pos)}catch(_){}})}
  }else{$('#invT').textContent=atTable?'مێزا چێکرنێ':'کەلوپەل';
   const res=gridResult();
-  body.innerHTML=`<div class="ip"><h3>پەرتووکا چێکرنێ</h3><div class="rl">${RECIPES.map((r,i)=>{const okI=Object.entries(r.in).every(([id,n])=>countItem(+id)>=n),okT=!r.t||atTable;
+  body.innerHTML=`<div class="ip"><h3>پەرتووکا چێکرنێ</h3><div class="rl">${RECIPES.map((r,i)=>{const okI=Object.entries(r.in).every(([id,n])=>countG(+id)>=n),okT=!r.t||atTable;
     return `<div class="rc"><img src="${ICON[r.out[0]]}" alt=""><div class="nm">${esc(DEF[r.out[0]].name)}${r.out[1]>1?' ×'+r.out[1]:''}</div><div class="ing">${Object.entries(r.in).map(([id,n])=>`${n}×<img src="${ICON[id]}" alt="${esc(DEF[id].name)}" title="${esc(DEF[id].name)}">`).join(' ')}</div>${okT?`<button class="b g" data-rec="${i}" ${okI?'':'disabled'}>چێکە</button>`:'<span class="small">مێز پێدڤییە</span>'}</div>`}).join('')}</div></div>
-   <div class="ip" style="overflow:auto"><div class="craft"><canvas class="pv" id="invPv" width="16" height="24"></canvas><div class="c2">${grid.map((s,i)=>slotHTML(s,`data-grid="${i}"`)).join('')}</div><span class="arrow">→</span>${slotHTML(res?{id:res.out[0],n:res.out[1]}:null,'data-res="1"')}</div>
+   <div class="ip" style="overflow:auto"><div class="craft"><canvas class="pv" id="invPv" width="16" height="24"></canvas><div class="${atTable?'c3':'c2'}">${grid.slice(0,gN()).map((s,i)=>slotHTML(s,`data-grid="${i}"`)).join('')}</div><span class="arrow">→</span>${slotHTML(res?{id:res.out[0],n:res.out[1]}:null,'data-res="1"')}</div>
    <div class="g9">${inv.slice(9).map((s,i)=>slotHTML(s,`data-inv="${i+9}"`,selSlot===i+9?'sel':'')).join('')}</div><div class="sp"></div>
    <div class="g9">${inv.slice(0,9).map((s,i)=>slotHTML(s,`data-inv="${i}"`,selSlot===i?'sel':'')).join('')}</div>
-   <p class="small" style="margin:8px 0 0">ل کەلوپەلەکی بدە دا هەلبژێری، پاشی ل جهەکێ دی بدە دا بگوهێزی. بۆ چێکرنێ، ل خانەیێن ٢×٢ بدە.</p></div>`;
+   <p class="small" style="margin:8px 0 0">ل کەلوپەلەکی بدە دا هەلبژێری، پاشی ل جهەکێ دی بدە دا بگوهێزی. بۆ چێکرنێ، ل خانەیێن ${atTable?'٣×٣':'٢×٢'} بدە.</p></div>`;
   drawSkin($('#invPv'))}}
-function gridResult(){const cnt={};let any=false;for(const g of grid)if(g){cnt[g.id]=(cnt[g.id]||0)+1;any=true}if(!any)return null;
- return RECIPES.find(r=>(!r.t||atTable)&&Object.keys(r.in).length===Object.keys(cnt).length&&Object.entries(r.in).every(([id,n])=>cnt[id]===n))||null}
+function gridResult(){const n=gN(),cnt={},cg={};let any=false;for(let i=0;i<n;i++){const g=grid[i];if(g){cnt[g.id]=(cnt[g.id]||0)+1;const k=PLANKS().includes(g.id)?PL:g.id;cg[k]=(cg[k]||0)+1;any=true}}if(!any)return null;
+ const m=c=>RECIPES.find(r=>(!r.t||atTable)&&Object.keys(r.in).length===Object.keys(c).length&&Object.entries(r.in).every(([id,q])=>c[id]===q));return m(cnt)||m(cg)||null}
 $('#invBody').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
  if(b.dataset.tab){invTab=b.dataset.tab;renderInv();return}
  if(b.dataset.cat){const id=+b.dataset.cat;inv[target]={id,n:DEF[id].max};toast(DEF[id].name);renderInv();renderHotbar();return}
  if(b.dataset.hot){target=+b.dataset.hot;sel=target;renderInv();renderHotbar();return}
  if(b.id==='invDel'){inv[target]=null;renderInv();renderHotbar();return}
  if(b.id==='invClr'){for(let i=0;i<36;i++)inv[i]=null;renderInv();renderHotbar();return}
- if(b.dataset.rec){const r=RECIPES[+b.dataset.rec];if(!Object.entries(r.in).every(([id,n])=>countItem(+id)>=n))return;for(const[id,n]of Object.entries(r.in))takeItem(+id,n);addItem(r.out[0],r.out[1]);SFX('pop');toast('+'+r.out[1]+' '+DEF[r.out[0]].name);renderInv();return}
+ if(b.dataset.rec){const r=RECIPES[+b.dataset.rec];if(!Object.entries(r.in).every(([id,n])=>countG(+id)>=n))return;for(const[id,n]of Object.entries(r.in))takeG(+id,n);addItem(r.out[0],r.out[1]);SFX('pop');toast('+'+r.out[1]+' '+DEF[r.out[0]].name);renderInv();return}
  if(b.dataset.inv){const i=+b.dataset.inv;
   if(selSlot==null){if(inv[i])selSlot=i}
   else if(selSlot===i)selSlot=null;
@@ -1477,7 +1483,7 @@ $('#invBody').addEventListener('click',e=>{const b=e.target.closest('button');if
   if(selSlot!=null&&inv[selSlot]&&(!grid[i]||grid[i].id===inv[selSlot].id)&&!(grid[i])){const a=inv[selSlot];grid[i]={id:a.id,n:1};a.n--;if(!a.n){inv[selSlot]=null;selSlot=null}}
   else if(grid[i]){addItem(grid[i].id,grid[i].n);grid[i]=null}
   renderInv();renderHotbar();return}
- if(b.dataset.res){const r=gridResult();if(!r)return;for(let i=0;i<4;i++)if(grid[i]){grid[i].n--;if(!grid[i].n)grid[i]=null}addItem(r.out[0],r.out[1]);toast('+'+r.out[1]+' '+DEF[r.out[0]].name);renderInv();renderHotbar()}
+ if(b.dataset.res){const r=gridResult();if(!r)return;for(let i=0;i<gN();i++)if(grid[i]){grid[i].n--;if(!grid[i].n)grid[i]=null}addItem(r.out[0],r.out[1]);toast('+'+r.out[1]+' '+DEF[r.out[0]].name);renderInv();renderHotbar()}
 });
 
 /* ================= enter world ================= */
