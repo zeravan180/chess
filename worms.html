@@ -193,7 +193,10 @@ function rankOf(s){const live=snakes.filter(q=>q.alive||q===s).sort((a,b)=>b.len
 
 function steer(s,dt){
   if(s.bot){s.think-=dt;if(s.think<=0){s.think=rnd(.12,.25);botThink(s)}}
-  let d=s.tgt-s.ang;d=Math.atan2(Math.sin(d),Math.cos(d));const max=s.turnRate*dt*(1.2-radiusOf(s.len)/80);s.ang+=Math.max(-max,Math.min(max,d))}
+  let d=s.tgt-s.ang;d=Math.atan2(Math.sin(d),Math.cos(d));
+  // the player's worm can always turn on the spot: the circle it makes is only a little wider than its own body, small or big
+  const sp=s.boost&&s.len>15?BOOST:SP,rate=s.bot?s.turnRate*(1.2-radiusOf(s.len)/80):Math.max(3,Math.min(9,sp/(radiusOf(s.len)*1.5)));
+  const max=rate*dt;s.ang+=Math.max(-max,Math.min(max,d))}
 function botThink(s){const h=s.pts[0],r=radiusOf(s.len);
   // stay inside the arena
   const dc=Math.hypot(h[0],h[1]);if(dc>R-260){s.tgt=Math.atan2(-h[1],-h[0])+rnd(-.4,.4);s.boost=false;return}
