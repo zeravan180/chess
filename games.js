@@ -381,3 +381,16 @@ AG.seatFrames=seatFrames;
 function ready(){fillSwitch();buildCarousel();buildGift();playTimer();dmBadge();fzWatchAll();paintMine();watchSeats()}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",ready);else ready();
 })();
+
+// ---------- count every finished game for each player (plays/<uid>/<game>), shown to the admin ----------
+window.AG_played=function(key){try{if(!window.firebase||!firebase.apps||!firebase.apps.length)return;const u=firebase.auth().currentUser;if(!u)return;
+  key=String(key||location.pathname.split("/").pop().replace(/\.html$/,"")||"chess").toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,12)||"chess";if(key==="index")key="chess";
+  const b="plays/"+u.uid+"/",o={};o[b+key]=firebase.database.ServerValue.increment(1);o[b+"n"]=firebase.database.ServerValue.increment(1);o[b+"t"]=firebase.database.ServerValue.TIMESTAMP;
+  firebase.database().ref().update(o).catch(()=>{})}catch(e){}};
+// every game that gives XP at its end writes xp/<uid> once per finished game: count that as one game played
+(function(){let tries=0;const hook=()=>{try{const R=window.firebase&&firebase.database&&firebase.database.Reference;if(!R||!R.prototype){if(tries++<40)setTimeout(hook,250);return}
+  if(R.prototype.__agHook)return;R.prototype.__agHook=1;const orig=R.prototype.set;
+  R.prototype.set=function(v){try{const pg=location.pathname.split("/").pop().replace(/\.html$/,"")||"index";
+    if(this.parent&&this.parent.key==="xp"&&this.parent.parent&&this.parent.parent.key==null&&v&&typeof v==="object"&&v.g&&pg!=="majlis"){
+      const u=firebase.auth().currentUser;if(u&&this.key===u.uid){const g=String(v.g)+"|"+String(v.k||"");if(window.__agLastXp!==g){window.__agLastXp=g;setTimeout(()=>AG_played(pg==="worms"?"mar":pg),0)}}}}catch(e){}
+    return orig.apply(this,arguments)}}catch(e){}};hook()})();

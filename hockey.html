@@ -284,7 +284,7 @@ function begin(mode,opt){G=newGame(mode,opt);$("lobby").hidden=true;$("game").hi
   if(mode==="two"){setWho($("whoA"),"🔴 "+t("red"),dot("#ff2a5f"));setWho($("whoB"),"🔵 "+t("blue"),dot("#1fb4ff"))}
   G.pause=1.2;msg(t("go"),"#facc15");sfx.beep(true);lastT=0;if(!raf)raf=requestAnimationFrame(loop)}
 const dot=c=>"data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><circle cx="20" cy="20" r="20" fill="'+c+'"/></svg>');
-function endGame(){if(!G)return;msg("");let title,good=true;
+function endGame(){if(!G)return;try{window.AG_played&&AG_played("hockey")}catch(e){}msg("");let title,good=true;
   if(G.mode==="two")title=G.sa>G.sb?t("redWin"):t("blueWin");
   else{const mine=G.mode==="net"&&G.me==="b"?G.sb:G.sa,oth=G.mode==="net"&&G.me==="b"?G.sa:G.sb;good=mine>oth;title=good?t("youWin"):t("youLose")}
   good?sfx.win():sfx.lose();

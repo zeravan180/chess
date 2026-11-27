@@ -1032,6 +1032,7 @@ html,body{touch-action:pan-y;overscroll-behavior-x:none;-webkit-text-size-adjust
     <div class="panel" style="margin-top:16px">
       <h2 style="margin:0">یاریکەر</h2>
       <input id="adSearch" class="ad-search" placeholder="ل ناڤ، ئیمەیل یان ID بگەڕێ…">
+      <select id="adSort" class="ad-search" style="margin-top:6px"><option value="seen">🕒 ڕیزبەندی: دووماهی هاتن</option><option value="plays">🎮 ڕیزبەندی: پتر یاری کرین</option></select>
       <ul id="adUserList" class="ad-list"></ul>
     </div>
     <div class="panel" style="margin-top:16px">
@@ -2214,6 +2215,7 @@ async function loadReports(){const ul=$("adReports");if(!ul)return;
       del.onclick=async()=>{try{await fdb.ref("roomMsgs/"+x.room+"/"+x.msgKey).remove();toast("پەیام هاتە ژێبرن")}catch(e){toast("نەهاتە کرن.")}};row.append(del)}
     row.append(bb,ok);li.append(row);ul.append(li)})}
 async function loadAdmin(){
+  fdb.ref("plays").once("value").then(s=>{adPlays=s.val()||{};renderAdminUsers()}).catch(()=>{});
   const [u,d,g,sc,bn]=await Promise.all(["users","daily","games","scores","banned"].map(k=>fdb.ref(k).once("value").then(s=>s.val()||{}).catch(()=>({}))));
   adUsers=u;adScores=sc;adBanned=bn;loadAdminPay();loadReports();loadDels();loadFeedback();
   const t=today(),games=Object.values(g);
@@ -2242,9 +2244,12 @@ async function loadAdmin(){
     acts.append(del);li.append(top,acts);gl.append(li)});
   if(!gl.children.length){const li=document.createElement("li");li.className="meta";li.textContent="نوکە چ یاری نینن.";gl.append(li)}
 }
+let adPlays={};
+const PLAY_NAMES={chess:"♟ شەترەنج",domino:"🁡 دۆمینۆ",tawla:"🎲 تاولە",dama:"⚫ داما",ludo:"🎯 لوودۆ",snakes:"🐍 مار و پەیژە",kon:"🃏 کۆنکان",zar:"🎲 زار",xo:"❌ XO",boxes:"🔲 خانە",pool:"🎱 بلیارد",quiz:"❓ Quiz",kustirk:"🤼 کوشتیرک",mar:"🐛 AG Mar",race:"🏎 ترومبێل",hockey:"🏒 هۆکی",fruit:"🍓 فێقی",spy:"🕵 جاسوس",blocks:"🧱 Block World"};
 function renderAdminUsers(){
   const q=($("adSearch").value||"").trim().toLowerCase();const ul=$("adUserList");ul.textContent="";
-  Object.entries(adUsers).sort((a,b)=>(b[1].lastSeen||0)-(a[1].lastSeen||0))
+  const bySort=($("adSort")&&$("adSort").value)==="plays";
+  Object.entries(adUsers).sort((a,b)=>bySort?(((adPlays[b[0]]||{}).n||0)-((adPlays[a[0]]||{}).n||0)):(b[1].lastSeen||0)-(a[1].lastSeen||0))
    .filter(([id,x])=>!q||(x.name||"").toLowerCase().includes(q)||(x.email||"").toLowerCase().includes(q)||String(x.pid||"").includes(q)).slice(0,100)
    .forEach(([id,x])=>{
     const sc=adScores[id]||{},ban=!!adBanned[id];
@@ -2256,7 +2261,10 @@ function renderAdminUsers(){
     const m1=document.createElement("span");m1.className="meta";m1.textContent=(x.pid?"ID "+x.pid+" · ":"")+(x.email||"");m1.style.direction="ltr";m1.style.textAlign="right";
     const m2=document.createElement("span");m2.className="meta";
     m2.textContent="چوونا ژوور: "+(x.logins||0)+" · دوماهی: "+new Date(x.lastSeen||0).toLocaleString()+" · خال: "+(sc.points||0)+" ("+(sc.wins||0)+"/"+(sc.draws||0)+"/"+(sc.losses||0)+")";
-    w.append(b,m1,m2);top.append(im,w);
+    const pl=adPlays[id]||{},m3=document.createElement("span");m3.className="meta";
+    const per=Object.keys(pl).filter(k=>k!=="n"&&k!=="t").sort((a,c)=>(pl[c]||0)-(pl[a]||0)).map(k=>(PLAY_NAMES[k]||k)+" "+pl[k]);
+    m3.textContent="🎮 هەمی یاری: "+(pl.n||0)+(per.length?" · "+per.join(" · "):"")+(pl.t?" · دووماهی یاری: "+new Date(pl.t).toLocaleDateString("en-GB"):"");m3.style.color="#fcd34d";
+    w.append(b,m1,m2,m3);top.append(im,w);
     if(ban){const t=document.createElement("span");t.className="tag";t.textContent="ڕاوەستاندی";top.append(t)}
     const acts=document.createElement("div");acts.className="acts";
     const bb=document.createElement("button");bb.className=ban?"ghost":"danger";bb.textContent=ban?"ڕێ بدە":"ڕاوەستینە";
@@ -3417,7 +3425,7 @@ $("whoClose").onclick=()=>toggleWho(whoMode);
 $("openAdmin").onclick=openAdminPage;
 $("adminBack").onclick=()=>show("lobby");
 $("adminRefresh").onclick=()=>loadAdmin().then(()=>toast("نوو بوو"));
-$("adSearch").oninput=renderAdminUsers;
+$("adSearch").oninput=renderAdminUsers;if($("adSort"))$("adSort").onchange=renderAdminUsers;
 $("adClean").onclick=async()=>{const s=await fdb.ref("games").orderByChild("status").equalTo("waiting").once("value");const v=s.val()||{};
   await Promise.all(Object.keys(v).map(k=>fdb.ref("games/"+k).remove()));toast(Object.keys(v).length+" یاری هاتنە ژێبرن");loadAdmin()};
 $("closeSettings").onclick=()=>show("lobby");

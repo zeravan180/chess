@@ -547,7 +547,7 @@ async function finale(){G.over=true;praise(t("p4"));await wait(700);
 function outOfMoves(){G.over=true;sfx.lose();const w=ov('<h2>'+t("lost")+'</h2><div class="wg"></div><button class="btn" type="button" id="m5">'+t("more5")+' · ١٠٠ 🪙</button><button class="btn blue" type="button" id="gu">'+t("giveUp")+'</button>');
   const wg=w.querySelector(".wg");G.lv.goals.forEach(g=>{const d=document.createElement("div"),left=goalLeft(g);d.className="goal"+(left<=0?" done":"");d.innerHTML=goalIcon(g)+'<span></span>';d.querySelector("span").textContent=left>0?num(left):"";wg.append(d)});
   w.querySelector("#m5").onclick=()=>spend(100,()=>{G.moves+=5;G.over=false;closeOv();hud();idleHint()});w.querySelector("#gu").onclick=()=>{closeOv();endLevel(false)}}
-function endLevel(won,quit){clearHint();const n=G.n,lv=G.lv,score=G.score;G.over=true;
+function endLevel(won,quit){clearHint();try{window.AG_played&&AG_played("fruit")}catch(e){}const n=G.n,lv=G.lv,score=G.score;G.over=true;
   if(won){const st=score>=lv.s3?3:score>=lv.s2?2:1;prog.st[n]=Math.max(prog.st[n]||0,st);if(n===prog.lv&&n<NL)prog.lv=n+1;saveProg();
     // a won level gives the heart back
     const h=hearts();if(h.n<HMAX){h.n++;if(h.n>=HMAX)h.t=0;ls("fr.h",JSON.stringify(h))}
