@@ -30,6 +30,13 @@
   .langs{margin-inline-start:auto;display:flex;gap:4px}.langs button{padding:6px 9px;font-size:12px;border-radius:10px;color:#fff;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2)}.langs button.on{background:#ff5a2a}
   #lobby h1{margin:4px 0 0;text-align:center;font-size:34px;font-weight:900;font-style:italic;letter-spacing:1px;text-shadow:0 0 22px rgba(255,90,40,.7)}
   #lobby .sub{margin:0;text-align:center;opacity:.85;font-size:14px;line-height:1.6}
+  #ytWrap{position:fixed;left:0;top:0;width:100vw;height:100vh;z-index:4;pointer-events:none}
+  body.rot #ytWrap{width:100vh;height:100vw;transform-origin:top left;transform:translateX(100vw) rotate(90deg)}
+  #ytBox{position:absolute;pointer-events:auto;border-radius:12px;overflow:hidden;background:#000;border:3px solid #1d1f24;box-shadow:0 6px 18px rgba(0,0,0,.55);display:none}
+  #ytBox.dash{border-color:#2b2e35;border-radius:10px}
+  #ytBox iframe,#ytBox>div{width:100%;height:100%;display:block;border:0}
+  .ytrow{display:flex;gap:6px}.ytrow input{flex:1;min-width:0;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.35);color:#fff;padding:10px;font-size:14px;direction:ltr}
+  .ytrow button{border:0;border-radius:12px;padding:0 14px;font-weight:900;color:#fff;background:#e11d2a}.ytrow button.g{background:rgba(255,255,255,.14)}
   .card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:10px}
   .card h2{margin:0;font-size:17px;display:flex;align-items:center;gap:8px}.card p{margin:0;opacity:.82;font-size:13px;line-height:1.6}
   .btn{border:0;border-radius:14px;color:#fff;padding:13px 16px;font-weight:900;font-size:16px;font-style:italic;background:linear-gradient(90deg,#ff3b3b,#ff9a1f);box-shadow:0 4px 0 #8a1a0a;cursor:pointer}
@@ -97,6 +104,11 @@
   </section>
   <section class="card"><h2>🗺️ <span data-t="maps"></span></h2><div class="mcar"><button type="button" class="ma l" id="mPrev">‹</button><div class="maps" id="maps"></div><button type="button" class="ma r" id="mNext">›</button></div><div class="mdots" id="mdots"></div></section>
   <section class="card"><h2>🔁 <span data-t="laps"></span></h2><div class="seg" id="segLaps"></div></section>
+  <section class="card"><h2>🎵 <span data-t="ytT"></span></h2><p data-t="ytD"></p>
+    <div class="ytrow"><input id="ytIn" type="url" inputmode="url" placeholder="https://youtu.be/…"><button type="button" id="ytSave">✔</button><button type="button" class="g" id="ytClr">✕</button></div>
+    <p id="ytNow" style="color:#fde047"></p>
+    <p data-t="mfD"></p><div class="ytrow"><button type="button" id="mfPick" style="flex:1;padding:11px;background:#2563eb">📁 <span data-t="mfPick"></span></button><button type="button" class="g" id="mfClr">✕</button></div>
+    <input type="file" id="mfIn" accept="audio/*,video/*" hidden><p id="mfNow" style="color:#93c5fd"></p></section>
   <section class="card" id="online"></section>
   <section class="card"><h2>🤖 <span data-t="vsBots"></span></h2><p data-t="vsBotsD"></p><div class="seg" id="segLv"></div><button class="btn" type="button" id="go" data-t="start"></button></section>
   <p class="sub" style="font-size:12px" data-t="keys"></p>
@@ -817,10 +829,10 @@ function thud(){const t=performance.now();if(t-lastThud<300||!AC||!sOn())return;
 const keys={};addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;});addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
 const held=new Map();
 function vp(e){return ROT?{x:e.clientY,y:innerWidth-e.clientX}:{x:e.clientX,y:e.clientY};}
-function buttons(){const r=Math.min(W,H),sc=r/400;return{menu:{x:W-120*sc-46*sc,y:36*sc,r:22*sc},cam:{x:W-120*sc-100*sc,y:36*sc,r:22*sc},left:{x:r*0.17,y:H-r*0.2,r:r*0.12},right:{x:r*0.45,y:H-r*0.2,r:r*0.12},gas:{x:W-r*0.17,y:H-r*0.24,r:r*0.15},brake:{x:W-r*0.47,y:H-r*0.16,r:r*0.11}};}
+function buttons(){const r=Math.min(W,H),sc=r/400;return{menu:{x:W-120*sc-46*sc,y:36*sc,r:22*sc},cam:{x:W-120*sc-100*sc,y:36*sc,r:22*sc},yt:(YT.id||MEDIA.has)?{x:W-120*sc-154*sc,y:36*sc,r:22*sc}:{x:-999,y:-999,r:0},left:{x:r*0.17,y:H-r*0.2,r:r*0.12},right:{x:r*0.45,y:H-r*0.2,r:r*0.12},gas:{x:W-r*0.17,y:H-r*0.24,r:r*0.15},brake:{x:W-r*0.47,y:H-r*0.16,r:r*0.11}};}
 function hitBtn(p){const b=buttons();for(const k in b)if(hyp(p.x-b[k].x,p.y-b[k].y)<b[k].r*1.25)return k;return null;}
 fx.style.pointerEvents='none';
-cv.addEventListener('pointerdown',e=>{initAudio();const b=hitBtn(vp(e));if(b==='menu'){pauseMenu();return}if(b==='cam'){toggleView();return}held.set(e.pointerId,b);});
+cv.addEventListener('pointerdown',e=>{initAudio();const b=hitBtn(vp(e));if(b==='menu'){pauseMenu();return}if(b==='cam'){toggleView();return}if(b==='yt'){musicToggle();return}held.set(e.pointerId,b);});
 addEventListener('keydown',e=>{if(e.key==='Escape'&&state!=='menu')pauseMenu();if((e.key==='c'||e.key==='C')&&state!=='menu')toggleView()});
 // camera: 0 = behind the car, 1 = inside the car (driver's seat)
 let VIEW=(()=>{try{return localStorage.getItem('rc.view')==='1'?1:0}catch(e){return 0}})();
@@ -836,7 +848,7 @@ function controls(){const L=keys['arrowleft']||keys['a']||isHeld('left'),R=keys[
 // =====================================================================
 // ================= a race =================
 let smoke=[],VPm=null,paused=false;
-function startRace(){initAudio();ov.style.display='none';$('lobby').hidden=true;MODE='bot';makeCars();state='count';countT=3.99;raceT=0;results=[];camEye=null;smoke=[];sparks=[];paused=false;lastBeep=4;
+function startRace(){initAudio();musicStart();ov.style.display='none';$('lobby').hidden=true;MODE='bot';makeCars();state='count';countT=3.99;raceT=0;results=[];camEye=null;smoke=[];sparks=[];paused=false;lastBeep=4;
   if(TOUCH){try{const d=document.documentElement,p=d.requestFullscreen?d.requestFullscreen():null;if(p&&p.then)p.then(()=>screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{})).catch(()=>{});}catch(e){}}}
 let lastBeep=4;
 function slipOf(c){return c.v>18?Math.max(0,Math.abs(c.steer)*c.v/VMAX-0.42)*2.2+(c.brake&&c.v>22?0.5:0):0}
@@ -993,7 +1005,7 @@ function drawCockpit(X,sc){if(bodyOf(player).bike)return bikeCockpit(X,sc);const
   X.beginPath();X.moveTo(0,dy+H*0.03);X.bezierCurveTo(W*0.25,dy-H*0.02,W*0.75,dy-H*0.02,W,dy+H*0.03);X.lineTo(W,H);X.lineTo(0,H);X.closePath();X.fill();
   X.strokeStyle='rgba(255,255,255,.12)';X.lineWidth=1.5*sc;X.beginPath();X.moveTo(0,dy+H*0.03+3*sc);X.bezierCurveTo(W*0.25,dy-H*0.02+3*sc,W*0.75,dy-H*0.02+3*sc,W,dy+H*0.03+3*sc);X.stroke();
   // gauges hood behind the wheel
-  const cx=W/2,hy=dy-r*0.055,hw=r*0.36;X.fillStyle='#101114';X.beginPath();X.moveTo(cx-hw,dy+r*0.05);X.quadraticCurveTo(cx-hw,hy-r*0.11,cx,hy-r*0.115);X.quadraticCurveTo(cx+hw,hy-r*0.11,cx+hw,dy+r*0.05);X.closePath();X.fill();
+  const cx=W/2-(YT.on?r*0.2:0),hy=dy-r*0.055,hw=r*0.36;X.fillStyle='#101114';X.beginPath();X.moveTo(cx-hw,dy+r*0.05);X.quadraticCurveTo(cx-hw,hy-r*0.11,cx,hy-r*0.115);X.quadraticCurveTo(cx+hw,hy-r*0.11,cx+hw,dy+r*0.05);X.closePath();X.fill();
   const gauge=(x,y,R,f,lbl,val,hot)=>{X.fillStyle='#050608';X.beginPath();X.arc(x,y,R,0,7);X.fill();X.strokeStyle='#3a3e46';X.lineWidth=2*sc;X.stroke();
     for(let i=0;i<=10;i++){const a=Math.PI*0.75+i/10*Math.PI*1.5;X.strokeStyle=hot&&i>=8?'#f33':'#ccd';X.lineWidth=(i%2?1:2)*sc;X.beginPath();X.moveTo(x+Math.cos(a)*R*0.78,y+Math.sin(a)*R*0.78);X.lineTo(x+Math.cos(a)*R*0.92,y+Math.sin(a)*R*0.92);X.stroke()}
     const a=Math.PI*0.75+clamp(f,0,1)*Math.PI*1.5;X.strokeStyle='#ff5a1f';X.lineWidth=2.5*sc;X.beginPath();X.moveTo(x,y);X.lineTo(x+Math.cos(a)*R*0.85,y+Math.sin(a)*R*0.85);X.stroke();
@@ -1002,17 +1014,30 @@ function drawCockpit(X,sc){if(bodyOf(player).bike)return bikeCockpit(X,sc);const
   // shift lights
   const lit=clamp((rpm/red-0.55)/0.4,0,1)*7;for(let i=0;i<7;i++){X.fillStyle=i<lit?(i<3?'#3f6':i<5?'#fd0':'#f33'):'#1b1d22';X.beginPath();X.arc(cx+(i-3)*r*0.022,hy-r*0.06,r*0.007,0,7);X.fill()}
   // steering wheel
-  const wy=H+r*0.1,WR=r*0.3,ang=-c.steer*1.4;X.translate(cx,wy);X.rotate(ang);
+  const wy=H+r*0.1,WR=r*0.3,ang=-c.steer*1.4;X.translate(W/2,wy);X.rotate(ang);
   X.strokeStyle='#121316';X.lineWidth=WR*0.17;X.beginPath();X.arc(0,0,WR,0,7);X.stroke();
   X.strokeStyle='#2c2f36';X.lineWidth=WR*0.05;X.beginPath();X.arc(0,0,WR+WR*0.04,Math.PI*1.1,Math.PI*1.9);X.stroke();
   X.strokeStyle='#d22';X.lineWidth=WR*0.17;X.beginPath();X.arc(0,0,WR,Math.PI*1.47,Math.PI*1.53);X.stroke();
   X.fillStyle='#17181c';for(const a of[Math.PI,0]){X.save();X.rotate(a);X.beginPath();X.moveTo(0,-WR*0.12);X.lineTo(WR*0.95,-WR*0.07);X.lineTo(WR*0.95,WR*0.1);X.lineTo(0,WR*0.16);X.closePath();X.fill();X.restore()}
   X.beginPath();X.arc(0,0,WR*0.3,0,7);X.fill();X.strokeStyle='#3a3e46';X.lineWidth=2*sc;X.stroke();
   X.fillStyle='#ffd400';X.font=`900 ${WR*0.15}px system-ui`;X.textAlign='center';X.textBaseline='middle';X.fillText('AG',0,-WR*0.05);
-  X.restore()}
+  X.restore();
+  // the screen on the dashboard (the YouTube player sits on top of it)
+  if(YT.on){const q=YT.rect(),rr=(a,b,w,h,k)=>{X.beginPath();X.roundRect?X.roundRect(a,b,w,h,k):X.rect(a,b,w,h)};X.save();
+    // the panel that holds the screen grows out of the dashboard
+    const pb=q.y+q.h+10,bot=Math.max(pb+r*0.13,dy+H*0.05);let pg=X.createLinearGradient(0,q.y,0,bot);pg.addColorStop(0,'#1c1e23');pg.addColorStop(1,'#0c0d10');X.fillStyle=pg;rr(q.x-12,q.y-10,q.w+24,bot-q.y+10,16*sc);X.fill();
+    X.shadowColor='rgba(60,140,255,.55)';X.shadowBlur=18*sc;X.fillStyle='#05070b';rr(q.x-5,q.y-5,q.w+10,q.h+10,10*sc);X.fill();X.shadowBlur=0;
+    X.strokeStyle='rgba(255,255,255,.22)';X.lineWidth=1.5*sc;rr(q.x-5,q.y-5,q.w+10,q.h+10,10*sc);X.stroke();
+    // three round air vents with chrome rings
+    const vr=Math.min(r*0.045,(q.w+10)/9),vy=pb+vr+4*sc;for(let i=0;i<3;i++){const vx=q.x+q.w*(0.25+i*0.25);if(vy+vr>H)break;
+      const cg=X.createRadialGradient(vx,vy,vr*0.2,vx,vy,vr);cg.addColorStop(0,'#2a2d33');cg.addColorStop(0.75,'#0a0b0d');cg.addColorStop(1,'#c8ccd2');X.fillStyle=cg;X.beginPath();X.arc(vx,vy,vr,0,7);X.fill();
+      X.strokeStyle='#8a9099';X.lineWidth=1.2*sc;for(let k=0;k<6;k++){const a=k/6*Math.PI*2+0.3;X.beginPath();X.moveTo(vx,vy);X.lineTo(vx+Math.cos(a)*vr*0.72,vy+Math.sin(a)*vr*0.72);X.stroke()}}
+    // a thin red ambient light line along the dashboard
+    X.strokeStyle='rgba(255,40,60,.75)';X.lineWidth=2*sc;X.beginPath();X.moveTo(q.x-12,bot-2*sc);X.lineTo(q.x+q.w+12,bot-2*sc);X.stroke();X.restore()}}
 function drawHUD(){fctx.setTransform(DPR,0,0,DPR,0,0);fctx.clearRect(0,0,innerWidth,innerHeight);drawSmoke();if(ROT){fctx.translate(innerWidth,0);fctx.rotate(Math.PI/2);}
   if(state==='menu'||!player)return;const sc=Math.min(W,H)/400,X=fctx;try{X.direction='ltr'}catch(e){}
   if(VIEW)drawCockpit(X,sc);
+  try{MEDIA.draw(X,sc)}catch(e){}
   const order=[...cars].filter(c=>!c.gone).sort((a,b)=>(a.finished&&b.finished)?a.finishT-b.finishT:(b.finished-a.finished)||progress(b)-progress(a));const pos=order.indexOf(player)+1;
   const box=(x,y,w,h)=>{X.fillStyle='rgba(0,0,0,.45)';X.beginPath();X.roundRect?X.roundRect(x,y,w,h,10*sc):X.rect(x,y,w,h);X.fill();};
   box(10,10,120*sc,62*sc);X.fillStyle='#fff';X.textAlign='left';X.textBaseline='top';X.font=`900 ${30*sc}px system-ui`;X.fillText(`${pos}`,20,14);X.font=`700 ${13*sc}px system-ui`;X.fillText(`/ ${cars.length}`,20+X.measureText(`${pos}`).width*2.3,26*sc);
@@ -1038,7 +1063,8 @@ function drawHUD(){fctx.setTransform(DPR,0,0,DPR,0,0);fctx.clearRect(0,0,innerWi
   if(state==='done'){X.font=`900 ${56*sc}px system-ui`;X.fillStyle='#fff';X.lineWidth=8*sc;X.strokeStyle='rgba(0,0,0,.5)';X.strokeText('FINISH!',W/2,H*0.36);X.fillText('FINISH!',W/2,H*0.36);}
   // touch buttons
   {const b=buttons().menu;X.fillStyle='rgba(0,0,0,.45)';X.beginPath();X.arc(b.x,b.y,b.r,0,7);X.fill();X.fillStyle='#fff';X.font=`900 ${b.r*0.8}px system-ui`;X.textAlign='center';X.textBaseline='middle';X.fillText('⏸',b.x,b.y+1);
-   const bc=buttons().cam;X.fillStyle=VIEW?'rgba(255,212,0,.85)':'rgba(0,0,0,.45)';X.beginPath();X.arc(bc.x,bc.y,bc.r,0,7);X.fill();X.font=`900 ${bc.r*0.85}px system-ui`;X.fillText(VIEW?'🎥':'👀',bc.x,bc.y+1);}
+   const bc=buttons().cam;X.fillStyle=VIEW?'rgba(255,212,0,.85)':'rgba(0,0,0,.45)';X.beginPath();X.arc(bc.x,bc.y,bc.r,0,7);X.fill();X.font=`900 ${bc.r*0.85}px system-ui`;X.fillText(VIEW?'🎥':'👀',bc.x,bc.y+1);
+   const by=buttons().yt;if(by.r){X.fillStyle=(YT.on||MEDIA.on)?'rgba(225,29,42,.9)':'rgba(0,0,0,.45)';X.beginPath();X.arc(by.x,by.y,by.r,0,7);X.fill();X.font=`900 ${by.r*0.85}px system-ui`;X.fillStyle='#fff';X.fillText('🎵',by.x,by.y+1)}}
   // names over the other cars online
   if(MODE==='net'&&VPm){X.save();if(ROT)X.setTransform(DPR,0,0,DPR,0,0);X.font=`800 ${12*sc}px system-ui`;X.textAlign='center';for(const c of cars){if(c.player||c.gone||c.bot)continue;const m=VPm,y=1.9,cx=m[0]*c.x+m[4]*y+m[8]*c.z+m[12],cy=m[1]*c.x+m[5]*y+m[9]*c.z+m[13],cw=m[3]*c.x+m[7]*y+m[11]*c.z+m[15];if(cw<1||cw>120)continue;
     const sx=(cx/cw+1)/2*innerWidth,sy=(1-cy/cw)/2*innerHeight;X.save();X.translate(sx,sy);if(ROT)X.rotate(Math.PI/2);X.fillStyle='rgba(0,0,0,.55)';const w=X.measureText(c.name).width+12;X.fillRect(-w/2,-10*sc,w,18*sc);X.fillStyle='#fff';X.fillText(c.name,0,0);X.restore()}X.restore()}
@@ -1069,6 +1095,13 @@ const S={
  newPhoto:['📷 وێنەیەکێ دی ژ مۆبایلێ','📷 وێنەیەکی تر لە مۆبایل','📷 صورة أخرى من الهاتف','📷 Another photo from the phone'],
  photoNote:['📷 وێنەیێ تە ب خۆ تنێ تو دبینی. وێنێن دی (☀️🔥⭐…) هەمی یاریکەر دبینن.','📷 وێنەکەی خۆت تەنها تۆ دەیبینیت.','📷 صورتك تراها أنت فقط، والملصقات يراها الجميع.','📷 Only you see your own photo; everyone sees the stickers.'],
  saved:['✅ هاتە پاشەکەفتکرن','✅ پاشەکەوت کرا','✅ تم الحفظ','✅ Saved'],
+ ytT:['ستران ژ یووتیوبێ','گۆرانی لە یوتیوبەوە','أغنية من يوتيوب','Song from YouTube'],
+ ytD:['لینکەکا یووتیوبێ دانێ. دەمێ بەزینێ ستران دێ هێتە لێدان و ڤیدیۆ ل سەر شاشا ترومبێلێ دیار دبیت. ب دوگمەیا 🎵 دشێی ڕاوەستینی.','لینکێکی یوتیوب دابنێ. لە کاتی پێشبڕکێ گۆرانی لێدەدرێت و ڤیدیۆ لەسەر شاشەی ئۆتۆمبێل دەردەکەوێت. بە دوگمەی 🎵 ڕایبگرە.','ضع رابط يوتيوب. أثناء السباق تعمل الأغنية ويظهر الفيديو على شاشة السيارة. أوقفها بزر 🎵.','Paste a YouTube link. During the race the song plays and the video shows on the car screen. Tap 🎵 to stop it.'],
+ ytOk:['🎵 ستران هاتە دانان','🎵 گۆرانی دانرا','🎵 تم حفظ الأغنية','🎵 Song saved'],ytBad:['ئەڤە لینکا یووتیوبێ نینە','ئەمە لینکی یوتیوب نییە','هذا ليس رابط يوتيوب','That is not a YouTube link'],
+ ytEmb:['خودانێ ڤێ ڤیدیۆیێ ڕێ نادەت ل دەرڤەی یووتیوبێ بهێتە لێدان. سترانەکا دی هەلبژێرە.','خاوەنی ئەم ڤیدیۆیە ڕێگە نادات لە دەرەوەی یوتیوب لێبدرێت. گۆرانییەکی تر هەڵبژێرە.','صاحب هذا الفيديو لا يسمح بتشغيله خارج يوتيوب. اختر أغنية أخرى.','The owner does not allow this video outside YouTube. Pick another song.'],
+ mfD:['یان ستران یان ڤیدیۆیەکێ ژ مۆبایلا خۆ هەلبژێرە: ل سەر شاشەکا بچووک ل ناڤ ترومبێلێ دیار دبیت.','یان گۆرانی یان ڤیدیۆیەک لە مۆبایلەکەت هەڵبژێرە: لەسەر شاشەیەکی بچووک لە ناو ئۆتۆمبێل دەردەکەوێت.','أو اختر أغنية أو فيديو من هاتفك: يظهر على شاشة صغيرة داخل السيارة.','Or pick a song or video from your phone: it shows on a small screen inside the car.'],
+ mfPick:['ژ مۆبایلێ هەلبژێرە','لە مۆبایل هەڵبژێرە','اختر من الهاتف','Pick from phone'],mfBig:['فایل گەلەک مەزنە (پتر ژ 300MB)','فایل زۆر گەورەیە (زیاتر لە 300MB)','الملف كبير جداً (أكثر من 300MB)','File too big (over 300MB)'],
+ ytNow:['ستران: ','گۆرانی: ','الأغنية: ','Song: '],
  myCar:['ترومبێلا من','ئۆتۆمبێلەکەم','سيارتي','My car'],rev:['دەنگ','دەنگ','الصوت','Sound'],toShop:['دکانا ترومبێلێ','دووکانی ئۆتۆمبێل','متجر السيارة','Car shop'],
  maps:['خەریتە (یاریگەهـ)','نەخشە (یاریگا)','الخرائط','Tracks'],
  buyQ:['بکڕە ب # AG؟ ✔','بیکڕە بە # AG؟ ✔','اشترِ بـ # AG؟ ✔','Buy for # AG? ✔'],noAG:['AG یا تە بەس ناکەت','AGت بەس نییە','رصيد AG غير كافٍ','Not enough AG'],notReady:['ئەڤ ترومبێلە هێشتا ل دکانێ چالاک نەبوویە','ئەم ئۆتۆمبێلە هێشتا لە دوکان چالاک نەکراوە','هذه السيارة غير مفعّلة في المتجر بعد','This car is not active in the shop yet'],buyFail:['کڕین سەرنەکەفت، دووبارە بکە','کڕین سەرکەوتوو نەبوو، دووبارە بکەوە','فشل الشراء، حاول مجددًا','Buying failed, try again'],needLogin:['ئێکەم بچە ژوور','سەرەتا بچۆ ژوورەوە','سجّل الدخول أولًا','Sign in first'],
@@ -1281,7 +1314,7 @@ function nStart(){const d=NET.d;if(!d||d.host!==me)return;const ps=Object.entrie
   // places on the grid: people at the back so the robots are not all behind them
   const slots=d.bots===false?[0,1,2,3,4,5]:[5,4,3,2,1,0];ps.forEach(([u],i)=>{up['p/'+u+'/slot']=slots[i];up['p/'+u+'/left']=null});
   Object.keys(d.p||{}).forEach(u=>{if(d.p[u].left)up['p/'+u]=null});NET.ref.update(up)}
-function nBegin(d){MODE='net';LAPS=d.laps||3;if(d.map&&d.map!==MAP&&TRACKS[d.map])buildTrack(d.map);ov.style.display='none';$('lobby').hidden=true;initAudio();cars=[];results=[];smoke=[];camEye=null;paused=false;lastBeep=4;raceT=0;
+function nBegin(d){MODE='net';musicStart();LAPS=d.laps||3;if(d.map&&d.map!==MAP&&TRACKS[d.map])buildTrack(d.map);ov.style.display='none';$('lobby').hidden=true;initAudio();cars=[];results=[];smoke=[];camEye=null;paused=false;lastBeep=4;raceT=0;
   const host=d.host===me,bySlot={};Object.entries(d.p||{}).forEach(([u,x])=>{if(x.slot!=null)bySlot[x.slot]=[u,x]});
   let seed=(d.round||1)*7919+13;const r=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
   for(let g=0;g<6;g++){const hu=bySlot[g];let c;
@@ -1308,8 +1341,68 @@ function netSend(force){if(!NET.ref||!player)return;const t0=performance.now();
 fbBoot();
 makeCars();drawLobby();
 let last=performance.now(),gf=0;
-function loop(now){const dt=Math.min(0.033,(now-last)/1000);last=now;update(dt);render.dt=dt;render();if(++gf%2===0)drawGarage();requestAnimationFrame(loop);}
+// ---------- a song from YouTube: the official YouTube player (always visible while it plays) sits on the car's screen ----------
+const YT=(()=>{let id=null,on=false,pl=null,ready=false,want=false,box=null,wrap=null,loading=false,lastKey='';
+  try{id=localStorage.getItem('rc.yt')||null}catch(e){}
+  function parse(u){u=String(u||'').trim();let m=u.match(/(?:youtu\.be\/|[?&]v=|\/shorts\/|\/embed\/|\/live\/)([A-Za-z0-9_-]{11})/);if(m)return m[1];if(/^[A-Za-z0-9_-]{11}$/.test(u))return u;return null}
+  function els(){if(box)return;wrap=document.createElement('div');wrap.id='ytWrap';box=document.createElement('div');box.id='ytBox';const d=document.createElement('div');d.id='ytPl';box.append(d);wrap.append(box);document.body.append(wrap)}
+  function api(){if(window.YT&&window.YT.Player){make();return}if(loading)return;loading=true;window.onYouTubeIframeAPIReady=make;const s=document.createElement('script');s.src='https://www.youtube.com/iframe_api';s.onerror=()=>{loading=false;toast('YouTube ✕')};document.head.append(s)}
+  function make(){if(pl||!id)return;els();pl=new window.YT.Player('ytPl',{videoId:id,playerVars:{autoplay:1,playsinline:1,rel:0,loop:1,playlist:id,controls:1,fs:0},
+    events:{onReady:()=>{ready=true;if(want)try{pl.playVideo()}catch(e){}else try{pl.pauseVideo()}catch(e){}},
+      onError:e=>{if(e.data===101||e.data===150||e.data===100||e.data===2)toast(t('ytEmb'));stop()}}})}
+  function rect(){const r=Math.min(W,H),sc=r/400,h=200;
+    if(VIEW&&player&&!bodyOf(player).bike){const right=W-r*0.42,x0=Math.min(W/2+r*0.03,right-200);return{x:x0,y:58*sc,w:Math.min(356,right-x0),h}}
+    const w=Math.max(200,Math.min(300,W*0.3));return{x:12*sc,y:Math.max(66*sc,H-r*0.33-h),w,h}}
+  function stop(){on=false;want=false;if(box)box.style.display='none';if(pl&&ready)try{pl.pauseVideo()}catch(e){}}
+  function start(){if(!id)return;on=true;want=true;els();api();if(pl&&ready)try{pl.playVideo()}catch(e){}}
+  function toggle(){if(on)stop();else start()}
+  // shown only during a race and when no menu covers it; hidden = paused
+  function sync(){if(!id){if(on)stop();return}const vis=on&&state!=='menu'&&$('lobby').hidden&&ov.style.display!=='flex';
+    if(!box)return;if(!vis){if(box.style.display==='block'){box.style.display='none';if(pl&&ready)try{pl.pauseVideo()}catch(e){}}return}
+    const q=rect(),k=[q.x,q.y,q.w,q.h,VIEW,ROT].join(',');if(k!==lastKey){lastKey=k;Object.assign(box.style,{left:q.x+'px',top:q.y+'px',width:q.w+'px',height:q.h+'px'});box.classList.toggle('dash',!!VIEW)}
+    if(box.style.display!=='block'){box.style.display='block';if(pl&&ready)try{pl.playVideo()}catch(e){}}}
+  function setId(v){id=v;try{v?localStorage.setItem('rc.yt',v):localStorage.removeItem('rc.yt')}catch(e){}if(pl){try{pl.destroy()}catch(e){}pl=null;ready=false;if(box){box.innerHTML='<div id="ytPl"></div>'}}if(!v)stop();show()}
+  function show(){const n=$('ytNow');if(n)n.textContent=id?t('ytNow')+'youtu.be/'+id:'';const i=$('ytIn');if(i&&id&&!i.value)i.value='https://youtu.be/'+id}
+  function ui(){const s=$('ytSave'),c=$('ytClr'),i=$('ytIn');if(!s)return;s.onclick=()=>{const v=parse(i.value);if(!v){toast(t('ytBad'));return}setId(v);try{localStorage.setItem('rc.msrc','yt')}catch(e){}toast(t('ytOk'))};c.onclick=()=>{i.value='';setId(null)};show()}
+  return{get id(){return id},get on(){return on},toggle,start,stop,sync,rect,ui,parse}})();
+// ---------- a song or video from the phone itself: plays here and is drawn on a small screen on the dashboard ----------
+const MEDIA=(()=>{let el=null,url=null,name='',isVid=false,on=false,has=false,bars=new Array(12).fill(0);
+  const DB='agMedia';function idb(){return new Promise((ok,no)=>{const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>r.result.createObjectStore('m');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)})}
+  async function save(blob,nm){try{const d=await idb();d.transaction('m','readwrite').objectStore('m').put({blob,nm},'cur')}catch(e){}}
+  async function load(){try{const d=await idb();const v=await new Promise(ok=>{const q=d.transaction('m').objectStore('m').get('cur');q.onsuccess=()=>ok(q.result);q.onerror=()=>ok(null)});if(v&&v.blob)use(v.blob,v.nm,true)}catch(e){}}
+  async function clear(){stop();has=false;name='';if(url)URL.revokeObjectURL(url);url=null;el=null;try{const d=await idb();d.transaction('m','readwrite').objectStore('m').delete('cur')}catch(e){}show()}
+  function use(blob,nm,quiet){if(url)URL.revokeObjectURL(url);url=URL.createObjectURL(blob);name=String(nm||'').replace(/\.[a-z0-9]{2,4}$/i,'');isVid=/^video\//.test(blob.type)||/\.(mp4|webm|mov|m4v|3gp)$/i.test(nm||'');
+    el=document.createElement('video');el.src=url;el.loop=true;el.playsInline=true;el.setAttribute('playsinline','');el.preload='auto';has=true;try{localStorage.setItem('rc.msrc','file')}catch(e){}if(!quiet)toast('🎵 '+name);show()}
+  function start(){if(!has||!el)return;on=true;el.play().catch(()=>{})}
+  function stop(){on=false;if(el)try{el.pause()}catch(e){}}
+  function sync(){if(!el)return;const vis=on&&state!=='menu'&&$('lobby').hidden&&ov.style.display!=='flex';if(vis&&el.paused)el.play().catch(()=>{});if(!vis&&!el.paused)el.pause()}
+  function show(){const n=$('mfNow');if(n)n.textContent=has?'📁 '+name:''}
+  function ui(){const p=$('mfPick'),i=$('mfIn'),c=$('mfClr');if(!p)return;p.onclick=()=>i.click();
+    i.onchange=()=>{const f=i.files&&i.files[0];i.value='';if(!f)return;if(f.size>300*1024*1024){toast(t('mfBig'));return}use(f,f.name);save(f,f.name)};c.onclick=()=>clear();load()}
+  // the picture on the small screen: the video itself, or moving music bars for a song
+  function face(X,x,y,w,h,sc){X.save();X.beginPath();X.rect(x,y,w,h);X.clip();X.fillStyle='#000';X.fillRect(x,y,w,h);
+    if(isVid&&el.readyState>=2&&el.videoWidth){const vw=el.videoWidth,vh=el.videoHeight,k=Math.max(w/vw,h/vh),dw=vw*k,dh=vh*k;X.drawImage(el,x+(w-dw)/2,y+(h-dh)/2,dw,dh)}
+    else{const g=X.createLinearGradient(x,y,x+w,y+h);g.addColorStop(0,'#3b0764');g.addColorStop(1,'#0e7490');X.fillStyle=g;X.fillRect(x,y,w,h);const n=bars.length,bw=w*0.7/n,t0=performance.now()/1000;
+      for(let i=0;i<n;i++){const v=el.paused?0.08:0.25+0.75*Math.abs(Math.sin(t0*(2.1+i*0.37)+i*1.7))*Math.abs(Math.sin(t0*0.9+i));bars[i]+=(v-bars[i])*0.25;const bh=bars[i]*h*0.5;X.fillStyle=i%2?'#f0abfc':'#67e8f9';X.fillRect(x+w*0.15+i*bw,y+h*0.62-bh,bw*0.7,bh)}
+      X.fillStyle='#fff';X.font=`800 ${Math.max(9,h*0.13)}px system-ui`;X.textAlign='center';X.textBaseline='middle';X.fillText(name.length>22?name.slice(0,21)+'…':name,x+w/2,y+h*0.82)}
+    // a small time bar along the bottom
+    if(el.duration>0){X.fillStyle='rgba(255,255,255,.25)';X.fillRect(x,y+h-3*sc,w,3*sc);X.fillStyle='#ef4444';X.fillRect(x,y+h-3*sc,w*(el.currentTime/el.duration),3*sc)}
+    // glass shine
+    const sg=X.createLinearGradient(x,y,x+w*0.6,y+h);sg.addColorStop(0,'rgba(255,255,255,.12)');sg.addColorStop(0.5,'rgba(255,255,255,0)');X.fillStyle=sg;X.fillRect(x,y,w,h);X.restore()}
+  function draw(X,sc){if(!on||!el||state==='menu')return;const r=Math.min(W,H),rr=(a,b,w,h,k)=>{X.beginPath();X.roundRect?X.roundRect(a,b,w,h,k):X.rect(a,b,w,h)};
+    if(VIEW&&player&&!bodyOf(player).bike){// a small tablet standing on the dashboard, to the right of the wheel
+      const w=r*0.42,h=w*9/16,dy=H*(bodyOf(player).trailer?0.7:0.74),x=W/2+r*0.24,y=dy-h-r*0.035;
+      X.save();X.fillStyle='#111317';X.beginPath();X.moveTo(x+w*0.42,y+h);X.lineTo(x+w*0.58,y+h);X.lineTo(x+w*0.62,dy+H*0.02);X.lineTo(x+w*0.38,dy+H*0.02);X.closePath();X.fill();
+      X.shadowColor='rgba(0,0,0,.6)';X.shadowBlur=10*sc;X.fillStyle='#0a0b0d';rr(x-5*sc,y-5*sc,w+10*sc,h+10*sc,8*sc);X.fill();X.shadowBlur=0;X.strokeStyle='rgba(255,255,255,.18)';X.lineWidth=1.2*sc;rr(x-5*sc,y-5*sc,w+10*sc,h+10*sc,8*sc);X.stroke();X.restore();
+      face(X,x,y,w,h,sc)}
+    else{const w=r*0.4,h=w*9/16,x=12*sc,y=74*sc;X.save();X.fillStyle='rgba(0,0,0,.55)';rr(x-4*sc,y-4*sc,w+8*sc,h+8*sc,8*sc);X.fill();X.restore();face(X,x,y,w,h,sc)}}
+  return{get has(){return has},get on(){return on},start,stop,sync,ui,draw}})();
+function musicStart(){let src='yt';try{src=localStorage.getItem('rc.msrc')||'yt'}catch(e){}if(MEDIA.has&&(src==='file'||!YT.id))MEDIA.start();else if(YT.id)YT.start()}
+function musicToggle(){if(YT.on){YT.stop();return}if(MEDIA.on){MEDIA.stop();return}musicStart()}
+function loop(now){const dt=Math.min(0.033,(now-last)/1000);last=now;update(dt);render.dt=dt;render();try{YT.sync()}catch(e){}try{MEDIA.sync()}catch(e){}if(++gf%2===0)drawGarage();requestAnimationFrame(loop);}
 requestAnimationFrame(loop);
+try{YT.ui()}catch(e){}
+try{MEDIA.ui()}catch(e){}
 </script>
 </body>
 </html>
