@@ -1005,7 +1005,7 @@ function drawCockpit(X,sc){if(bodyOf(player).bike)return bikeCockpit(X,sc);const
   X.beginPath();X.moveTo(0,dy+H*0.03);X.bezierCurveTo(W*0.25,dy-H*0.02,W*0.75,dy-H*0.02,W,dy+H*0.03);X.lineTo(W,H);X.lineTo(0,H);X.closePath();X.fill();
   X.strokeStyle='rgba(255,255,255,.12)';X.lineWidth=1.5*sc;X.beginPath();X.moveTo(0,dy+H*0.03+3*sc);X.bezierCurveTo(W*0.25,dy-H*0.02+3*sc,W*0.75,dy-H*0.02+3*sc,W,dy+H*0.03+3*sc);X.stroke();
   // gauges hood behind the wheel
-  const cx=W/2-(YT.on?r*0.2:0),hy=dy-r*0.055,hw=r*0.36;X.fillStyle='#101114';X.beginPath();X.moveTo(cx-hw,dy+r*0.05);X.quadraticCurveTo(cx-hw,hy-r*0.11,cx,hy-r*0.115);X.quadraticCurveTo(cx+hw,hy-r*0.11,cx+hw,dy+r*0.05);X.closePath();X.fill();
+  const cx=W/2-((YT.on||MEDIA.on)?r*0.2:0),hy=dy-r*0.055,hw=r*0.36;X.fillStyle='#101114';X.beginPath();X.moveTo(cx-hw,dy+r*0.05);X.quadraticCurveTo(cx-hw,hy-r*0.11,cx,hy-r*0.115);X.quadraticCurveTo(cx+hw,hy-r*0.11,cx+hw,dy+r*0.05);X.closePath();X.fill();
   const gauge=(x,y,R,f,lbl,val,hot)=>{X.fillStyle='#050608';X.beginPath();X.arc(x,y,R,0,7);X.fill();X.strokeStyle='#3a3e46';X.lineWidth=2*sc;X.stroke();
     for(let i=0;i<=10;i++){const a=Math.PI*0.75+i/10*Math.PI*1.5;X.strokeStyle=hot&&i>=8?'#f33':'#ccd';X.lineWidth=(i%2?1:2)*sc;X.beginPath();X.moveTo(x+Math.cos(a)*R*0.78,y+Math.sin(a)*R*0.78);X.lineTo(x+Math.cos(a)*R*0.92,y+Math.sin(a)*R*0.92);X.stroke()}
     const a=Math.PI*0.75+clamp(f,0,1)*Math.PI*1.5;X.strokeStyle='#ff5a1f';X.lineWidth=2.5*sc;X.beginPath();X.moveTo(x,y);X.lineTo(x+Math.cos(a)*R*0.85,y+Math.sin(a)*R*0.85);X.stroke();
@@ -1384,7 +1384,7 @@ const MEDIA=(()=>{let el=null,url=null,name='',isVid=false,on=false,has=false,ba
     const sg=X.createLinearGradient(x,y,x+w*0.6,y+h);sg.addColorStop(0,'rgba(255,255,255,.12)');sg.addColorStop(0.5,'rgba(255,255,255,0)');X.fillStyle=sg;X.fillRect(x,y,w,h);X.restore()}
   function draw(X,sc){if(!on||!el||state==='menu')return;const r=Math.min(W,H),rr=(a,b,w,h,k)=>{X.beginPath();X.roundRect?X.roundRect(a,b,w,h,k):X.rect(a,b,w,h)};
     if(VIEW&&player&&!bodyOf(player).bike){// a small tablet standing on the dashboard, to the right of the wheel
-      const w=r*0.42,h=w*9/16,dy=H*(bodyOf(player).trailer?0.7:0.74),x=W/2+r*0.24,y=dy-h-r*0.035;
+      const w=W*0.24,h=w*0.42,dy=H*(bodyOf(player).trailer?0.7:0.74),x=W*0.548,y=dy-h-H*0.005;
       X.save();X.fillStyle='#111317';X.beginPath();X.moveTo(x+w*0.42,y+h);X.lineTo(x+w*0.58,y+h);X.lineTo(x+w*0.62,dy+H*0.02);X.lineTo(x+w*0.38,dy+H*0.02);X.closePath();X.fill();
       X.shadowColor='rgba(0,0,0,.6)';X.shadowBlur=10*sc;X.fillStyle='#0a0b0d';rr(x-5*sc,y-5*sc,w+10*sc,h+10*sc,8*sc);X.fill();X.shadowBlur=0;X.strokeStyle='rgba(255,255,255,.18)';X.lineWidth=1.2*sc;rr(x-5*sc,y-5*sc,w+10*sc,h+10*sc,8*sc);X.stroke();X.restore();
       face(X,x,y,w,h,sc)}
