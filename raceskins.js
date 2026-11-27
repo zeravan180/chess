@@ -73,7 +73,8 @@ var STRIPES={
  st_black:{price:150,name:L4("دوو خەتێن ڕەش","دوو هێڵی ڕەش","خطان أسودان","Black stripes"),col:[0.01,0.01,0.012]},
  st_red:{price:150,name:L4("دوو خەتێن سۆر","دوو هێڵی سوور","خطان أحمران","Red stripes"),col:[0.5,0.01,0.02]},
  st_gold:{price:250,name:L4("دوو خەتێن زێڕ","دوو هێڵی زێڕ","خطان ذهبيان","Gold stripes"),col:[0.7,0.45,0.06]},
- st_kurd:{price:300,rare:1,kurd:1,name:L4("ئالایێ کوردستانێ ☀️","ئاڵای کوردستان ☀️","علم كردستان ☀️","Kurdistan flag ☀️"),col:[0.8,0.02,0.02]}};
+ st_kurd:{price:300,rare:1,kurd:1,name:L4("ئالایێ کوردستانێ ☀️","ئاڵای کوردستان ☀️","علم كردستان ☀️","Kurdistan flag ☀️"),col:[0.8,0.02,0.02]},
+ st_kurdw:{price:600,rare:1,kurdw:1,name:L4("بەرگێ ئالایێ کوردستانێ ☀️","بەرگی ئاڵای کوردستان ☀️","تغليف علم كردستان ☀️","Kurdistan flag wrap ☀️"),col:[0.8,0.02,0.02]}};
 // ---------- the kind of car ----------
 var BODIES={
  bd_sedan:{price:0,name:L4("سێدان","سێدان","سيدان","Sedan"),acc:1,vmax:1,mass:1},
@@ -82,6 +83,7 @@ var BODIES={
  bd_muscle:{price:400,name:L4("ماسڵ کار 💪","ماسڵ کار 💪","سيارة عضلية 💪","Muscle car 💪"),acc:1.05,vmax:1.04,mass:1.1},
  bd_offroad:{price:500,name:L4("پیکاپا چۆلێ 🏜️","پیکاپی چۆڵ 🏜️","بيك آب الصحراء 🏜️","Desert pickup 🏜️"),acc:1.02,vmax:1.0,mass:1.6},
  bd_bike:{price:2500,rare:1,name:L4("ماتۆرا خێرا 🏍️","ماتۆڕی خێرا 🏍️","دراجة نارية سريعة 🏍️","Superbike 🏍️"),acc:1.2,vmax:1,mass:0.35},
+ bd_suv:{price:600,name:L4("SUV یا مەزن 🚙","SUVی گەورە 🚙","SUV كبيرة 🚙","Big SUV 🚙"),acc:1.0,vmax:1.0,mass:1.5},
  bd_pickup:{price:250,name:L4("پیکاپ","پیکاپ","بيك آب","Pickup"),acc:0.97,vmax:0.97,mass:1.4},
  bd_truck:{price:600,rare:1,name:L4("تریلە 🚛","تریلە 🚛","تريلة 🚛","Semi truck 🚛"),acc:0.85,vmax:0.92,mass:3}};
 var DEF={body:"bd_sedan",paint:"pt_white",engine:"en_i4",light:"li_white",rim:"rm_silver",wing:"wg_none",glow:"gl_none",stripe:"st_none"};
@@ -203,19 +205,22 @@ function draw2D(x,w,h,sk,hl,cname,photo){var cnm=cname||(sk&&sk.cname)||"";sk=lo
   if(B==="bd_pickup"||B==="bd_offroad"){x.moveTo(22,86);x.quadraticCurveTo(14,66,24,52);x.lineTo(132,50);x.lineTo(140,20);x.lineTo(196,20);x.quadraticCurveTo(214,24,232,46);x.lineTo(272,52);x.quadraticCurveTo(290,58,284,84);x.lineTo(276,92);x.lineTo(30,92)}
   else if(B==="bd_coupe"){x.moveTo(22,86);x.quadraticCurveTo(14,72,26,62);x.lineTo(70,58);x.quadraticCurveTo(110,34,150,32);x.lineTo(180,32);x.quadraticCurveTo(212,36,236,54);x.lineTo(272,60);x.quadraticCurveTo(290,64,284,86);x.lineTo(276,92);x.lineTo(30,92)}
   else if(B==="bd_muscle"){x.moveTo(20,88);x.lineTo(18,58);x.lineTo(80,54);x.quadraticCurveTo(112,36,146,35);x.lineTo(176,35);x.quadraticCurveTo(206,38,226,52);x.lineTo(276,58);x.quadraticCurveTo(290,62,286,88);x.lineTo(278,92);x.lineTo(28,92)}
+  else if(B==="bd_suv"){x.moveTo(22,86);x.quadraticCurveTo(14,62,22,46);x.lineTo(28,16);x.quadraticCurveTo(32,10,46,10);x.lineTo(186,10);x.quadraticCurveTo(210,14,228,42);x.lineTo(274,48);x.quadraticCurveTo(292,54,286,84);x.lineTo(278,92);x.lineTo(30,92)}
   else if(B==="bd_wagon"){x.moveTo(22,86);x.quadraticCurveTo(14,66,22,52);x.lineTo(30,26);x.quadraticCurveTo(34,22,46,22);x.lineTo(190,22);x.quadraticCurveTo(214,26,232,48);x.lineTo(270,54);x.quadraticCurveTo(288,58,284,84);x.lineTo(276,92);x.lineTo(30,92)}
   else{x.moveTo(22,86);x.quadraticCurveTo(14,70,26,60);x.lineTo(70,52);x.quadraticCurveTo(100,26,140,24);x.lineTo(190,24);x.quadraticCurveTo(214,26,232,48);x.lineTo(270,54);x.quadraticCurveTo(288,58,284,84);x.lineTo(276,92);x.lineTo(30,92)}
   x.closePath();x.fillStyle=bg;x.fill();
+  if(S.kurdw&&B!=="bd_truck"){x.save();x.clip();x.fillStyle="#a00306";x.fillRect(0,0,320,50);x.fillStyle="#f2f2f2";x.fillRect(0,50,320,19);x.fillStyle="#05661b";x.fillRect(0,69,320,40);x.fillStyle="#ffc400";x.beginPath();x.arc(160,59.5,5.5,0,7);x.fill();x.restore()}
   x.strokeStyle="rgba(0,0,0,.35)";x.lineWidth=1.2;x.stroke();
   // windows
   x.beginPath();
   if(B==="bd_pickup"||B==="bd_offroad"){x.moveTo(146,26);x.lineTo(192,26);x.quadraticCurveTo(206,30,220,46);x.lineTo(146,48);x.closePath();x.fillStyle="#2a2a2e";x.fillRect(26,48,104,5)}
   else if(B==="bd_coupe"){x.moveTo(96,56);x.quadraticCurveTo(118,38,150,37);x.lineTo(178,37);x.quadraticCurveTo(204,40,222,54);x.closePath()}
   else if(B==="bd_muscle"){x.moveTo(100,54);x.quadraticCurveTo(120,40,148,40);x.lineTo(174,40);x.quadraticCurveTo(200,42,216,53);x.closePath()}
+  else if(B==="bd_suv"){x.moveTo(34,42);x.lineTo(38,16);x.lineTo(96,16);x.lineTo(96,44);x.closePath();x.moveTo(102,16);x.lineTo(156,16);x.lineTo(156,46);x.lineTo(102,45);x.closePath();x.moveTo(162,16);x.lineTo(184,16);x.quadraticCurveTo(204,20,220,44);x.lineTo(162,46);x.closePath()}
   else if(B==="bd_wagon"){x.moveTo(36,48);x.lineTo(40,28);x.lineTo(96,28);x.lineTo(96,50);x.closePath();x.moveTo(102,28);x.lineTo(156,28);x.lineTo(156,52);x.lineTo(102,51);x.closePath();x.moveTo(162,28);x.lineTo(188,28);x.quadraticCurveTo(206,32,222,50);x.lineTo(162,52);x.closePath()}
   else{x.moveTo(84,52);x.quadraticCurveTo(108,32,140,30);x.lineTo(156,30);x.lineTo(156,52);x.closePath();x.moveTo(162,30);x.lineTo(188,30);x.quadraticCurveTo(206,32,222,50);x.lineTo(162,52);x.closePath()}
   var wg=x.createLinearGradient(0,30,0,52);wg.addColorStop(0,"#9fb4c8");wg.addColorStop(1,"#1a2430");x.fillStyle=wg;x.fill();
-  if(S.col&&B!=='bd_truck'){var sc=css(S.col);x.fillStyle=sc;if(S.kurd){x.fillStyle=css([0.8,0.02,0.02]);x.fillRect(24,63,258,4);x.fillStyle="#fff";x.fillRect(24,67,258,4);x.fillStyle=css([0.02,0.4,0.1]);x.fillRect(24,71,258,4);x.fillStyle="#ffd400";x.beginPath();x.arc(150,69,4,0,7);x.fill()}
+  if(S.col&&!S.kurdw&&B!=='bd_truck'){var sc=css(S.col);x.fillStyle=sc;if(S.kurd){x.fillStyle=css([0.8,0.02,0.02]);x.fillRect(24,63,258,4);x.fillStyle="#fff";x.fillRect(24,67,258,4);x.fillStyle=css([0.02,0.4,0.1]);x.fillRect(24,71,258,4);x.fillStyle="#ffd400";x.beginPath();x.arc(150,69,4,0,7);x.fill()}
     else if(S.st===2)x.fillRect(24,62,258,13);else if(S.st===3)x.fillRect(24,78,258,4);else{x.fillRect(24,64,258,4);x.fillRect(24,70,258,4)}}
   if(CU&&CU.k&&B!=='bd_truck')drawSticker(x,CU.k,128,cnm?66:72,cnm?20:26,photo);
   if(cnm&&B!=='bd_truck'){x.save();x.font="900 13px system-ui,sans-serif";x.textAlign="center";x.textBaseline="middle";x.lineWidth=3;x.strokeStyle="rgba(0,0,0,.55)";x.fillStyle="#fff";x.strokeText(cnm,128,82);x.fillText(cnm,128,82);x.restore()}
