@@ -27,6 +27,7 @@ h1{margin:6px 0 0;text-align:center;font-size:30px;color:var(--gold)}
 #hero{width:100%;height:auto;border-radius:18px;border:1px solid var(--line);display:block}
 .play{background:linear-gradient(#ffd96a,#f0a91c);color:#3a2300;font-weight:900;font-size:22px;padding:16px;box-shadow:0 6px 0 #a86c08,0 10px 18px rgba(0,0,0,.4)}
 .play:active{transform:translateY(3px);box-shadow:0 3px 0 #a86c08}
+.play.bot{background:linear-gradient(#64748b,#334155);color:#fff;font-size:18px;padding:12px;box-shadow:0 5px 0 #1e293b,0 8px 14px rgba(0,0,0,.35)}
 .card{background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:16px;padding:12px}
 .card h2{margin:0 0 8px;font-size:17px;display:flex;align-items:center;gap:8px}
 .card h2 a{margin-inline-start:auto;font-size:13px;color:var(--gold)}
@@ -60,7 +61,8 @@ body.playing #cv{display:block}body.playing #lobby{display:none}
   <h1>🐍 AG Mar</h1>
   <p class="sub">خوارنێ بخۆ، مەزن ببە، و ئاگەهداربە سەرێ تە ب مارەکێ دی نەکەڤیت!</p>
   <canvas id="hero" width="600" height="230"></canvas>
-  <button class="play" id="playBtn" type="button">▶ یاری بکە</button>
+  <button class="play" id="playBtn" type="button">🌍 یاری بکە · ئۆنلاین</button>
+  <button class="play bot" id="botBtn" type="button">🤖 دگەل ڕۆبۆتان</button>
   <div class="stats"><div><b id="stBest">0</b>باشترین درێژی</div><div><b id="stKills">0</b>باشترین کوشتن</div><div><b id="stGames">0</b>یاری</div></div>
   <div class="card"><h2>🎨 سکینا مارێ تە <a href="./#pack_worm">🛒 دکان</a></h2><div class="skins" id="skins"></div></div>
   <div class="card"><h2>❓ چاوا یاری دکەی</h2>
@@ -167,19 +169,20 @@ function newSnake(name,skin,bot,len){const a=Math.random()*7,d=rnd(0,R*.75),x=Ma
 function addFood(x,y,v,r,c){food.push({x,y,v:v||1,r:r||rnd(3.5,7),c:c||FOODC[(Math.random()*FOODC.length)|0],ph:Math.random()*7})}
 function seedFood(){while(food.length<900){const a=Math.random()*7,d=Math.sqrt(Math.random())*R*.97;addFood(Math.cos(a)*d,Math.sin(a)*d)}}
 function start(){gameId="bot-mar"+Math.random().toString(36).slice(2,8);snakes=[];food=[];overInfo=null;bestNow=0;
+  if(ONLINE){NET.start();ls("mar.games",Number(ls("mar.games")||0)+1);return}
   const keys=Object.keys(SK()).filter(k=>SK()[k].kind!=="photo"&&SK()[k].kind!=="custom");
   player=newSnake(myName(),curSkin(),false,12);snakes.push(player);
   const used=new Set();for(let i=0;i<14;i++){let n;do{n=NAMES[(Math.random()*NAMES.length)|0]}while(used.has(n));used.add(n);snakes.push(farSnake(n,keys[(Math.random()*keys.length)|0],rnd(10,260)))}
   seedFood();ls("mar.games",Number(ls("mar.games")||0)+1)}
 function farSnake(n,sk,len){let b,k=0;do{b=newSnake(n,sk,true,len)}while(k++<30&&player&&player.alive&&b.pts.some(q=>Math.hypot(q[0]-player.pts[0][0],q[1]-player.pts[0][1])<700));return b}
-function die(s,by){if(!s.alive)return;s.alive=false;
+function die(s,by){if(!s.alive)return;s.alive=false;if(ONLINE&&s.remote)return;if(ONLINE)NET.died(s,by);
   const step=Math.max(1,Math.floor(s.pts.length/60)),val=Math.max(1,s.len/(s.pts.length/step)*.8);
   for(let i=0;i<s.pts.length;i+=step){const p=s.pts[i];addFood(p[0]+rnd(-8,8),p[1]+rnd(-8,8),val,Math.min(14,5+val*.5),wormColorOf(s,i))}
-  if(by&&by!==s)by.kills++;
+  if(by&&by!==s&&!by.remote)by.kills++;
   if(by===player&&s!==player){if(s.len>=200||s.len>=player.len*.8)SFX.killBig();else SFX.killSmall()}
   if(s===player)SFX.die();
-  if(s===player){finish()}else setTimeout(()=>{const i=snakes.indexOf(s);if(i>=0&&running){const n=farSnake(s.name,s.skin,rnd(10,120));snakes[i]=n}},2500)}
-function wormColorOf(s,i){const sk=SK()[s.skin];if(sk&&sk.kind==="photo")return sk.c[i%2];return wormColor(sk,i)}
+  if(s===player){finish()}else setTimeout(()=>{const i=snakes.indexOf(s);if(i>=0&&running&&(!ONLINE||NET.host)){const n=farSnake(s.name,s.skin,rnd(10,120));if(ONLINE)n.bid="b"+Math.random().toString(36).slice(2,8);snakes[i]=n}},2500)}
+function wormColorOf(s,i){const sk=s.skObj||SK()[s.skin];if(sk&&sk.kind==="photo")return sk.c[i%2];return wormColor(sk,i)}
 function finish(){const len=Math.floor(player.len);const best=Number(ls("mar.best")||0);if(len>best)ls("mar.best",len);if(player.kills>Number(ls("mar.kills")||0))ls("mar.kills",player.kills);
   const xp=Math.max(2,Math.min(20,2+Math.floor(len/120)+player.kills*2));overInfo={len,kills:player.kills,best:Math.max(best,len),xp,rank:rankOf(player),t:performance.now()};awardXp(xp)}
 async function awardXp(amt){if(!me)return;
@@ -209,9 +212,9 @@ function move(s,dt){const r=radiusOf(s.len);let sp=SP;
   if(Math.hypot(h[0],h[1])>R)die(s,null)}
 function eat(s){const h=s.pts[0],r=radiusOf(s.len)+4;
   for(let i=food.length-1;i>=0;i--){const f=food[i],dx=f.x-h[0],dy=f.y-h[1];
-    if(dx*dx+dy*dy<(r+f.r)*(r+f.r)){s.len+=f.v;food.splice(i,1);if(s===player)SFX.eat(f.v>2.5)}
+    if(dx*dx+dy*dy<(r+f.r)*(r+f.r)){if(f.slot!=null){NET.eatSlot(f);s.len+=f.v;if(s===player)SFX.eat(false);continue}s.len+=f.v;food.splice(i,1);if(s===player)SFX.eat(f.v>2.5)}
     else if(s===player&&dx*dx+dy*dy<(r*4)*(r*4)){f.x-=dx*.08;f.y-=dy*.08}}}
-function collide(){for(const s of snakes){if(!s.alive)continue;const h=s.pts[0],r=radiusOf(s.len);
+function collide(){for(const s of snakes){if(!s.alive||s.remote)continue;const h=s.pts[0],r=radiusOf(s.len);
   for(const o of snakes){if(o===s||!o.alive)continue;const orr=radiusOf(o.len);
     // quick skip when far away
     const t=o.pts[(o.pts.length/2)|0],far=o.pts.length*orr*.5+300;if(Math.abs(t[0]-h[0])>far||Math.abs(t[1]-h[1])>far)continue;
@@ -220,10 +223,11 @@ function collide(){for(const s of snakes){if(!s.alive)continue;const h=s.pts[0],
 function tick(t){if(!running)return;const dt=Math.min(.05,(t-(last||t))/1000);last=t;
   if(editing){draw(t);requestAnimationFrame(tick);return}
   if(player.alive){if(joy){if(Math.hypot(joy.dx,joy.dy)>4)player.tgt=Math.atan2(joy.dy,joy.dx)}else if(pointer){player.tgt=Math.atan2(pointer.y-LH/2,pointer.x-LW/2)}player.boost=boosting}
-  for(const s of snakes)if(s.alive){steer(s,dt);move(s,dt)}
-  for(const s of snakes)if(s.alive)eat(s);
+  for(const s of snakes)if(s.alive){if(s.remote)NET.moveRemote(s,dt);else{steer(s,dt);move(s,dt)}}
+  for(const s of snakes)if(s.alive){if(s.remote)NET.ghostEat(s);else eat(s)}
   collide();
-  if(food.length<900)for(let k=0;k<4;k++){const a=Math.random()*7,d=Math.sqrt(Math.random())*R*.97;addFood(Math.cos(a)*d,Math.sin(a)*d)}
+  if(ONLINE)NET.tick(dt,t);
+  else if(food.length<900)for(let k=0;k<4;k++){const a=Math.random()*7,d=Math.sqrt(Math.random())*R*.97;addFood(Math.cos(a)*d,Math.sin(a)*d)}
   if(player.alive){const h=player.pts[0];cam.x+=(h[0]-cam.x)*.2;cam.y+=(h[1]-cam.y)*.2;const zt=Math.max(.55,Math.min(1,1.08-radiusOf(player.len)/70));cam.z+=(zt-cam.z)*.05;bestNow=Math.max(bestNow,player.len)}
   draw(t);requestAnimationFrame(tick)}
 
@@ -278,7 +282,7 @@ function draw(t){const x=cx;x.setTransform(1,0,0,1,0,0);
   x.strokeStyle="rgba(255,80,80,.55)";x.lineWidth=14;x.beginPath();x.arc(0,0,R,0,7);x.stroke();
   const vw=LW/2/cam.z+60,vh=LH/2/cam.z+60,vis=(px,py)=>Math.abs(px-cam.x)<vw&&Math.abs(py-cam.y)<vh;
   for(const f of food){if(!vis(f.x,f.y))continue;const pr=f.r*(1+Math.sin(t/300+f.ph)*.12);x.globalAlpha=.25;x.fillStyle=f.c;x.beginPath();x.arc(f.x,f.y,pr*2,0,7);x.fill();x.globalAlpha=1;x.beginPath();x.arc(f.x,f.y,pr,0,7);x.fill();x.fillStyle="rgba(255,255,255,.7)";x.beginPath();x.arc(f.x-pr*.3,f.y-pr*.3,pr*.35,0,7);x.fill()}
-  for(const s of snakes){if(!s.alive)continue;const r=radiusOf(s.len),sk=SK()[s.skin]||{};
+  for(const s of snakes){if(!s.alive)continue;const r=radiusOf(s.len),sk=s.skObj||SK()[s.skin]||{};
     if(!s.pts.some(p=>vis(p[0],p[1])))continue;
     if(s.boost){x.shadowColor="#fff";x.shadowBlur=14}drawWormPts(x,s.pts,r,sk,0,s===player?photoSprite:null);x.shadowBlur=0;
     x.font="bold 15px system-ui";x.textAlign="center";x.fillStyle="rgba(255,255,255,.85)";x.fillText(s===player?"تو":s.name,s.pts[0][0],s.pts[0][1]-r-14)}
@@ -293,6 +297,7 @@ function hud(t){const x=cx,s=Math.min(LW,LH),B=btns();
   if(player.alive&&top.indexOf(player)<0){}
   // length and kills
   if(player.alive){const tw=Math.min(300,LW*.34);panel(x,LW/2-tw/2,8,tw,s*.1);x.font="bold "+Math.round(s*.05)+"px system-ui";x.fillStyle="#fff";x.textAlign="center";x.fillText("📏 "+Math.floor(player.len).toLocaleString("en")+"   💀 "+player.kills+"   #"+rankOf(player),LW/2,8+s*.068)}
+  if(ONLINE){const tw2=Math.min(220,LW*.24);panel(x,LW/2-tw2/2,8+s*.11,tw2,s*.07);x.font="bold "+Math.round(s*.036)+"px system-ui";x.textAlign="center";x.fillStyle=NET.ok?"#86efac":"#fca5a5";x.fillText(NET.ok?"🌍 ئۆنلاین · 👥 "+NET.humans():"⏳ پەیوەندی…",LW/2,8+s*.11+s*.05)}
   // minimap
   const mr=s*.12,mx=LW-mr-14,my=mr+14;x.fillStyle="rgba(0,0,0,.4)";x.beginPath();x.arc(mx,my,mr,0,7);x.fill();x.strokeStyle="rgba(255,215,120,.45)";x.stroke();
   for(const q of snakes){if(!q.alive)continue;const h=q.pts[0];x.fillStyle=q===player?"#fde68a":"rgba(255,255,255,.55)";x.beginPath();x.arc(mx+h[0]/R*mr,my+h[1]/R*mr,q===player?4:2.2,0,7);x.fill()}
@@ -334,6 +339,98 @@ function editDown(p,id){const B=btns();
   if(inBtn(p,B.jm))return sz("joy",-.1);if(inBtn(p,B.jp))return sz("joy",.1);if(inBtn(p,B.bm))return sz("boost",-.1);if(inBtn(p,B.bp))return sz("boost",.1);
   for(const k of ["boost","joy"]){const c=B[k];if(Math.hypot(p.x-c.x,p.y-c.y)<c.r*1.2){dragK={k,ox:p.x-c.x,oy:p.y-c.y};touches.set(id,"drag");return}}}
 
+
+// ---------- online: shared rooms of up to 8 players (+ robots run by the room's host) ----------
+// Every phone moves its own worm and sends where its head is 5 times a second. The other phones draw
+// that worm by following the head. Food is the same for everyone: slot i of the room's food is put by
+// a hash of (room seed, i, how many times it was eaten), so only "slot i was eaten" goes over the net.
+// The player who joined first is the host and moves the robots for everybody.
+let ONLINE=false;
+const NET=(()=>{const MAXP=8,ROOMS=20,SLOTS=700,PH=200,BH=250;
+  let rid=null,ref=null,seed=1,gen={},joinT=0,players={},host=false,sendT=0,botT=0,ok=false,hostSince=0,offs=[],remote=new Map(),botIds=0,dropIds=[];
+  const hsh=(a,b,c)=>{let h=(a^0x9e3779b9)+b*374761393+c*668265263;h=Math.imul(h^(h>>>13),1274126177);h^=h>>>16;return(h>>>0)/4294967296};
+  function slotFood(i){const g=gen[i]|0,a=hsh(seed,i,g*3+1)*Math.PI*2,d=Math.sqrt(hsh(seed,i,g*3+2))*R*.97,k=hsh(seed,i,g*3+3);
+    return{x:Math.cos(a)*d,y:Math.sin(a)*d,v:1,r:3.5+k*3.5,c:FOODC[(k*FOODC.length)|0],ph:k*7,slot:i}}
+  function rebuildFood(){food=food.filter(f=>f.slot==null);for(let i=0;i<SLOTS;i++)food.push(slotFood(i))}
+  function setSlot(i,g){if((gen[i]|0)>=g)return;gen[i]=g;const j=food.findIndex(f=>f.slot===i);const nf=slotFood(i);if(j>=0)food[j]=nf;else food.push(nf)}
+  function skinObj(k,c){const base=SK()[k]||SK().wm_orange||{};if(k!=="wm_custom"||!c)return null;const v=loadCustom(c);return Object.assign({},base,{c:v.c,n:v.n,eye:v.eye})}
+  function cleanName(n){return String(n||"یاریکەر").replace(/[0-9٠-٩۰-۹]{4,}/g,"…").slice(0,18)}
+  // a worm drawn from the network
+  function mkRemote(key,d,isBot){const s=newSnake(cleanName(d.n),SK()[d.s]?d.s:"wm_orange",false,Math.max(10,d.l|0));s.remote=true;s.key=key;s.isBot=isBot;
+    s.skObj=skinObj(d.s,d.c);s.tx=d.x;s.ty=d.y;s.ta=d.a;s.tl=d.l;s.boost=!!d.b;s.kills=d.k|0;s.rt=performance.now();
+    const r=radiusOf(s.len);s.ang=d.a;s.pts=s.pts.map((q,i)=>[d.x-Math.cos(d.a)*i*r*.48,d.y-Math.sin(d.a)*i*r*.48]);return s}
+  function upRemote(key,d,isBot){if(!running)return;let s=remote.get(key);
+    if(!s||!s.alive){if(s){const i=snakes.indexOf(s);if(i>=0)snakes.splice(i,1)}s=mkRemote(key,d,isBot);remote.set(key,s);snakes.push(s);return}
+    s.tx=d.x;s.ty=d.y;s.ta=d.a;s.tl=d.l;s.boost=!!d.b;s.kills=d.k|0;s.rt=performance.now();
+    if(s.skin!==d.s&&SK()[d.s]){s.skin=d.s;s.skObj=skinObj(d.s,d.c)}}
+  function rmRemote(key){const s=remote.get(key);if(!s)return;remote.delete(key);s.alive=false;const i=snakes.indexOf(s);if(i>=0)snakes.splice(i,1)}
+  function moveRemote(s,dt){const sp=s.boost?BOOST:SP;let d=s.ta-s.ang;d=Math.atan2(Math.sin(d),Math.cos(d));s.ang+=d*Math.min(1,dt*10);
+    const h=s.pts[0],lag=Math.min(.6,(performance.now()-s.rt)/1000),px=s.tx+Math.cos(s.ta)*sp*lag,py=s.ty+Math.sin(s.ta)*sp*lag;
+    h[0]+=Math.cos(s.ang)*sp*dt;h[1]+=Math.sin(s.ang)*sp*dt;const ex=px-h[0],ey=py-h[1];
+    if(ex*ex+ey*ey>400*400){h[0]=px;h[1]=py}else{h[0]+=ex*Math.min(1,dt*6);h[1]+=ey*Math.min(1,dt*6)}
+    s.len+=(s.tl-s.len)*Math.min(1,dt*4);
+    const r=radiusOf(s.len),want=segCount(s.len),gap=r*.48;while(s.pts.length<want){const t=s.pts[s.pts.length-1];s.pts.push([t[0],t[1]])}if(s.pts.length>want)s.pts.length=want;
+    for(let i=1;i<s.pts.length;i++){const a=s.pts[i-1],b=s.pts[i],dx=b[0]-a[0],dy=b[1]-a[1],dd=Math.hypot(dx,dy)||1;if(dd>gap){b[0]=a[0]+dx/dd*gap;b[1]=a[1]+dy/dd*gap}}
+    if(performance.now()-s.rt>6000)rmRemote(s.key)}
+  // other worms take the loose food they pass over (drops) so it does not stay on my screen
+  function ghostEat(s){const h=s.pts[0],r=radiusOf(s.len)+4;for(let i=food.length-1;i>=0;i--){const f=food[i];if(f.slot!=null)continue;const dx=f.x-h[0],dy=f.y-h[1];if(dx*dx+dy*dy<(r+f.r)*(r+f.r))food.splice(i,1)}}
+  function eatSlot(f){const g=(gen[f.slot]|0)+1;setSlot(f.slot,g);if(ref)ref.child("f/"+f.slot).set(g).catch(()=>{})}
+  function pack(s){const h=s.pts[0];const o={n:cleanName(s.name),s:s.skin,x:Math.round(h[0]),y:Math.round(h[1]),a:Math.round(s.ang*100)/100,l:Math.round(s.len),b:s.boost?1:0,k:s.kills|0};return o}
+  function myPack(){const o=pack(player);o.n=cleanName(myName());if(player.skin==="wm_custom")o.c=JSON.stringify(myCustom);o.j=joinT;o.t=firebase.database.ServerValue.TIMESTAMP;return o}
+  function humans(){return Object.keys(players).length}
+  function pickHost(){let best=null;for(const u in players){const p=players[u];if(!best||(p.j||0)<(players[best].j||0)||((p.j||0)===(players[best].j||0)&&u<best))best=u}
+    const was=host;host=best===me;if(host&&!was)becomeHost();if(!host&&was)dropHost()}
+  function botWant(){return Math.max(3,10-humans())}
+  function becomeHost(){hostSince=performance.now();
+    // take over the robots the old host was moving
+    for(const[k,s]of [...remote]){if(!s.isBot)continue;remote.delete(k);s.remote=false;s.bot=true;s.skObj=null;s.tgt=s.ang;s.think=0;s.turnRate=3.4;s.bid=k}
+    setTimeout(fill,300)}
+  function dropHost(){for(let i=snakes.length-1;i>=0;i--){const s=snakes[i];if(s.bot&&!s.remote)snakes.splice(i,1)}}
+  function fill(){if(!host||!running)return;const bots=snakes.filter(s=>s.bot&&!s.remote&&s.alive);const keys=Object.keys(SK()).filter(k=>SK()[k].kind!=="photo"&&SK()[k].kind!=="custom");
+    const used=new Set(snakes.map(s=>s.name));let need=botWant()-bots.length;
+    while(need-->0){let n,k=0;do{n=NAMES[(Math.random()*NAMES.length)|0]}while(used.has(n)&&k++<40);used.add(n);const b=farSnake(n,keys[(Math.random()*keys.length)|0],rnd(10,180));b.bid="b"+(++botIds)+"_"+Math.random().toString(36).slice(2,5);snakes.push(b)}
+    if(need<-1){const extra=bots.slice(0,-need-1);extra.forEach(b=>{const i=snakes.indexOf(b);if(i>=0)snakes.splice(i,1)})}}
+  function tick(dt,t){if(!ref)return;const now=performance.now();
+    if(player.alive&&now-sendT>PH){sendT=now;ref.child("p/"+me).set(myPack()).then(()=>{ok=true}).catch(()=>{ok=false})}
+    if(host&&now-botT>BH){botT=now;const o={};snakes.forEach(s=>{if(s.bot&&!s.remote&&s.alive&&s.bid)o[s.bid]=pack(s)});ref.child("bt").set(o).catch(()=>{});
+      if(now-(fill.t||0)>3000){fill.t=now;fill()}}
+    // loose food goes away after a while
+    if(Math.random()<.02){const lim=Date.now()-45000;food=food.filter(f=>f.slot!=null||!f.born||f.born>lim)}}
+  function died(s,by){if(!ref)return;
+    const step=Math.max(1,Math.floor(s.pts.length/40)),pts=[];for(let i=0;i<s.pts.length;i+=step)pts.push([Math.round(s.pts[i][0]),Math.round(s.pts[i][1])]);
+    const val=Math.max(1,Math.round(s.len/pts.length*.8*10)/10);const id=ref.child("d").push().key;
+    ref.child("d/"+id).set({u:me,p:JSON.stringify(pts),v:val,c:wormColorOf(s,0),t:Date.now()}).then(()=>{dropIds.push(id);setTimeout(()=>ref&&ref.child("d/"+id).remove().catch(()=>{}),15000)}).catch(()=>{});
+    if(by&&by.remote&&!by.isBot&&by.key){ref.child("k").push({f:me,to:by.key,big:(s.len>=200||(by.len&&s.len>=by.len*.8))?1:0}).catch(()=>{})}
+    if(s===player){ref.child("p/"+me).set({n:cleanName(myName()),s:"wm_orange",x:0,y:0,a:0,l:0,b:0,k:0,dd:1,j:joinT,t:firebase.database.ServerValue.TIMESTAMP}).catch(()=>{})}}
+  function spawnPlayer(){player=newSnake(myName(),curSkin(),false,12);
+    let k=0;const busy=()=>snakes.some(o=>o!==player&&o.alive&&o.pts.some(q=>Math.hypot(q[0]-player.pts[0][0],q[1]-player.pts[0][1])<600));
+    while(k++<30&&busy())player=newSnake(myName(),curSkin(),false,12);snakes.push(player)}
+  function start(){snakes=[];remote.clear();food=[];rebuildFood();spawnPlayer();players[me]={j:joinT};pickHost();listen();sendT=0}
+  function respawn(){const i=snakes.indexOf(player);if(i>=0)snakes.splice(i,1);spawnPlayer();players[me]={j:joinT};pickHost();sendT=0}
+  function listen(){offs.forEach(f=>f());offs=[];const on=(r,ev,fn)=>{r.on(ev,fn);offs.push(()=>r.off(ev,fn))};
+    const P=ref.child("p");
+    const pu=x=>{const u=x.key,d=x.val();if(!d)return;players[u]={j:d.j||0};if(u!==me){if(d.dd)rmRemote(u);else upRemote(u,d,false)}pickHost()};
+    on(P,"child_added",pu);on(P,"child_changed",pu);
+    on(P,"child_removed",x=>{delete players[x.key];rmRemote(x.key);pickHost()});
+    on(ref.child("f"),"child_added",x=>setSlot(+x.key,x.val()|0));on(ref.child("f"),"child_changed",x=>setSlot(+x.key,x.val()|0));
+    on(ref.child("bt"),"value",x=>{if(host)return;const v=x.val()||{};for(const[k,s]of [...remote])if(s.isBot&&!v[k])rmRemote(k);for(const k in v)upRemote(k,v[k],true)});
+    const since=Date.now()-5000;
+    on(ref.child("d"),"child_added",x=>{const d=x.val();if(!d||d.u===me||(d.t&&d.t<since))return;let pts=[];try{pts=JSON.parse(d.p)}catch(e){}
+      pts.slice(0,80).forEach(q=>{addFood(q[0]+rnd(-8,8),q[1]+rnd(-8,8),Math.min(20,+d.v||1),Math.min(14,5+(+d.v||1)*.5),/^#[0-9a-f]{6}$/i.test(d.c)?d.c:undefined);food[food.length-1].born=Date.now()})});
+    on(ref.child("k"),"child_added",x=>{const d=x.val();if(!d||d.to!==me)return;x.ref.remove().catch(()=>{});if(player&&player.alive){player.kills++;if(d.big)SFX.killBig();else SFX.killSmall()}})}
+  async function join(){const root=fdb.ref("wm");
+    for(let i=0;i<ROOMS;i++){const r=root.child("r"+i);const snap=await r.child("p").once("value");const v=snap.val()||{};
+      const live=Object.keys(v).filter(u=>u!==me);if(live.length>=MAXP)continue;
+      rid="r"+i;ref=r;break}
+    if(!ref)return false;
+    let sv=(await ref.child("seed").once("value")).val();if(sv==null){try{const sd=await ref.child("seed").transaction(c=>c==null?((Math.random()*2e9)|0):undefined);sv=sd.snapshot.val()}catch(e){sv=(await ref.child("seed").once("value")).val()}}seed=(sv|0)||1;
+    const fs=await ref.child("f").once("value");gen={};const fv=fs.val()||{};for(const k in fv)gen[+k]=fv[k]|0;
+    joinT=Date.now();players={};host=false;ok=true;
+    ref.child("p/"+me).onDisconnect().remove();return true}
+  function leave(){offs.forEach(f=>f());offs=[];if(ref){ref.child("p/"+me).remove().catch(()=>{});ref.child("p/"+me).onDisconnect().cancel()}
+    ref=null;rid=null;remote.clear();players={};host=false}
+  return{join,start,respawn,leave,tick,died,eatSlot,ghostEat,moveRemote,humans,get host(){return host},get ok(){return ok&&!!ref}}})();
+
 // ---------- input ----------
 const inBtn=(p,b)=>b.w?Math.abs(p.x-b.x)<b.w/2&&Math.abs(p.y-b.y)<b.h/2:Math.hypot(p.x-b.x,p.y-b.y)<b.r*1.15;
 const touches=new Map();
@@ -351,15 +448,21 @@ function onMove(e){const k=touches.get(e.pointerId);
 function onUp(e){const k=touches.get(e.pointerId);touches.delete(e.pointerId);if(k==="drag"){dragK=null;saveLay();return}if(k==="boost")boosting=[...touches.values()].includes("boost");if(k==="joy"){joy=null;pointer=null}}
 function lock(){try{const o=screen.orientation;if(o&&o.lock)o.lock("landscape").catch(()=>{})}catch(e){}}
 function unlock(){try{screen.orientation&&screen.orientation.unlock&&screen.orientation.unlock()}catch(e){}}
-function play(){SFX.unlock();document.body.classList.add("playing");lock();resize();start();running=true;last=0;cam.x=player.pts[0][0];cam.y=player.pts[0][1];requestAnimationFrame(tick)}
-function restart(){editing=false;joy=null;pointer=null;touches.clear();start();cam.x=player.pts[0][0];cam.y=player.pts[0][1]}
-function leave(){running=false;document.body.classList.remove("playing");unlock();stats();hero()}
+async function play(online){SFX.unlock();ONLINE=false;
+  if(online){if(!me||!fdb){toast("بۆ ئۆنلاین، ئێکەم ل پەیجا سەرەکی بچۆ ژوور (Login)");return}
+    $("playBtn").disabled=true;$("playBtn").textContent="⏳ غورف دهێتە دیتن…";
+    try{ONLINE=await NET.join()}catch(e){console.warn(e);ONLINE=false}
+    $("playBtn").disabled=false;$("playBtn").textContent="🌍 یاری بکە · ئۆنلاین";
+    if(!ONLINE){toast("ئۆنلاین نەشیا ڤەبیت. دگەل ڕۆبۆتان یاری بکە");return}}
+  document.body.classList.add("playing");lock();resize();start();running=true;last=0;cam.x=player.pts[0][0];cam.y=player.pts[0][1];requestAnimationFrame(tick)}
+function restart(){editing=false;joy=null;pointer=null;touches.clear();if(ONLINE){NET.respawn();overInfo=null;bestNow=0;gameId="bot-mar"+Math.random().toString(36).slice(2,8);ls("mar.games",Number(ls("mar.games")||0)+1)}else start();cam.x=player.pts[0][0];cam.y=player.pts[0][1]}
+function leave(){if(ONLINE)NET.leave();ONLINE=false;running=false;document.body.classList.remove("playing");unlock();stats();hero()}
 
 // ---------- start ----------
 function boot(){cv=$("cv");cx=cv.getContext("2d");makeGrid();
   addEventListener("resize",()=>{if(running)resize()});addEventListener("devicemotion",onMotion);
   cv.addEventListener("pointerdown",onDown);addEventListener("pointermove",onMove);addEventListener("pointerup",onUp);addEventListener("pointercancel",onUp);
-  applyCustom(myCustom);$("playBtn").onclick=play;stats();renderSkins();hero();
+  applyCustom(myCustom);$("playBtn").onclick=()=>play(true);$("botBtn").onclick=()=>play(false);addEventListener("pagehide",()=>{if(ONLINE)NET.leave()});stats();renderSkins();hero();
   try{firebase.initializeApp(firebaseConfig);fdb=firebase.database();
     firebase.auth().onAuthStateChanged(u=>{user=u;me=u?u.uid:null;if(!u)return;
       fdb.ref("profiles/"+me+"/public").on("value",s=>{prof=s.val()||{};$("meName").textContent=myName();$("meImg").src=myPhoto();loadPhoto()});
